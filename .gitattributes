@@ -1,0 +1,21 @@
+# YaPress Git Attributes
+# Prevents merge conflicts for site-owned content when pulling upstream updates
+
+# Site-owned content - always keep local version (ours) on merge conflicts
+content/** merge=ours
+site.config.ts merge=ours
+public/** merge=ours
+favicon.ico merge=ours
+
+# Generated files - exclude from merge (will be regenerated)
+public/rss.xml merge=theirs
+
+# Framework-owned code - always take upstream version (theirs) on merge conflicts
+src/** merge=theirs
+scripts/** merge=theirs
+*.config.* merge=theirs
+tsconfig.json merge=theirs
+package.json merge=theirs
+
+# Exception: Keep local package.json if you've added custom dependencies
+# Remove the package.json line above if you customize dependencies

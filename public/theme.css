@@ -1,0 +1,20 @@
+/*
+  Site-owned stylesheet.
+  Load it by setting `theme.customCssHref = "/theme.css"` in `site.config.ts`.
+*/
+
+:root {
+  /* Example token overrides */
+  /* --accent: #2563eb; */
+  /* --radius-lg: 2rem; */
+}
+
+/* Example selector overrides */
+/* .brand {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.article h1 {
+  font-size: clamp(3rem, 8vw, 5rem);
+} */
