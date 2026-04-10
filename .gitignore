@@ -43,3 +43,5 @@ Thumbs.db
 public/rss.xml
 public/feeds/
 .cache
+
+content/posts/test-post.md

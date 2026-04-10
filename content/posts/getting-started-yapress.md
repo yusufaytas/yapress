@@ -1,7 +1,7 @@
 ---
 title: Getting Started with YaPress in 10 Minutes
 slug: getting-started-yapress
-date: 2026-04-10
+date: 2026-01-05
 categories:
   - engineering
 tags:
@@ -10,7 +10,7 @@ tags:
 description: A practical, step-by-step guide to setting up your first YaPress site.
 ---
 
-Let's get your YaPress site running in 10 minutes. This is a hands-on tutorial—open your terminal and follow along. Here is an example website [yusufaytas.com](https://yusufaytas.com/).
+Let's get your YaPress site running in 10 minutes. This is a hands-on tutorial—open your terminal and follow along.
 
 ## Prerequisites
 
@@ -30,7 +30,7 @@ node --version  # Should be 18.0.0 or higher
 
 ```bash
 # Clone the repository
-git clone https://github.com/yapress/yapress.git my-blog
+git clone https://github.com/yusufaytascom/yapress.git my-blog
 cd my-blog
 
 # Install dependencies
@@ -79,7 +79,7 @@ Create `content/posts/hello-world.md`:
 ---
 title: Hello World
 slug: hello-world
-date: 2026-04-10
+date: 2026-01-05
 categories:
   - writing
 tags:
@@ -233,10 +233,16 @@ my-blog/
 ├── content/
 │   ├── posts/          # Your blog posts
 │   ├── pages/          # Static pages
-│   └── categories.ts   # Category definitions
+│   ├── categories.ts   # Category definitions
+│   ├── tags.ts         # Tag definitions
+│   └── series.ts       # Series definitions
 ├── public/             # Static assets
 ├── site.config.ts      # Site configuration
-└── app/                # Framework code (don't edit unless customizing)
+├── src/
+│   ├── app/            # Next.js app directory
+│   ├── components/     # React components
+│   └── lib/            # Utility functions
+└── scripts/            # Build and utility scripts
 ```
 
 ## What You've Learned
@@ -249,7 +255,7 @@ my-blog/
 ## Resources
 
 - [Markdown Guide](https://www.markdownguide.org/)
-- [YaPress Documentation](https://github.com/yapress/yapress)
+- [YaPress Repository](https://github.com/yusufaytascom/yapress)
 - [Next.js Docs](https://nextjs.org/docs)
 
 ---

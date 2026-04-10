@@ -1,8 +1,8 @@
 ---
 title: Markdown Tables Guide
 slug: markdown-tables-guide
-date: 2026-04-09
-lastUpdated: 2026-04-09
+date: 2026-03-05
+lastUpdated: 2026-03-05
 categories:
   - documentation
 tags:

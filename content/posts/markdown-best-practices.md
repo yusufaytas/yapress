@@ -1,7 +1,7 @@
 ---
 title: Markdown Best Practices for YaPress
 slug: markdown-best-practices
-date: 2026-02-07
+date: 2025-12-28
 categories:
   - writing
 tags:
@@ -9,7 +9,7 @@ tags:
   - workflow
   - documentation
 series:
-  - launch-notes
+  - best-practices
 description: Practical tips and conventions for writing clean, maintainable markdown content.
 ---
 
@@ -152,19 +152,28 @@ This catches common issues like:
 
 ## MDX Considerations
 
-When using MDX, remember:
+YaPress supports MDX, allowing you to embed React components in your markdown:
 
-- Import components at the top
+- Import components at the top of your file
 - Keep JSX simple and semantic
-- Test that content still renders as plain markdown
+- Ensure content remains readable as plain markdown
+- Test components render correctly in both dev and production
 
 ```mdx
 import { Callout } from '@/components/callout'
 
+## My Section
+
+Regular markdown content here.
+
 <Callout type="info">
   This is an MDX component embedded in markdown.
 </Callout>
+
+More markdown content.
 ```
+
+**Note:** MDX files should use the `.mdx` extension, while regular markdown files use `.md`.
 
 ## Accessibility
 

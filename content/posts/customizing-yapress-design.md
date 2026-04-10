@@ -1,7 +1,7 @@
 ---
 title: Customizing Your YaPress Design
 slug: customizing-yapress-design
-date: 2026-04-05
+date: 2026-03-28
 categories:
   - engineering
 tags:
@@ -79,7 +79,7 @@ npm run dev
 
 ### Change Fonts
 
-Edit `app/layout.tsx`:
+Edit `src/app/layout.tsx`:
 
 ```typescript
 import { Inter, Merriweather } from 'next/font/google'
@@ -95,7 +95,11 @@ const serif = Merriweather({
   variable: '--font-serif',
 })
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ 
+  children 
+}: { 
+  children: React.ReactNode 
+}) {
   return (
     <html lang="en" className={`${sans.variable} ${serif.variable}`}>
       <body className="font-sans">{children}</body>
@@ -106,7 +110,7 @@ export default function RootLayout({ children }) {
 
 ### Font Sizes
 
-Update `app/globals.css`:
+Update `src/app/globals.css`:
 
 ```css
 @layer base {
@@ -136,7 +140,7 @@ Update `app/globals.css`:
 
 ### Change Container Width
 
-Edit `components/site-shell.tsx`:
+Edit `src/components/site-shell.tsx`:
 
 ```typescript
 export function SiteShell({ children }: { children: React.ReactNode }) {
@@ -186,7 +190,7 @@ Want a sidebar? Update the layout:
 
 ### Article Cards
 
-Edit `components/article-card.tsx`:
+Edit `src/components/article-card.tsx`:
 
 ```typescript
 export function ArticleCard({ post }: { post: Post }) {
@@ -230,7 +234,7 @@ export function ArticleCard({ post }: { post: Post }) {
 
 ### Navigation
 
-Edit the header in `components/site-shell.tsx`:
+Edit the header in `src/components/site-shell.tsx`:
 
 ```typescript
 <nav className="flex items-center gap-6">
@@ -257,7 +261,7 @@ Edit the header in `components/site-shell.tsx`:
 
 ## Adding Dark Mode Toggle
 
-Create `components/theme-toggle.tsx`:
+Create `src/components/theme-toggle.tsx`:
 
 ```typescript
 'use client'
@@ -307,7 +311,7 @@ import { ThemeToggle } from '@/components/theme-toggle'
 
 ## Custom CSS for Markdown
 
-Style your markdown content in `app/globals.css`:
+Style your markdown content in `src/app/globals.css`:
 
 ```css
 @layer base {
@@ -349,7 +353,7 @@ Already shown above with `next/font/google`.
 
 ### Using Local Fonts
 
-Place font files in `public/fonts/` and add to `app/globals.css`:
+Place font files in `public/fonts/` and add to `src/app/globals.css`:
 
 ```css
 @font-face {
@@ -414,10 +418,10 @@ Run Lighthouse in Chrome DevTools:
 
 ## Quick Customization Checklist
 
-- [ ] Update colors in `app/globals.css`
-- [ ] Change fonts in `app/layout.tsx`
-- [ ] Customize header in `components/site-shell.tsx`
-- [ ] Style article cards in `components/article-card.tsx`
+- [ ] Update colors in `src/app/globals.css`
+- [ ] Change fonts in `src/app/layout.tsx`
+- [ ] Customize header in `src/components/site-shell.tsx`
+- [ ] Style article cards in `src/components/article-card.tsx`
 - [ ] Add dark mode toggle
 - [ ] Test on mobile, tablet, desktop
 - [ ] Run accessibility audit

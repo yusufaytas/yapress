@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Lora } from "next/font/google";
+import { Inter, Newsreader } from "next/font/google";
 
 import "./globals.css";
 
@@ -16,7 +16,7 @@ const inter = Inter({
   display: "swap",
 });
 
-const lora = Lora({
+const newsreader = Newsreader({
   subsets: ["latin"],
   variable: "--font-serif-base",
   display: "swap",
@@ -48,7 +48,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html
       lang={siteConfig.language}
       data-theme={theme.preset}
-      className={`${inter.variable} ${lora.variable}`}
+      className={`${inter.variable} ${newsreader.variable}`}
       style={buildThemeStyle(siteConfig.theme)}
     >
       <head>

@@ -1,14 +1,13 @@
 ---
 title: Content as Source of Truth
 slug: content-as-source-of-truth
-date: 2026-04-08
+date: 2025-12-20
 categories:
   - writing
 tags:
   - workflow
   - version-control
 series:
-  - launch-notes
   - best-practices
 description: The case for file-based publishing with deterministic builds.
 ---

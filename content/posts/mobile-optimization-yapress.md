@@ -1,7 +1,7 @@
 ---
 title: Mobile Optimization in YaPress
 slug: mobile-optimization-yapress
-date: 2026-04-11
+date: 2026-03-15
 categories:
   - engineering
 tags:

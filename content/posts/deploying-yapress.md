@@ -1,7 +1,7 @@
 ---
 title: Deploying YaPress to Production
 slug: deploying-yapress
-date: 2026-02-06
+date: 2026-04-02
 categories:
   - engineering
 tags:
@@ -139,15 +139,22 @@ jobs:
 
 ### Base Path
 
-If deploying to a subdirectory, update `next.config.ts`:
+If deploying to a subdirectory (e.g., `https://username.github.io/repo-name/`), update `next.config.ts`:
 
 ```typescript
 const nextConfig = {
   basePath: '/your-repo',
   output: 'export',
+  images: {
+    unoptimized: true,
+  },
   // ... other config
 }
+
+export default nextConfig
 ```
+
+**Note:** When using a base path, all internal links and asset references will automatically be prefixed. You don't need to manually add the base path to your links.
 
 ## Cloudflare Pages
 
@@ -184,9 +191,11 @@ server {
     listen 80;
     server_name yourdomain.com;
     root /var/www/html;
+    index index.html;
     
+    # Try files, then directories, then 404
     location / {
-        try_files $uri $uri.html $uri/ =404;
+        try_files $uri $uri.html $uri/ /404.html;
     }
     
     # Cache static assets
@@ -194,6 +203,11 @@ server {
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
+    
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
 }
 ```
 

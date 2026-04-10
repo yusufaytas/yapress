@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ArticleCard } from "@/components/article-card";
+import { ArticleOptions } from "@/components/article-options";
 import { ContentRenderer } from "@/components/content-renderer";
 import { RedirectPage } from "@/components/redirect-page";
 import { SocialShare } from "@/components/social-share";
@@ -110,11 +111,14 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
         {getPluginComponents('beforePost', { post })}
         <article className="article">
           <header className="article-header stack">
-            <div className="article-kicker">
-              Post
-              {post.draft && process.env.NODE_ENV === "development" && (
-                <span className="draft-badge">Draft</span>
-              )}
+            <div className="article-header-top">
+              <div className="article-kicker">
+                Post
+                {post.draft && process.env.NODE_ENV === "development" && (
+                  <span className="draft-badge">Draft</span>
+                )}
+              </div>
+              <ArticleOptions />
             </div>
             <h2 className="article-title">{post.title}</h2>
             <div className="meta">
@@ -161,8 +165,8 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
                 </div>
               ) : null}
             </div>
-            <SocialShare 
-              title={post.title} 
+            <SocialShare
+              title={post.title}
               url={postUrl}
               description={post.description ?? post.excerpt}
             />
@@ -254,7 +258,7 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
-      <article className="prose-wrap stack" lang={page.language}>
+      <article className="prose-wrap stack content-page" lang={page.language}>
         <h1 className="page-title">{page.title}</h1>
         {page.description ? <p className="lede">{page.description}</p> : null}
         <ContentRenderer source={page.content} />

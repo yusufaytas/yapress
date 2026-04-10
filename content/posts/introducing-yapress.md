@@ -1,14 +1,14 @@
 ---
 title: Introducing YaPress
 slug: introducing-yapress
-date: 2026-04-09
+date: 2025-12-15
 categories:
   - engineering
 tags:
   - static-sites
   - markdown
 series:
-  - launch-notes
+  - best-practices
 description: Why YaPress exists and how its framework/site split works.
 ---
 
@@ -147,11 +147,11 @@ The framework reads this and applies it everywhere.
 
 ### Customization
 
-Need custom styling? Edit `app/globals.css`.
+Need custom styling? Edit `src/app/globals.css`.
 
-Need custom components? Edit files in `components/`.
+Need custom components? Edit files in `src/components/`.
 
-Need custom pages? Add routes in `app/`.
+Need custom pages? Add routes in `src/app/`.
 
 The framework provides sensible defaults, but you can override anything.
 
@@ -218,8 +218,12 @@ touch content/posts/hello-world.md
 ---
 title: Hello World
 slug: hello-world
-date: 2026-04-09
+date: 2025-12-15
 description: My first post
+categories:
+  - writing
+tags:
+  - first-post
 ---
 
 This is my first post with YaPress!
@@ -246,7 +250,7 @@ YaPress is open source. We welcome:
 - Documentation improvements
 - Code contributions
 
-Check out the [GitHub repository](https://github.com/yapress/yapress) to get involved.
+Check out the [GitHub repository](https://github.com/yusufaytascom/yapress) to get involved.
 
 ## Conclusion
 

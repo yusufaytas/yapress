@@ -1,7 +1,7 @@
 ---
 title: My Writing Workflow with YaPress
 slug: writing-workflow-yapress
-date: 2026-01-04
+date: 2026-01-10
 categories:
   - writing
 tags:
@@ -278,17 +278,17 @@ I keep a simple calendar in `content/drafts/calendar.md`:
 ```markdown
 # Content Calendar
 
+## March 2026
+
+- [x] 2026-03-05: Writing workflow
+- [ ] 2026-03-12: VS Code tips
+- [ ] 2026-03-19: React performance
+- [ ] 2026-03-26: Next.js optimization
+
 ## April 2026
 
-- [x] 2026-04-04: Writing workflow
-- [ ] 2026-04-11: VS Code tips
-- [ ] 2026-04-18: React performance
-- [ ] 2026-04-25: Next.js optimization
-
-## May 2026
-
-- [ ] 2026-05-02: TypeScript patterns
-- [ ] 2026-05-09: Testing strategies
+- [ ] 2026-04-02: TypeScript patterns
+- [ ] 2026-04-09: Testing strategies
 ```
 
 This keeps me consistent.
@@ -324,18 +324,22 @@ What would have helped you 6 months ago?
 
 ### Pre-commit Hook
 
-I use a Git hook to validate content:
+I use a Git hook to validate content before committing:
 
 ```bash
 # .git/hooks/pre-commit
 #!/bin/bash
 
+echo "Validating content..."
 node scripts/validate-content.mjs
 
 if [ $? -ne 0 ]; then
-  echo "Content validation failed. Fix errors before committing."
+  echo "❌ Content validation failed. Fix errors before committing."
   exit 1
 fi
+
+echo "✅ Content validation passed"
+exit 0
 ```
 
 Make it executable:
@@ -343,6 +347,8 @@ Make it executable:
 ```bash
 chmod +x .git/hooks/pre-commit
 ```
+
+**Note:** This hook runs automatically before every commit. To skip it temporarily (not recommended), use `git commit --no-verify`.
 
 ### RSS Generation
 
@@ -359,7 +365,7 @@ I keep a simple log in `content/drafts/metrics.md`:
 ```markdown
 # Metrics
 
-## April 2026
+## March 2026
 
 - Posts published: 4
 - Total words: 8,500

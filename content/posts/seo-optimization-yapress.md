@@ -1,7 +1,7 @@
 ---
 title: SEO Optimization for YaPress Sites
 slug: seo-optimization-yapress
-date: 2026-02-03
+date: 2026-01-20
 categories:
   - engineering
 tags:
@@ -21,7 +21,7 @@ Every post needs good metadata. Here's what matters:
 ---
 title: How to Build Fast Web Apps
 slug: build-fast-web-apps
-date: 2026-04-03
+date: 2026-01-20
 description: Learn practical techniques to improve web app performance with code examples and benchmarks.
 categories:
   - engineering
@@ -326,22 +326,41 @@ Set up GA4 to track:
 - Traffic sources
 - Conversions
 
-Add to `app/layout.tsx`:
+Add to `src/app/layout.tsx`:
 
 ```typescript
-<Script
-  src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-  strategy="afterInteractive"
-/>
-<Script id="google-analytics" strategy="afterInteractive">
-  {`
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', '${GA_ID}');
-  `}
-</Script>
+import Script from 'next/script'
+
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_ID}');
+              `}
+            </Script>
+          </>
+        )}
+      </body>
+    </html>
+  )
+}
 ```
+
+Set `NEXT_PUBLIC_GA_ID` in your `.env.local` file.
 
 ## SEO Checklist
 
@@ -395,15 +414,15 @@ Group related posts:
 
 Link them together.
 
-### Update Old Content
+### Update the date
 
 Refresh old posts with new information. Update the date:
 
 ```markdown
 ---
 title: Getting Started with YaPress
-date: 2026-04-10
-updated: 2026-06-15
+date: 2026-01-05
+lastUpdated: 2026-03-15
 ---
 ```
 

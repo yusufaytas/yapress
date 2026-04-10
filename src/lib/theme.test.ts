@@ -8,7 +8,7 @@ describe("theme", () => {
 
     expect(theme.preset).toBe("dark");
     expect(theme.tokens.bg).toBe("#0b0d10");
-    expect(theme.tokens.h4Size).toBe("clamp(1.1rem, 2vw, 1.25rem)");
+    expect(theme.tokens.h4Size).toBe("clamp(1.2rem, 2.2vw, 1.4rem)");
     expect(theme.typography.sans).toContain("var(--font-sans-base)");
   });
 

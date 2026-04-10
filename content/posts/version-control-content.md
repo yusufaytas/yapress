@@ -1,7 +1,7 @@
 ---
 title: Version Control for Content Writers
 slug: version-control-content
-date: 2026-04-02
+date: 2026-01-15
 categories:
   - writing
 tags:
@@ -199,10 +199,16 @@ git checkout .
 ### Undo Last Commit (Keep Changes)
 
 ```bash
+# Undo commit but keep changes staged
+git reset --soft HEAD~1
+
+# Undo commit and unstage changes (but keep files modified)
 git reset HEAD~1
 ```
 
 ### Undo Last Commit (Discard Changes)
+
+**Warning:** This permanently deletes your changes!
 
 ```bash
 git reset --hard HEAD~1

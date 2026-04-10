@@ -6,6 +6,57 @@ function extractLanguage(className?: string) {
   return match?.[1] ?? "text";
 }
 
+function flattenText(children: ReactNode): string {
+  if (typeof children === "string" || typeof children === "number") {
+    return String(children);
+  }
+
+  if (Array.isArray(children)) {
+    return children.map((child) => flattenText(child)).join("");
+  }
+
+  if (children && typeof children === "object" && "props" in children) {
+    return flattenText((children as { props?: { children?: ReactNode } }).props?.children);
+  }
+
+  return "";
+}
+
+function slugifyHeading(children: ReactNode): string {
+  return flattenText(children)
+    .trim()
+    .toLowerCase()
+    .replace(/['".,!?()[\]{}]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+function MdxHeading({
+  as: Tag,
+  children,
+  ...props
+}: ComponentPropsWithoutRef<"h2"> & {
+  as: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+}) {
+  const id = slugifyHeading(children);
+
+  if (!id) {
+    return <Tag {...props}>{children}</Tag>;
+  }
+
+  return (
+    <Tag id={id} {...props}>
+      <a href={`#${id}`} className="heading-anchor" aria-label={`Link to section: ${flattenText(children).trim()}`}>
+        <span className="heading-anchor__symbol" aria-hidden="true">
+          #
+        </span>
+        <span className="heading-anchor__text">{children}</span>
+      </a>
+    </Tag>
+  );
+}
+
 export function MdxTable(props: ComponentPropsWithoutRef<"table">) {
   return (
     <div className="table-wrapper">
@@ -92,6 +143,12 @@ export function MdxImage(props: ComponentPropsWithoutRef<"img">) {
 }
 
 export const mdxComponents = {
+  h1: (props: ComponentPropsWithoutRef<"h1">) => <MdxHeading as="h1" {...props} />,
+  h2: (props: ComponentPropsWithoutRef<"h2">) => <MdxHeading as="h2" {...props} />,
+  h3: (props: ComponentPropsWithoutRef<"h3">) => <MdxHeading as="h3" {...props} />,
+  h4: (props: ComponentPropsWithoutRef<"h4">) => <MdxHeading as="h4" {...props} />,
+  h5: (props: ComponentPropsWithoutRef<"h5">) => <MdxHeading as="h5" {...props} />,
+  h6: (props: ComponentPropsWithoutRef<"h6">) => <MdxHeading as="h6" {...props} />,
   pre: MdxPre,
   code: MdxCode,
   img: MdxImage,

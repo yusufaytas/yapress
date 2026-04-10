@@ -1,7 +1,7 @@
 ---
 title: Draft Post Example
 slug: draft-example
-date: 2026-04-09
+date: 2026-03-25
 draft: true
 categories:
   - documentation
@@ -10,7 +10,6 @@ tags:
   - draft
 series:
   - getting-started
-  - tutorials
 description: This is a draft post that won't be published in production.
 ---
 
