@@ -11,6 +11,7 @@ const turndownService = new TurndownService({
   headingStyle: "atx",
   codeBlockStyle: "fenced",
   bulletListMarker: "-",
+  emDelimiter: "*",
 });
 
 // Improve HTML to Markdown conversion
@@ -25,6 +26,28 @@ turndownService.addRule("pre", {
     const code = node.querySelector("code");
     const language = code?.className?.match(/language-(\w+)/)?.[1] || "";
     return `\n\`\`\`${language}\n${content}\n\`\`\`\n`;
+  },
+});
+
+// Ensure lists are properly converted
+turndownService.addRule("listItem", {
+  filter: "li",
+  replacement: (content, node, options) => {
+    content = content
+      .replace(/^\n+/, "") // remove leading newlines
+      .replace(/\n+$/, "\n") // replace trailing newlines with just a single one
+      .replace(/\n/gm, "\n    "); // indent
+    
+    let prefix = options.bulletListMarker + " ";
+    const parent = node.parentNode;
+    
+    if (parent.nodeName === "OL") {
+      const start = parent.getAttribute("start");
+      const index = Array.prototype.indexOf.call(parent.children, node);
+      prefix = (start ? Number(start) + index : index + 1) + ". ";
+    }
+    
+    return prefix + content + (node.nextSibling && !/\n$/.test(content) ? "\n" : "");
   },
 });
 
@@ -233,6 +256,21 @@ async function parseWordPressXML(xmlPath, publicDir) {
     // Convert HTML to Markdown
     const markdown = turndownService.turndown(processedContent);
     
+    // Extract legacy path and only add as alias if different from slug
+    const aliases = [];
+    if (legacyLink) {
+      try {
+        const legacyPath = new URL(legacyLink).pathname;
+        // Only add as alias if it's not just the slug itself
+        // This prevents redirecting /slug to /slug
+        if (legacyPath !== `/${slug}` && legacyPath !== `/${slug}/`) {
+          aliases.push(legacyPath);
+        }
+      } catch (error) {
+        console.log(`   ⚠️  Invalid legacy link: ${legacyLink}`);
+      }
+    }
+    
     posts.push({
       title,
       slug,
@@ -241,38 +279,59 @@ async function parseWordPressXML(xmlPath, publicDir) {
       excerpt: turndownService.turndown(excerpt),
       categories: postCategories,
       tags: postTags,
-      aliases: legacyLink ? [new URL(legacyLink).pathname] : [],
+      aliases,
     });
   }
   
   return { posts, categories: Array.from(categories), tags: Array.from(tags), redirects: allRedirects };
 }
 
+function escapeYamlValue(value) {
+  if (!value) return value;
+  
+  // Convert to string if not already
+  const str = String(value);
+  
+  // Check if value needs quoting (contains special YAML characters)
+  const needsQuoting = /[:#@&*!|>'"{}[\],&%`]/.test(str) || 
+                       str.startsWith('-') || 
+                       str.startsWith('?') ||
+                       str.trim() !== str; // has leading/trailing whitespace
+  
+  if (!needsQuoting) {
+    return str;
+  }
+  
+  // Escape double quotes and wrap in double quotes
+  const escaped = str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  return `"${escaped}"`;
+}
+
 function generateFrontmatter(post) {
   const lines = [
     "---",
-    `title: ${post.title}`,
+    `title: ${escapeYamlValue(post.title)}`,
     `slug: ${post.slug}`,
     `date: ${post.date}`,
   ];
   
   if (post.categories.length > 0) {
     lines.push("categories:");
-    post.categories.forEach((cat) => lines.push(`  - ${cat}`));
+    post.categories.forEach((cat) => lines.push(`  - ${escapeYamlValue(cat)}`));
   }
   
   if (post.tags.length > 0) {
     lines.push("tags:");
-    post.tags.forEach((tag) => lines.push(`  - ${tag}`));
+    post.tags.forEach((tag) => lines.push(`  - ${escapeYamlValue(tag)}`));
   }
   
   if (post.excerpt) {
-    lines.push(`description: ${post.excerpt}`);
+    lines.push(`description: ${escapeYamlValue(post.excerpt)}`);
   }
 
   if (post.aliases.length > 0) {
     lines.push("aliases:");
-    post.aliases.forEach((alias) => lines.push(`  - ${alias}`));
+    post.aliases.forEach((alias) => lines.push(`  - ${escapeYamlValue(alias)}`));
   }
   
   lines.push("---");
@@ -283,11 +342,7 @@ function generateFrontmatter(post) {
 
 function generateCategoriesFile(categories) {
   const lines = [
-    "export type CategoryDefinition = {",
-    "  slug: string;",
-    "  title: string;",
-    "  description?: string;",
-    "};",
+    'import type { CategoryDefinition } from "@/types/content";',
     "",
     "const categories: CategoryDefinition[] = [",
   ];

@@ -71,6 +71,7 @@ export type TaxonomyBucket = TaxonomyItem & {
 export const POSTS_PER_PAGE = siteConfig.postsPerPage ?? 5;
 
 function normalizeSlug(input: string, locale = siteConfig.language) {
+  
   return input
     .trim()
     .normalize("NFKC")

@@ -7,20 +7,15 @@ const categories: CategoryDefinition[] = [
     description: "Software systems, architecture, and build discipline."
   },
   {
-    slug: "leadership",
-    title: "Leadership",
-    description: "Team management, communication, and strategic thinking."
+    slug: "writing",
+    title: "Writing",
+    description: "Editorial process, publishing systems, and craft."
   },
   {
     slug: "documentation",
     title: "Documentation",
-    description: "Documentation"
+    description: "Posts about documentation",
   },
-  {
-    slug: "writing",
-    title: "Writing",
-    description: "Editorial process, publishing systems, and craft."
-  }
 ];
 
 export default categories;

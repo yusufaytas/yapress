@@ -15,6 +15,58 @@ export function PaginationNav({ currentPage, totalPages, firstPageHref = "/page/
     return pageNumber === 1 ? firstPageHref : `/page/${pageNumber}`;
   }
 
+  // Calculate which page numbers to show
+  // Show: first, last, current, and 2 pages on each side of current
+  const maxPagesToShow = 7; // Total number of page buttons to show
+  const sidePages = 1; // Pages to show on each side of current page
+  
+  function getPageNumbers() {
+    if (totalPages <= maxPagesToShow) {
+      // Show all pages if total is small
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const pages: (number | string)[] = [];
+    
+    // Always show first page
+    pages.push(1);
+    
+    // Calculate range around current page
+    let startPage = Math.max(2, currentPage - sidePages);
+    let endPage = Math.min(totalPages - 1, currentPage + sidePages);
+    
+    // Adjust range if we're near the start or end
+    if (currentPage <= 3) {
+      endPage = Math.min(5, totalPages - 1);
+    } else if (currentPage >= totalPages - 2) {
+      startPage = Math.max(totalPages - 4, 2);
+    }
+    
+    // Add ellipsis after first page if needed
+    if (startPage > 2) {
+      pages.push('ellipsis-start');
+    }
+    
+    // Add middle pages
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    
+    // Add ellipsis before last page if needed
+    if (endPage < totalPages - 1) {
+      pages.push('ellipsis-end');
+    }
+    
+    // Always show last page
+    if (totalPages > 1) {
+      pages.push(totalPages);
+    }
+    
+    return pages;
+  }
+
+  const pageNumbers = getPageNumbers();
+
   return (
     <nav className="pagination" aria-label="Pagination">
       <div className="pill-row">
@@ -32,8 +84,16 @@ export function PaginationNav({ currentPage, totalPages, firstPageHref = "/page/
           </span>
         )}
 
-        {Array.from({ length: totalPages }, (_, index) => {
-          const pageNumber = index + 1;
+        {pageNumbers.map((pageNumber, index) => {
+          if (typeof pageNumber === 'string') {
+            // Render ellipsis
+            return (
+              <span key={pageNumber} className="pill pagination__ellipsis" aria-hidden="true">
+                …
+              </span>
+            );
+          }
+          
           return (
             <Link
               key={pageNumber}

@@ -134,7 +134,12 @@ export function MdxImage(props: ComponentPropsWithoutRef<"img">) {
         title={title}
         width={imgWidth}
         height={imgHeight}
-        style={{ width: "100%", height: "auto" }}
+        style={{ 
+          width: "auto",
+          height: "auto",
+          maxWidth: "100%",
+          maxHeight: imgHeight
+        }}
         {...rest}
       />
       {caption && <span className="article-image__caption">{caption}</span>}
