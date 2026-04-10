@@ -1,134 +1,4 @@
-export type SiteConfig = {
-  title: string;
-  tagline?: string;
-  description: string;
-  siteUrl: string;
-  language: string;
-  author: string;
-  url?: UrlConfig;
-  theme?: ThemeName | ThemeConfig;
-  logo?: {
-    src: string;
-    alt?: string;
-  };
-  bannerImage?: {
-    src: string;
-    alt?: string;
-  };
-  postsPerPage?: number;
-  excerptLength?: number;
-  keywords?: string[];
-  headerLinks?: Array<{ href: string; label: string }>;
-  navigation: Array<{ href: string; label: string }>;
-  footerColumns?: Array<{
-    title: string;
-    links: Array<{ href: string; label: string }>;
-  }>;
-  externalLinks?: Array<{ href: string; label: string }>;
-  social?: {
-    github?: string;
-    x?: string;
-    newsletter?: string;
-  };
-  sharing?: {
-    enabled?: boolean;
-    platforms?: Array<"twitter" | "linkedin" | "reddit" | "facebook" | "email" | "copy">;
-  };
-};
-
-export type ThemeName = "dark" | "earth" | "ocean" | "forest";
-
-export type ThemeTokens = Partial<{
-  bg: string;
-  surface: string;
-  border: string;
-  text: string;
-  muted: string;
-  accent: string;
-  accentSoft: string;
-  heroGlow: string;
-  headerBg: string;
-  overlay: string;
-  link: string;
-  linkHover: string;
-  linkUnderline: string;
-  maxWidth: string;
-  fontSizeBase: string;
-  lineHeightBase: string;
-  headingLetterSpacing: string;
-  headingLineHeight: string;
-  brandSize: string;
-  heroTitleSize: string;
-  pageTitleSize: string;
-  articleTitleSize: string;
-  cardTitleSize: string;
-  taxonomyTitleSize: string;
-  h2Size: string;
-  h3Size: string;
-  h4Size: string;
-  h5Size: string;
-  radiusSm: string;
-  radiusMd: string;
-  radiusLg: string;
-  shadowSoft: string;
-  shadowStrong: string;
-  shadowHeader: string;
-}>;
-
-export type ThemeTypography = Partial<{
-  sans: string;
-  serif: string;
-  mono: string;
-}>;
-
-export type ThemeConfig = {
-  preset?: ThemeName;
-  tokens?: ThemeTokens;
-  typography?: ThemeTypography;
-  customCssHref?: string;
-};
-
-export type PostPermalinkStyle =
-  | "slug"
-  | "prefix-slug"
-  | "year-month-slug"
-  | "prefix-year-month-slug";
-
-export type UrlRedirect = {
-  from: string;
-  to: string;
-};
-
-export type UrlConfig = {
-  postPermalink?: {
-    style?: PostPermalinkStyle;
-    prefix?: string;
-  };
-  archives?: {
-    enabled?: boolean;
-    basePath?: string;
-  };
-  search?: {
-    enabled?: boolean;
-    basePath?: string;
-    prettyUrls?: boolean;
-  };
-  media?: {
-    enabled?: boolean;
-    basePath?: string;
-  };
-  feeds?: {
-    basePath?: string;
-    categories?: boolean;
-    tags?: boolean;
-  };
-  redirects?: UrlRedirect[];
-  wordpress?: {
-    legacyCategoryBase?: string;
-    legacyTagBase?: string;
-    generateLegacyDateAliases?: boolean;
-  };
-};
+import type { SiteConfig } from "@/types/siteConfig";
 
 const siteConfig: SiteConfig = {
   title: "Yapress",
@@ -247,7 +117,18 @@ const siteConfig: SiteConfig = {
   ],
   externalLinks: [],
   social: {
-    github: "https://github.com/example/yapress"
+    github: "https://github.com/example/yapress",
+    linkedin: "https://www.linkedin.com/in/example",
+    mentorCruise: "https://mentorcruise.com/mentor/example",
+    goodreadsAuthorPage: "https://www.goodreads.com/author/show/example",
+    amazonAuthorPage: "https://www.amazon.com/author/example",
+    x: "https://x.com/example",
+    instagram: "https://www.instagram.com/example",
+    facebook: "https://www.facebook.com/example",
+    tikTok: "https://www.tiktok.com/@example",
+    youtube: "https://www.youtube.com/@example",
+    reddit: "https://www.reddit.com/user/example",
+    researchGate: "https://www.researchgate.net/profile/Example"
   },
   sharing: {
     enabled: true,

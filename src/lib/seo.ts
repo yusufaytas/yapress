@@ -57,6 +57,7 @@ type JsonLdWebSite = {
   name: string;
   description: string;
   url: string;
+  sameAs?: string[];
   potentialAction?: {
     "@type": "SearchAction";
     target: string;
@@ -74,6 +75,36 @@ type JsonLdMediaObject = {
   encodingFormat?: string;
 };
 
+function getSocialLinks() {
+  return Object.values(siteConfig.social ?? {}).filter(
+    (value): value is string => Boolean(value && value.trim())
+  );
+}
+
+function getXHandle() {
+  const xUrl = siteConfig.social?.x?.trim();
+  if (!xUrl) {
+    return undefined;
+  }
+
+  const patterns = [
+    /^https?:\/\/(?:www\.)?x\.com\/([^/?#]+)/i,
+    /^https?:\/\/(?:www\.)?twitter\.com\/([^/?#]+)/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = xUrl.match(pattern);
+    if (!match) {
+      continue;
+    }
+
+    const handle = match[1].replace(/^@+/, "");
+    return handle ? `@${handle}` : undefined;
+  }
+
+  return xUrl.startsWith("@") ? xUrl : undefined;
+}
+
 export function buildMetadata({ 
   title, 
   description, 
@@ -89,6 +120,7 @@ export function buildMetadata({
   const resolvedDescription = description ?? siteConfig.description;
   const absoluteUrl = getAbsoluteUrl(pathname);
   const resolvedKeywords = keywords.length > 0 ? keywords : (siteConfig.keywords ?? []);
+  const xHandle = getXHandle();
 
   return {
     title: resolvedTitle,
@@ -111,7 +143,9 @@ export function buildMetadata({
     twitter: {
       card: "summary_large_image",
       title: resolvedTitle,
-      description: resolvedDescription
+      description: resolvedDescription,
+      creator: xHandle,
+      site: xHandle
     },
     robots: {
       index: !noIndex,
@@ -197,12 +231,14 @@ export function buildContentJsonLd(content: ContentEntry): JsonLdArticle | JsonL
 }
 
 export function buildWebSiteJsonLd(): JsonLdWebSite {
+  const socialLinks = getSocialLinks();
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: siteConfig.title,
     description: siteConfig.description,
     url: getAbsoluteUrl("/"),
+    sameAs: socialLinks.length > 0 ? socialLinks : undefined,
     potentialAction: {
       "@type": "SearchAction",
       target: `${getAbsoluteUrl("/search")}?q={search_term_string}`,

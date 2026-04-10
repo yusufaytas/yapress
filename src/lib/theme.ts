@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-import type { ThemeConfig, ThemeName, ThemeTokens, ThemeTypography } from "@/site.config";
+import type { ThemeConfig, ThemeName, ThemeTokens, ThemeTypography } from "@/types/siteConfig";
 
 const themePresets: Record<ThemeName, ThemeTokens> = {
   dark: {

@@ -7,6 +7,7 @@ import {
   buildWebSiteJsonLd,
   serializeJsonLd,
 } from "@/lib/seo";
+import { siteConfig } from "@/lib/site";
 
 describe("seo", () => {
   it("builds metadata with canonical URL and website open graph by default", () => {
@@ -20,14 +21,19 @@ describe("seo", () => {
     expect(metadata.alternates?.canonical?.toString()).toContain("/archives");
     expect(metadata.openGraph).toMatchObject({ type: "website" });
     expect(metadata.keywords).toEqual(["archives"]);
+    expect(metadata.twitter).toMatchObject({
+      creator: siteConfig.social?.x ? "@example" : undefined,
+      site: siteConfig.social?.x ? "@example" : undefined,
+    });
   });
 
-  it("includes a SearchAction on the website JSON-LD", () => {
+  it("includes a SearchAction and social profiles on the website JSON-LD", () => {
     const jsonLd = buildWebSiteJsonLd();
 
     expect(jsonLd["@type"]).toBe("WebSite");
     expect(jsonLd.potentialAction?.["@type"]).toBe("SearchAction");
     expect(jsonLd.potentialAction?.target).toContain("/search?q={search_term_string}");
+    expect(jsonLd.sameAs).toEqual(Object.values(siteConfig.social ?? {}));
   });
 
   it("builds search results structured data", () => {
