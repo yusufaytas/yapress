@@ -127,6 +127,7 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
           <div lang={post.language}>
             <ContentRenderer source={post.content} />
           </div>
+          {getPluginComponents('afterPost', { post })}
           <footer className="article-footer stack">
             <div className="article-meta-grid">
               {post.categories.length > 0 ? (
@@ -167,7 +168,6 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
             />
           </footer>
         </article>
-        {getPluginComponents('afterPost', { post })}
       </div>
     );
   }
