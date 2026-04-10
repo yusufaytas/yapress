@@ -69,8 +69,17 @@ export const siteConfig = {
   
   social: {
     github: 'https://github.com/janedev',
-    twitter: 'https://twitter.com/janedev',
     linkedin: 'https://linkedin.com/in/janedev',
+    mentorCruise: 'https://mentorcruise.com/mentor/janedev',
+    goodreadsAuthorPage: 'https://www.goodreads.com/author/show/janedev',
+    amazonAuthorPage: 'https://www.amazon.com/author/janedev',
+    x: 'https://x.com/janedev',
+    instagram: 'https://www.instagram.com/janedev',
+    facebook: 'https://www.facebook.com/janedev',
+    tikTok: 'https://www.tiktok.com/@janedev',
+    youtube: 'https://www.youtube.com/@janedev',
+    reddit: 'https://www.reddit.com/user/janedev',
+    researchGate: 'https://www.researchgate.net/profile/Jane_Developer',
   },
   
   // Add these for better SEO

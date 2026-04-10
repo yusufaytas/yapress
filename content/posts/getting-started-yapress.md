@@ -63,8 +63,17 @@ export const siteConfig = {
   
   social: {
     github: 'https://github.com/yourusername',
-    twitter: 'https://twitter.com/yourhandle',
     linkedin: 'https://linkedin.com/in/yourprofile',
+    mentorCruise: 'https://mentorcruise.com/mentor/yourusername',
+    goodreadsAuthorPage: 'https://www.goodreads.com/author/show/your-author-id',
+    amazonAuthorPage: 'https://www.amazon.com/author/yourname',
+    x: 'https://x.com/yourhandle',
+    instagram: 'https://www.instagram.com/yourhandle',
+    facebook: 'https://www.facebook.com/yourpage',
+    tikTok: 'https://www.tiktok.com/@yourhandle',
+    youtube: 'https://www.youtube.com/@yourchannel',
+    reddit: 'https://www.reddit.com/user/yourusername',
+    researchGate: 'https://www.researchgate.net/profile/Your_Name',
   },
 }
 ```

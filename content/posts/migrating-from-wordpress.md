@@ -371,7 +371,17 @@ export default {
   // Social links
   social: {
     github: 'https://github.com/username',
-    x: 'https://twitter.com/username',
+    linkedin: 'https://linkedin.com/in/username',
+    mentorCruise: 'https://mentorcruise.com/mentor/username',
+    goodreadsAuthorPage: 'https://www.goodreads.com/author/show/author-id',
+    amazonAuthorPage: 'https://www.amazon.com/author/username',
+    x: 'https://x.com/username',
+    instagram: 'https://www.instagram.com/username',
+    facebook: 'https://www.facebook.com/yourpage',
+    tikTok: 'https://www.tiktok.com/@username',
+    youtube: 'https://www.youtube.com/@username',
+    reddit: 'https://www.reddit.com/user/username',
+    researchGate: 'https://www.researchgate.net/profile/Username',
   },
 };
 ```

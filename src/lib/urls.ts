@@ -1,4 +1,4 @@
-import type { UrlConfig } from "@/site.config";
+import type { UrlConfig } from "@/types/siteConfig";
 import siteConfig from "@/site.config";
 
 type DatedEntry = {
