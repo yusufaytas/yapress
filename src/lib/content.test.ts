@@ -83,4 +83,16 @@ describe("content", () => {
     expect(getRedirectTarget("/some-other-path/2024/01/image.jpg")).not.toBe("/images/2024/01/image.jpg");
     expect(getRedirectTarget("/uploads/2024/01/image.jpg")).not.toBe("/images/2024/01/image.jpg");
   });
+
+  it("strips images from post excerpts", () => {
+    const posts = getAllPosts();
+    
+    for (const post of posts) {
+      // Excerpts should not contain markdown image syntax
+      expect(post.excerpt).not.toMatch(/!\[.*?\]\(.*?\)/);
+      
+      // Excerpts should not contain HTML img tags
+      expect(post.excerpt).not.toMatch(/<img[^>]*>/i);
+    }
+  });
 });

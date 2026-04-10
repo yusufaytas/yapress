@@ -51,6 +51,43 @@ turndownService.addRule("listItem", {
   },
 });
 
+// Handle WordPress block tables
+turndownService.addRule("wpTable", {
+  filter: (node) => {
+    return node.nodeName === "TABLE" || 
+           (node.nodeName === "FIGURE" && node.classList?.contains("wp-block-table"));
+  },
+  replacement: (content, node) => {
+    // Find the actual table element
+    const table = node.nodeName === "TABLE" ? node : node.querySelector("table");
+    if (!table) return content;
+    
+    const rows = Array.from(table.querySelectorAll("tr"));
+    if (rows.length === 0) return "";
+    
+    let markdown = "\n";
+    
+    // Process header row
+    const headerRow = rows[0];
+    const headerCells = Array.from(headerRow.querySelectorAll("th, td"));
+    if (headerCells.length > 0) {
+      markdown += "| " + headerCells.map(cell => cell.textContent.trim()).join(" | ") + " |\n";
+      markdown += "| " + headerCells.map(() => "---").join(" | ") + " |\n";
+    }
+    
+    // Process body rows
+    const bodyRows = rows.slice(headerCells.length > 0 && headerRow.querySelector("th") ? 1 : 0);
+    for (const row of bodyRows) {
+      const cells = Array.from(row.querySelectorAll("td, th"));
+      if (cells.length > 0) {
+        markdown += "| " + cells.map(cell => cell.textContent.trim()).join(" | ") + " |\n";
+      }
+    }
+    
+    return markdown + "\n";
+  },
+});
+
 function slugify(text) {
   return text
     .toLowerCase()
@@ -58,6 +95,12 @@ function slugify(text) {
     .replace(/[^\w\s-]/g, "")
     .replace(/[\s_-]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+function normalizeTagSlug(slug) {
+  // Strip trailing numbers like -2, -3, etc. from tag slugs
+  // behavioral-feedback-2 -> behavioral-feedback
+  return slug.replace(/-\d+$/, "");
 }
 
 function extractExcerpt(content, maxLength = 180) {
@@ -243,7 +286,9 @@ async function parseWordPressXML(xmlPath, publicDir) {
           postCategories.push(nicename);
           categories.add(name);
         } else if (domain === "post_tag" && nicename) {
-          postTags.push(nicename);
+          // Normalize tag slug to remove trailing numbers
+          const normalizedTag = normalizeTagSlug(nicename);
+          postTags.push(normalizedTag);
           tags.add(name);
         }
       }
@@ -253,8 +298,11 @@ async function parseWordPressXML(xmlPath, publicDir) {
     const { content: processedContent, redirects } = await processImages(content, publicDir);
     allRedirects.push(...redirects);
     
+    // Strip WordPress block comments before conversion
+    const cleanedContent = processedContent.replace(/<!-- wp:.*?-->/g, "");
+    
     // Convert HTML to Markdown
-    const markdown = turndownService.turndown(processedContent);
+    const markdown = turndownService.turndown(cleanedContent);
     
     // Extract legacy path and only add as alias if different from slug
     const aliases = [];
@@ -385,12 +433,23 @@ async function importWordPress(xmlPath, outputDir = "content") {
   // Write posts
   console.log("\n📝 Writing posts...");
   for (const post of posts) {
+    // Extract year and month from post date
+    const postDate = new Date(post.date);
+    const year = postDate.getFullYear();
+    const month = String(postDate.getMonth() + 1).padStart(2, "0");
+    
+    // Create year/month directory structure
+    const postDir = path.join(postsDir, String(year), month);
+    if (!fs.existsSync(postDir)) {
+      fs.mkdirSync(postDir, { recursive: true });
+    }
+    
     const filename = `${post.slug}.md`;
-    const filepath = path.join(postsDir, filename);
+    const filepath = path.join(postDir, filename);
     const content = generateFrontmatter(post) + post.content;
     
     fs.writeFileSync(filepath, content, "utf8");
-    console.log(`   ✓ ${filename}`);
+    console.log(`   ✓ ${year}/${month}/${filename}`);
   }
   
   // Write categories file

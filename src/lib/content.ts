@@ -111,10 +111,26 @@ function ensureDirectory(dirPath: string) {
     return [];
   }
 
-  return fs
-    .readdirSync(dirPath)
-    .filter((file) => file.endsWith(".md") || file.endsWith(".mdx"))
-    .sort((left, right) => left.localeCompare(right));
+  const files: string[] = [];
+  
+  function scanDirectory(currentPath: string, relativePath = "") {
+    const entries = fs.readdirSync(currentPath, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      const fullPath = path.join(currentPath, entry.name);
+      const relPath = relativePath ? path.join(relativePath, entry.name) : entry.name;
+      
+      if (entry.isDirectory()) {
+        // Recursively scan subdirectories
+        scanDirectory(fullPath, relPath);
+      } else if (entry.name.endsWith(".md") || entry.name.endsWith(".mdx")) {
+        files.push(relPath);
+      }
+    }
+  }
+  
+  scanDirectory(dirPath);
+  return files.sort((left, right) => left.localeCompare(right));
 }
 
 function categoryMap() {
@@ -134,6 +150,7 @@ function stripMarkdown(input: string) {
     .replace(/```[\s\S]*?```/g, "")
     .replace(/`([^`]+)`/g, "$1")
     .replace(/!\[[^\]]*]\([^)]*\)/g, "")
+    .replace(/<img[^>]*>/gi, "")
     .replace(/\[[^\]]+]\([^)]*\)/g, "")
     .replace(/^#+\s+/gm, "")
     .replace(/[*_>~-]/g, "")
