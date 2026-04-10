@@ -67,7 +67,9 @@ turndownService.addRule("wpBlockquote", {
 // Handle WordPress galleries
 turndownService.addRule("wpGallery", {
   filter: (node) => {
-    return node.nodeName === "FIGURE" && node.classList?.contains("wp-block-gallery");
+    if (node.nodeName !== "FIGURE") return false;
+    const className = node.getAttribute("class") || "";
+    return className.includes("wp-block-gallery");
   },
   replacement: (content, node) => {
     // Extract all images from the gallery
@@ -99,7 +101,9 @@ turndownService.addRule("wpGallery", {
 // Handle WordPress verse blocks (preserve line breaks)
 turndownService.addRule("wpVerse", {
   filter: (node) => {
-    return node.nodeName === "PRE" && node.classList?.contains("wp-block-verse");
+    if (node.nodeName !== "PRE") return false;
+    const className = node.getAttribute("class") || "";
+    return className.includes("wp-block-verse");
   },
   replacement: (content, node) => {
     // Verse blocks should preserve formatting like poetry
@@ -118,7 +122,9 @@ turndownService.addRule("wpVerse", {
 // Handle WordPress embed blocks (YouTube, TikTok, etc.)
 turndownService.addRule("wpEmbed", {
   filter: (node) => {
-    return node.nodeName === "FIGURE" && node.classList?.contains("wp-block-embed");
+    if (node.nodeName !== "FIGURE") return false;
+    const className = node.getAttribute("class") || "";
+    return className.includes("wp-block-embed");
   },
   replacement: (content, node) => {
     // Extract the URL from the embed wrapper
@@ -128,15 +134,73 @@ turndownService.addRule("wpEmbed", {
     const url = wrapper.textContent.trim();
     if (!url) return content;
     
-    // Return as a simple link - the frontend can handle embedding
+    // Check if it's a YouTube URL
+    if (url.includes("youtube.com") || url.includes("youtu.be")) {
+      // Extract video ID from various YouTube URL formats
+      let videoId = null;
+      
+      // Format: https://www.youtube.com/watch?v=VIDEO_ID
+      const watchMatch = url.match(/[?&]v=([^&]+)/);
+      if (watchMatch) {
+        videoId = watchMatch[1];
+      }
+      
+      // Format: https://youtu.be/VIDEO_ID
+      const shortMatch = url.match(/youtu\.be\/([^?&]+)/);
+      if (shortMatch) {
+        videoId = shortMatch[1];
+      }
+      
+      // Format: https://www.youtube.com/embed/VIDEO_ID
+      const embedMatch = url.match(/youtube\.com\/embed\/([^?&]+)/);
+      if (embedMatch) {
+        videoId = embedMatch[1];
+      }
+      
+      if (videoId) {
+        // Return as an iframe embed
+        return `\n<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>\n\n`;
+      }
+    }
+    
+    // For non-YouTube embeds, return as a simple link
     return `\n[${url}](${url})\n\n`;
+  },
+});
+
+// Handle direct iframe embeds (older WordPress format)
+turndownService.addRule("iframeEmbed", {
+  filter: (node) => {
+    if (node.nodeName !== "IFRAME") return false;
+    const src = node.getAttribute("src") || "";
+    return src.includes("youtube.com") || src.includes("youtu.be");
+  },
+  replacement: (content, node) => {
+    const src = node.getAttribute("src");
+    if (!src) return "";
+    
+    // Normalize the YouTube embed URL
+    let videoId = null;
+    const embedMatch = src.match(/youtube\.com\/embed\/([^?&]+)/);
+    if (embedMatch) {
+      videoId = embedMatch[1];
+    }
+    
+    if (videoId) {
+      return `\n<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>\n\n`;
+    }
+    
+    // Fallback: keep the original iframe
+    return `\n${node.outerHTML}\n\n`;
   },
 });
 
 // Handle WordPress code blocks with proper class detection
 turndownService.addRule("wpCode", {
   filter: (node) => {
-    return node.nodeName === "PRE" && node.classList?.contains("wp-block-code");
+    if (node.nodeName !== "PRE") return false;
+    const className = node.getAttribute("class") || "";
+    return className.includes("wp-block-code");
   },
   replacement: (content, node) => {
     const code = node.querySelector("code");
@@ -154,8 +218,12 @@ turndownService.addRule("wpCode", {
 // Handle WordPress block tables
 turndownService.addRule("wpTable", {
   filter: (node) => {
-    return node.nodeName === "TABLE" || 
-           (node.nodeName === "FIGURE" && node.classList?.contains("wp-block-table"));
+    if (node.nodeName === "TABLE") return true;
+    if (node.nodeName === "FIGURE") {
+      const className = node.getAttribute("class") || "";
+      return className.includes("wp-block-table");
+    }
+    return false;
   },
   replacement: (content, node) => {
     // Find the actual table element
@@ -350,7 +418,7 @@ async function parseWordPressXML(xmlPath, publicDir) {
   const items = channel.item || [];
   
   const posts = [];
-  const categories = new Set();
+  const categories = new Map(); // Map of slug -> display name
   const tags = new Set();
   const allRedirects = [];
   
@@ -386,7 +454,7 @@ async function parseWordPressXML(xmlPath, publicDir) {
         
         if (domain === "category" && nicename) {
           postCategories.push(nicename);
-          categories.add(name);
+          categories.set(nicename, name); // Store slug -> display name mapping
         } else if (domain === "post_tag" && nicename) {
           // Normalize tag slug to remove trailing numbers
           const normalizedTag = normalizeTagSlug(nicename);
@@ -433,7 +501,7 @@ async function parseWordPressXML(xmlPath, publicDir) {
     });
   }
   
-  return { posts, categories: Array.from(categories), tags: Array.from(tags), redirects: allRedirects };
+  return { posts, categories: Array.from(categories.entries()), tags: Array.from(tags), redirects: allRedirects };
 }
 
 function escapeYamlValue(value) {
@@ -497,12 +565,11 @@ function generateCategoriesFile(categories) {
     "const categories: CategoryDefinition[] = [",
   ];
   
-  categories.forEach((category) => {
-    const slug = slugify(category);
+  categories.forEach(([slug, displayName]) => {
     lines.push("  {");
     lines.push(`    slug: "${slug}",`);
-    lines.push(`    title: "${category}",`);
-    lines.push(`    description: "Posts about ${category.toLowerCase()}",`);
+    lines.push(`    title: "${displayName}",`);
+    lines.push(`    description: "Posts about ${displayName.toLowerCase()}",`);
     lines.push("  },");
   });
   
