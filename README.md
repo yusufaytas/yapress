@@ -318,6 +318,103 @@ YaPress generates a static site that can be deployed to any static hosting provi
 - **Language**: TypeScript 5
 - **Testing**: Vitest
 
+## Plugins
+
+YaPress supports a plugin system for extending functionality without modifying framework code.
+
+### Available Official Plugins
+
+- **[@yusufaytas/yapress-plugin-subscription](https://github.com/yusufaytas/yapress-plugin-subscription)** - Newsletter subscriptions (Mailchimp, ConvertKit, custom endpoints)
+- **[@yusufaytas/yapress-plugin-comments](https://github.com/yusufaytas/yapress-plugin-comments)** - Comments (Giscus, Utterances, Disqus)
+- **[@yusufaytas/yapress-plugin-analytics](https://github.com/yusufaytas/yapress-plugin-analytics)** - Analytics (Plausible, Google Analytics, custom)
+
+### Installing a Plugin
+
+```bash
+# Quick install with configuration setup
+npm run enable-plugin subscription
+
+# Or manual install
+npm install @yusufaytas/yapress-plugin-subscription
+```
+
+The `enable-plugin` script will:
+1. Install the plugin package from npm
+2. Create a configuration file at `plugins/<plugin-name>/config.ts`
+3. Register the plugin in `plugins.config.ts`
+
+### Configuring a Plugin
+
+After installation, edit the plugin configuration file:
+
+```typescript
+// plugins/subscription/config.ts
+import type { SubscriptionConfig } from '@yusufaytas/yapress-plugin-subscription';
+
+export const config: SubscriptionConfig = {
+  enabled: true,
+  provider: 'mailchimp',
+  apiKey: process.env.MAILCHIMP_API_KEY!,
+  listId: process.env.MAILCHIMP_LIST_ID!,
+  
+  placement: {
+    afterPost: true,  // Show after blog posts
+    popup: false,     // Disable popup
+    footer: true,     // Show in footer
+  },
+  
+  ui: {
+    title: "Subscribe to our newsletter",
+    description: "Get the latest posts delivered right to your inbox.",
+    buttonText: "Subscribe",
+  }
+};
+```
+
+Add any required environment variables to `.env.local`:
+
+```bash
+# .env.local
+MAILCHIMP_API_KEY=your-api-key-here
+MAILCHIMP_LIST_ID=your-list-id-here
+```
+
+### Plugin Architecture
+
+Plugins are npm packages that integrate with YaPress through a standardized interface:
+
+- **Components**: Inject UI at predefined slots (header, footer, before/after posts, etc.)
+- **Configuration**: Type-safe, site-owned configuration with environment variable support
+- **Static-First**: Plugins render to static HTML where possible, with optional client-side interactivity
+
+When multiple plugins render into the same slot, YaPress sorts them by ascending `order`. Plugins with the same `order` keep their registration order from `plugins.config.ts`.
+
+Plugin CSS should stay inside the plugin's own markup and inherit the host theme via CSS variables. Avoid relying on app-owned layout selectors or assumptions about surrounding containers beyond the slot you were given.
+
+### Creating Custom Plugins
+
+You can create your own plugins by following the plugin interface:
+
+```typescript
+// my-plugin/plugin.ts
+import type { Plugin } from '@yusufaytas/yapress-core';
+
+export function createMyPlugin(config: MyConfig): Plugin {
+  return {
+    name: 'my-plugin',
+    version: '1.0.0',
+    enabled: config.enabled,
+    order: 0,
+    components: {
+      afterPost: [MyComponent],  // Inject after posts
+      footerEnd: [MyFooter],     // Inject in footer
+    },
+  };
+}
+```
+
+See the [Plugin Development Guide](https://github.com/yusufaytas/yapress/wiki/Plugin-Development) for more details.
+
 ## License
 
 This project structure is designed to be forked and customized for your own site.

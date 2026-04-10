@@ -10,7 +10,8 @@
     "test:watch": "vitest",
     "lint": "next lint",
     "validate:content": "node scripts/validate-content.mjs",
-    "import:wordpress": "node scripts/import-wordpress.mjs"
+    "import:wordpress": "node scripts/import-wordpress.mjs",
+    "enable-plugin": "node scripts/enable-plugin.mjs"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",

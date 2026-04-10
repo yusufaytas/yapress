@@ -1,0 +1,2 @@
+# This directory contains site-owned plugin configurations
+# Each plugin will have its own subdirectory with a config.ts file

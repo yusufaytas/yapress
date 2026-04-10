@@ -18,7 +18,7 @@ describe("seo", () => {
     });
 
     expect(metadata.alternates?.canonical?.toString()).toContain("/archives");
-    expect(metadata.openGraph?.type).toBe("website");
+    expect(metadata.openGraph).toMatchObject({ type: "website" });
     expect(metadata.keywords).toEqual(["archives"]);
   });
 

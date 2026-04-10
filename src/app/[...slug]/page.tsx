@@ -17,6 +17,7 @@ import {
   getRedirectTarget
 } from "@/lib/content";
 import { getMediaAssetByPagePath, getMediaAssets } from "@/lib/media";
+import { getPluginComponents } from "@/lib/plugins";
 import { buildCollectionPageJsonLd, buildMediaObjectJsonLd, buildMetadata, buildPostMetadata, buildPageMetadata, buildContentJsonLd, formatDisplayDate, serializeJsonLd } from "@/lib/seo";
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
 import { joinPath } from "@/lib/urls";
@@ -106,6 +107,7 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
         />
+        {getPluginComponents('beforePost', { post })}
         <article className="article">
           <header className="article-header stack">
             <div className="article-kicker">
@@ -165,6 +167,7 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
             />
           </footer>
         </article>
+        {getPluginComponents('afterPost', { post })}
       </div>
     );
   }

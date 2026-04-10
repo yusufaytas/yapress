@@ -1,10 +1,8 @@
-"use client";
-
 import Link from "next/link";
 import type { PropsWithChildren } from "react";
-import { useState } from "react";
 
-import { Search } from "@/components/search";
+import { SiteHeaderActions } from "@/components/site-header-actions";
+import { getPluginComponents } from "@/lib/plugins";
 import siteConfig from "@/site.config";
 
 type SearchPost = {
@@ -21,12 +19,12 @@ type SiteShellProps = PropsWithChildren<{
 }>
 
 export function SiteShell({ children, searchPosts = [] }: SiteShellProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   return (
     <div className="shell">
+      {getPluginComponents("bodyStart")}
       <header className="site-header">
         <div className="container">
+          {getPluginComponents("headerStart")}
           <div className="site-header-row">
             <div className="site-banner">
               <div className="site-banner__main">
@@ -52,34 +50,15 @@ export function SiteShell({ children, searchPosts = [] }: SiteShellProps) {
                 />
               </div>
             ) : null}
-            <div className="header-actions">
-              <button
-                className="menu-toggle"
-                aria-label="Toggle menu"
-                aria-expanded={isMenuOpen}
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                <span className="menu-toggle__line"></span>
-                <span className="menu-toggle__line"></span>
-                <span className="menu-toggle__line"></span>
-              </button>
-              <nav className={`nav ${isMenuOpen ? "nav--open" : ""}`} aria-label="Primary">
-                {(siteConfig.headerLinks ?? []).map((item) => (
-                  <Link key={item.href} href={item.href} onClick={() => setIsMenuOpen(false)}>
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-              <div className="header-search">
-                <Search posts={searchPosts} />
-              </div>
-            </div>
+            <SiteHeaderActions searchPosts={searchPosts} />
           </div>
+          {getPluginComponents("headerEnd")}
           <div className="site-divider" />
         </div>
       </header>
       <main>{children}</main>
       <footer className="site-footer-wrap">
+        {getPluginComponents("footerStart")}
         <div className="container site-footer">
           <div className="site-footer__column site-footer__column--brand">
             <div className="site-kicker">{siteConfig.title}</div>
@@ -115,7 +94,10 @@ export function SiteShell({ children, searchPosts = [] }: SiteShellProps) {
           <span className="site-footer__separator">·</span>
           <span>All rights reserved</span>
         </div>
+        {getPluginComponents("footerEnd")}
       </footer>
+      {getPluginComponents("popup")}
+      {getPluginComponents("bodyEnd")}
     </div>
   );
 }

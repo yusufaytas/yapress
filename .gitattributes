@@ -7,9 +7,6 @@ site.config.ts merge=ours
 public/** merge=ours
 favicon.ico merge=ours
 
-# Generated files - exclude from merge (will be regenerated)
-public/rss.xml merge=theirs
-
 # Framework-owned code - always take upstream version (theirs) on merge conflicts
 src/** merge=theirs
 scripts/** merge=theirs

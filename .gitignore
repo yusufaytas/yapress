@@ -41,4 +41,5 @@ Thumbs.db
 
 # Generated files
 public/rss.xml
+public/feeds/
 .cache

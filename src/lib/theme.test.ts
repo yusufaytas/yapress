@@ -35,7 +35,7 @@ describe("theme", () => {
       tokens: {
         link: "#123456",
       },
-    });
+    }) as Record<string, string | undefined>;
 
     expect(style["--bg"]).toBe("#edf3ea");
     expect(style["--link"]).toBe("#123456");
