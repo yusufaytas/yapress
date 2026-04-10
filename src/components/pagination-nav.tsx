@@ -16,11 +16,10 @@ export function PaginationNav({ currentPage, totalPages, firstPageHref = "/page/
   }
 
   // Calculate which page numbers to show
-  // Show: first, last, current, and 2 pages on each side of current
-  const maxPagesToShow = 7; // Total number of page buttons to show
-  const sidePages = 1; // Pages to show on each side of current page
-  
+  // Show: first, last, current, and pages around current
   function getPageNumbers() {
+    const maxPagesToShow = 7;
+    
     if (totalPages <= maxPagesToShow) {
       // Show all pages if total is small
       return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -32,8 +31,8 @@ export function PaginationNav({ currentPage, totalPages, firstPageHref = "/page/
     pages.push(1);
     
     // Calculate range around current page
-    let startPage = Math.max(2, currentPage - sidePages);
-    let endPage = Math.min(totalPages - 1, currentPage + sidePages);
+    let startPage = Math.max(2, currentPage - 1);
+    let endPage = Math.min(totalPages - 1, currentPage + 1);
     
     // Adjust range if we're near the start or end
     if (currentPage <= 3) {
@@ -86,19 +85,32 @@ export function PaginationNav({ currentPage, totalPages, firstPageHref = "/page/
 
         {pageNumbers.map((pageNumber, index) => {
           if (typeof pageNumber === 'string') {
-            // Render ellipsis
+            // Render ellipsis - hide some on mobile
+            const isStart = pageNumber === 'ellipsis-start';
+            const hideOnMobile = isStart && currentPage > 3;
+            
             return (
-              <span key={pageNumber} className="pill pagination__ellipsis" aria-hidden="true">
+              <span 
+                key={pageNumber} 
+                className={`pill pagination__ellipsis ${hideOnMobile ? 'pagination__ellipsis--hide-mobile' : ''}`}
+                aria-hidden="true"
+              >
                 …
               </span>
             );
           }
           
+          // Hide non-essential page numbers on mobile
+          const isFirstOrLast = pageNumber === 1 || pageNumber === totalPages;
+          const isCurrent = pageNumber === currentPage;
+          const isAdjacent = Math.abs(pageNumber - currentPage) === 1;
+          const hideOnMobile = !isFirstOrLast && !isCurrent && !isAdjacent;
+          
           return (
             <Link
               key={pageNumber}
               href={pageHref(pageNumber)}
-              className={pageNumber === currentPage ? "pill pill--active" : "pill"}
+              className={`pill ${pageNumber === currentPage ? 'pill--active' : ''} ${hideOnMobile ? 'pagination__page--hide-mobile' : ''}`}
               aria-current={pageNumber === currentPage ? "page" : undefined}
             >
               {pageNumber}

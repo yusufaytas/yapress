@@ -9,6 +9,7 @@ import {
   getPostsByDateArchive,
   getRedirectTarget,
   getTagBuckets,
+  stripMarkdown,
 } from "@/lib/content";
 
 describe("content", () => {
@@ -94,5 +95,73 @@ describe("content", () => {
       // Excerpts should not contain HTML img tags
       expect(post.excerpt).not.toMatch(/<img[^>]*>/i);
     }
+  });
+});
+
+describe("stripMarkdown", () => {
+  it("removes markdown images with alt text", () => {
+    const input = "![Google Logo](/images/2008/11/googlelogo.jpg) Google started in 1996.";
+    const result = stripMarkdown(input);
+    expect(result).toBe("Google started in 1996.");
+  });
+
+  it("removes markdown images without alt text", () => {
+    const input = "![](/images/2008/11/googlelogo.jpg) Google started in 1996.";
+    const result = stripMarkdown(input);
+    expect(result).toBe("Google started in 1996.");
+  });
+
+  it("removes empty markdown links", () => {
+    const input = "[](/images/2008/11/googlelogo.jpg) Google started in 1996.";
+    const result = stripMarkdown(input);
+    expect(result).toBe("Google started in 1996.");
+  });
+
+  it("removes markdown links with text", () => {
+    const input = "Check out [Google](https://google.com) for search.";
+    const result = stripMarkdown(input);
+    expect(result).toBe("Check out for search.");
+  });
+
+  it("removes HTML img tags", () => {
+    const input = '<img src="/logo.jpg" alt="Logo" /> Welcome to the site.';
+    const result = stripMarkdown(input);
+    expect(result).toBe("Welcome to the site.");
+  });
+
+  it("removes code blocks", () => {
+    const input = "Here is code:\n```javascript\nconst x = 1;\n```\nEnd of code.";
+    const result = stripMarkdown(input);
+    expect(result).toBe("Here is code: End of code.");
+  });
+
+  it("removes inline code", () => {
+    const input = "Use `console.log()` to debug.";
+    const result = stripMarkdown(input);
+    expect(result).toBe("Use console.log() to debug.");
+  });
+
+  it("removes headings", () => {
+    const input = "# Title\n## Subtitle\nContent here.";
+    const result = stripMarkdown(input);
+    expect(result).toBe("Title Subtitle Content here.");
+  });
+
+  it("removes markdown formatting characters", () => {
+    const input = "This is **bold** and *italic* and ~~strikethrough~~.";
+    const result = stripMarkdown(input);
+    expect(result).toBe("This is bold and italic and strikethrough.");
+  });
+
+  it("handles complex mixed content", () => {
+    const input = "[](/images/2008/11/googlelogo.jpg) Google ilk olarak 1996 yılında Larry Page adındaki doktora öğrencisinin Stanford üniversitesindeki araştırmasıyla başladı.";
+    const result = stripMarkdown(input);
+    expect(result).toBe("Google ilk olarak 1996 yılında Larry Page adındaki doktora öğrencisinin Stanford üniversitesindeki araştırmasıyla başladı.");
+  });
+
+  it("normalizes whitespace", () => {
+    const input = "Multiple    spaces   and\n\nnewlines.";
+    const result = stripMarkdown(input);
+    expect(result).toBe("Multiple spaces and newlines.");
   });
 });

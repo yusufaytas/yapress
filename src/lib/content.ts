@@ -71,6 +71,10 @@ export type TaxonomyBucket = TaxonomyItem & {
 export const POSTS_PER_PAGE = siteConfig.postsPerPage ?? 5;
 
 function normalizeSlug(input: string, locale = siteConfig.language) {
+
+  if (!input || typeof input !== "string") {
+    return "";
+  }
   
   return input
     .trim()
@@ -145,13 +149,13 @@ function tagMap() {
   return new Map(tagRegistry.map((item) => [item.slug, item]));
 }
 
-function stripMarkdown(input: string) {
+export function stripMarkdown(input: string) {
   return input
     .replace(/```[\s\S]*?```/g, "")
     .replace(/`([^`]+)`/g, "$1")
-    .replace(/!\[[^\]]*]\([^)]*\)/g, "")
-    .replace(/<img[^>]*>/gi, "")
-    .replace(/\[[^\]]+]\([^)]*\)/g, "")
+    .replace(/!\[[^\]]*]\([^)]*\)/g, "") // Remove images ![alt](url)
+    .replace(/<img[^>]*>/gi, "") // Remove HTML images
+    .replace(/\[[^\]]*]\([^)]*\)/g, "") // Remove links [text](url) - including empty []
     .replace(/^#+\s+/gm, "")
     .replace(/[*_>~-]/g, "")
     .replace(/\s+/g, " ")

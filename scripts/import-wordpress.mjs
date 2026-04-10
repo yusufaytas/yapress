@@ -51,6 +51,106 @@ turndownService.addRule("listItem", {
   },
 });
 
+// Handle WordPress block quotes
+turndownService.addRule("wpBlockquote", {
+  filter: (node) => {
+    return node.nodeName === "BLOCKQUOTE";
+  },
+  replacement: (content, node) => {
+    // Clean up the content
+    const lines = content.trim().split("\n");
+    const quotedLines = lines.map(line => `> ${line}`).join("\n");
+    return `\n${quotedLines}\n\n`;
+  },
+});
+
+// Handle WordPress galleries
+turndownService.addRule("wpGallery", {
+  filter: (node) => {
+    return node.nodeName === "FIGURE" && node.classList?.contains("wp-block-gallery");
+  },
+  replacement: (content, node) => {
+    // Extract all images from the gallery
+    const images = Array.from(node.querySelectorAll("img"));
+    if (images.length === 0) return "";
+    
+    // Determine grid class based on number of images
+    let gridClass = "image-grid"; // default 3 columns
+    if (images.length === 2) {
+      gridClass = "image-grid-2";
+    } else if (images.length >= 4 && images.length <= 5) {
+      gridClass = "image-grid-4";
+    } else if (images.length > 5) {
+      gridClass = "image-grid-5";
+    }
+    
+    let markdown = `\n<div className="${gridClass}">\n`;
+    images.forEach((img) => {
+      const src = img.getAttribute("src") || "";
+      const alt = img.getAttribute("alt") || "";
+      markdown += `  <img src="${src}" alt="${alt}" />\n`;
+    });
+    markdown += `</div>\n\n`;
+    
+    return markdown;
+  },
+});
+
+// Handle WordPress verse blocks (preserve line breaks)
+turndownService.addRule("wpVerse", {
+  filter: (node) => {
+    return node.nodeName === "PRE" && node.classList?.contains("wp-block-verse");
+  },
+  replacement: (content, node) => {
+    // Verse blocks should preserve formatting like poetry
+    // Convert <br> to actual line breaks
+    const html = node.innerHTML;
+    const lines = html.split(/<br\s*\/?>/i);
+    const cleanLines = lines.map(line => {
+      // Strip HTML tags but keep the text
+      return line.replace(/<[^>]*>/g, "").trim();
+    }).filter(line => line.length > 0);
+    
+    return "\n" + cleanLines.join("  \n") + "\n\n";
+  },
+});
+
+// Handle WordPress embed blocks (YouTube, TikTok, etc.)
+turndownService.addRule("wpEmbed", {
+  filter: (node) => {
+    return node.nodeName === "FIGURE" && node.classList?.contains("wp-block-embed");
+  },
+  replacement: (content, node) => {
+    // Extract the URL from the embed wrapper
+    const wrapper = node.querySelector(".wp-block-embed__wrapper");
+    if (!wrapper) return content;
+    
+    const url = wrapper.textContent.trim();
+    if (!url) return content;
+    
+    // Return as a simple link - the frontend can handle embedding
+    return `\n[${url}](${url})\n\n`;
+  },
+});
+
+// Handle WordPress code blocks with proper class detection
+turndownService.addRule("wpCode", {
+  filter: (node) => {
+    return node.nodeName === "PRE" && node.classList?.contains("wp-block-code");
+  },
+  replacement: (content, node) => {
+    const code = node.querySelector("code");
+    if (!code) return content;
+    
+    // Try to detect language from class or content
+    const className = code.className || "";
+    const languageMatch = className.match(/language-(\w+)/);
+    const language = languageMatch ? languageMatch[1] : "";
+    
+    return `\n\`\`\`${language}\n${code.textContent}\n\`\`\`\n\n`;
+  },
+});
+
 // Handle WordPress block tables
 turndownService.addRule("wpTable", {
   filter: (node) => {
@@ -105,8 +205,10 @@ function normalizeTagSlug(slug) {
 
 function extractExcerpt(content, maxLength = 180) {
   const text = content
-    .replace(/<[^>]*>/g, "")
-    .replace(/\s+/g, " ")
+    .replace(/<[^>]*>/g, "") // Remove HTML tags
+    .replace(/!\[.*?\]\(.*?\)/g, "") // Remove markdown images ![alt](url)
+    .replace(/\[.*?\]\(.*?\)/g, "") // Remove markdown links [text](url)
+    .replace(/\s+/g, " ") // Normalize whitespace
     .trim();
   
   if (text.length <= maxLength) {
