@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { SearchView } from "@/components/search-view";
-import { getAllPosts } from "@/lib/content";
 import { buildMetadata, buildSearchResultsJsonLd, serializeJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -14,14 +13,6 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default function SearchPage() {
-  const posts = getAllPosts().map((post) => ({
-    title: post.title,
-    slug: post.slug,
-    excerpt: post.excerpt,
-    date: post.datePublished?.toISOString(),
-    categories: post.categories.map((category) => category.title),
-    permalink: post.permalink
-  }));
   const jsonLd = buildSearchResultsJsonLd("", "/search", []);
 
   return (
@@ -31,7 +22,7 @@ export default function SearchPage() {
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       <Suspense fallback={<div className="container section stack"><p className="lede">Loading search…</p></div>}>
-        <SearchView posts={posts} />
+        <SearchView />
       </Suspense>
     </>
   );

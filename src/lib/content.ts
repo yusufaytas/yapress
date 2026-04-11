@@ -109,6 +109,18 @@ function normalizeDate(input: string | Date) {
   return input instanceof Date ? input : new Date(input);
 }
 
+function normalizeTaxonomyInput(input: unknown) {
+  if (typeof input === "string") {
+    return input.trim();
+  }
+
+  if (typeof input === "number" || typeof input === "boolean") {
+    return String(input);
+  }
+
+  return "";
+}
+
 function titleFromSlug(slug: string) {
   return slug
     .split("-")
@@ -187,7 +199,7 @@ function readFileContent(root: string, fileName: string) {
 function resolveCategories(rawCategories: string[]) {
   const registry = categoryMap();
 
-  return rawCategories.map((categorySlug) => {
+  return rawCategories.map(normalizeTaxonomyInput).filter(Boolean).map((categorySlug) => {
     const match = registry.get(categorySlug);
     if (!match) {
       throw new Error(`Unknown category "${categorySlug}". Register it in content/categories.ts.`);
@@ -204,7 +216,7 @@ function resolveCategories(rawCategories: string[]) {
 function resolveTags(rawTags: string[] = [], locale = siteConfig.language) {
   const registry = tagMap();
 
-  return [...new Set(rawTags.map((tag) => normalizeSlug(tag, locale)))]
+  return [...new Set(rawTags.map(normalizeTaxonomyInput).filter(Boolean).map((tag) => normalizeSlug(tag, locale)))]
     .filter(Boolean)
     .sort((left, right) => left.localeCompare(right))
     .map((tagSlug) => {

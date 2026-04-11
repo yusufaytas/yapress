@@ -183,8 +183,10 @@ img {
 .site-banner-image-wrap {
   flex: 1;
   max-width: 600px;
+  height: 120px;
   margin: 0 1rem;
   display: none;
+  position: relative;
 }
 
 @media (min-width: 64rem) {
@@ -196,7 +198,7 @@ img {
 .site-banner-image {
   display: block;
   width: 100%;
-  height: 120px;
+  height: 100%;
   object-fit: contain;
   object-position: center;
 }
@@ -1188,6 +1190,48 @@ img {
 .article-body pre code {
   padding: 0;
   background: transparent;
+}
+
+.code-block .token--comment {
+  color: #7f8ea3;
+}
+
+.code-block .token--keyword {
+  color: #ff9ac1;
+}
+
+.code-block .token--string {
+  color: #a9dc76;
+}
+
+.code-block .token--number {
+  color: #ffd580;
+}
+
+.code-block .token--operator,
+.code-block .token--punctuation {
+  color: #f4ede4;
+}
+
+.code-block .token--function {
+  color: #78dce8;
+}
+
+.code-block .token--property,
+.code-block .token--attribute {
+  color: #ffd866;
+}
+
+.code-block .token--tag {
+  color: #ff6188;
+}
+
+.code-block .token--variable {
+  color: #ab9df2;
+}
+
+.code-block .token--meta {
+  color: #fc9867;
 }
 
 .article-body blockquote {

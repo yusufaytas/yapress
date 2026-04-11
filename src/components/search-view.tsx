@@ -4,29 +4,45 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import type { SearchEntry } from "@/lib/search";
+import { loadSearchEntries, preloadSearchEntries } from "@/lib/searchClient";
+import { scoreSearchEntry } from "@/lib/search";
 import { foldSearchText, tokenizeSearchQuery } from "@/lib/text";
 import { getSearchPath } from "@/lib/urls";
 
-export type SearchEntry = {
-  title: string;
-  slug: string;
-  excerpt: string;
-  date?: string;
-  categories: string[];
-  permalink: string;
-};
-
 type SearchViewProps = {
-  posts: SearchEntry[];
   initialQuery?: string;
 };
 
-export function SearchView({ posts, initialQuery = "" }: SearchViewProps) {
+export function SearchView({ initialQuery = "" }: SearchViewProps) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(initialQuery);
+  const [posts, setPosts] = useState<SearchEntry[]>([]);
   const [results, setResults] = useState<SearchEntry[]>([]);
+
+  useEffect(() => {
+    preloadSearchEntries();
+
+    let cancelled = false;
+
+    loadSearchEntries()
+      .then((payload) => {
+        if (!cancelled) {
+          setPosts(payload);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setPosts([]);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const queryFromUrl = searchParams.get("q") ?? "";
@@ -45,24 +61,15 @@ export function SearchView({ posts, initialQuery = "" }: SearchViewProps) {
 
     const filtered = posts
       .map((post) => {
-        let score = 0;
-        const titleLower = foldSearchText(post.title);
-        const excerptLower = foldSearchText(post.excerpt);
-        const categoriesLower = foldSearchText(post.categories.join(" "));
-
-        for (const term of searchTerms) {
-          if (titleLower.includes(term)) {
-            score += 10;
-          }
-          if (categoriesLower.includes(term)) {
-            score += 5;
-          }
-          if (excerptLower.includes(term)) {
-            score += 2;
-          }
-        }
-
-        return { post, score };
+        return {
+          post,
+          score: scoreSearchEntry(searchTerms, {
+            ...post,
+            title: foldSearchText(post.title),
+            excerpt: foldSearchText(post.excerpt),
+            categories: post.categories.map((category) => foldSearchText(category)),
+          }),
+        };
       })
       .filter(({ score }) => score > 0)
       .sort((left, right) => right.score - left.score)
@@ -92,7 +99,7 @@ export function SearchView({ posts, initialQuery = "" }: SearchViewProps) {
           />
         </form>
         {!query ? <p className="lede">Search the published archive by title, category, and excerpt.</p> : null}
-        {query && results.length === 0 ? <p className="lede">No results found for "{query}".</p> : null}
+        {query && posts.length > 0 && results.length === 0 ? <p className="lede">No results found for &quot;{query}&quot;.</p> : null}
       </div>
       {results.length > 0 ? (
         <div className="post-list">

@@ -4,6 +4,13 @@ vi.mock("node:fs", () => ({
   default: {
     existsSync: vi.fn(() => true),
     statSync: vi.fn(() => ({ size: 2048 })),
+    readFileSync: vi.fn(() =>
+      Buffer.from([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+        0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
+        0x00, 0x00, 0x03, 0x20, 0x00, 0x00, 0x02, 0x58,
+      ])
+    ),
   },
 }));
 
@@ -40,6 +47,8 @@ describe("media", () => {
     expect(assets).toHaveLength(1);
     expect(assets[0].assetPath).toBe("/images/post-image.png");
     expect(assets[0].pagePath).toBe("/media/images/post-image.png");
+    expect(assets[0].width).toBe(800);
+    expect(assets[0].height).toBe(600);
     expect(assets[0].references).toHaveLength(2);
   });
 

@@ -54,7 +54,7 @@ const siteConfig: SiteConfig = {
     //   maxWidth: "78rem",
     // },
   },
-  logo: { src: "yapress.jpg", "alt": "Yapress" },
+  logo: { src: "/yapress.jpg", alt: "Yapress", width: 400, height: 400 },
   bannerImage: undefined,
   postsPerPage: 5,
   excerptLength: 180,

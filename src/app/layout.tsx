@@ -4,7 +4,6 @@ import { Inter, Newsreader } from "next/font/google";
 import "./globals.css";
 
 import { SiteShell } from "@/components/site-shell";
-import { getAllPosts } from "@/lib/content";
 import { buildMetadata, buildWebSiteJsonLd, serializeJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 import { buildThemeStyle, resolveThemeConfig } from "@/lib/theme";
@@ -31,17 +30,6 @@ export const metadata: Metadata = buildMetadata({
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const theme = resolveThemeConfig(siteConfig.theme);
 
-  // Prepare search data
-  const posts = getAllPosts();
-  const searchPosts = posts.map(post => ({
-    title: post.title,
-    slug: post.slug,
-    excerpt: post.excerpt,
-    date: post.datePublished?.toISOString(),
-    categories: post.categories.map(c => c.title),
-    permalink: post.permalink
-  }));
-
   const jsonLd = buildWebSiteJsonLd();
 
   return (
@@ -64,7 +52,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {theme.customCssHref ? <link rel="stylesheet" href={theme.customCssHref} /> : null}
       </head>
       <body>
-        <SiteShell searchPosts={searchPosts}>{children}</SiteShell>
+        <SiteShell>{children}</SiteShell>
       </body>
     </html>
   );

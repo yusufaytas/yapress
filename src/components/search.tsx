@@ -3,25 +3,16 @@
 import Link from "next/link"
 import { useEffect, useState, useRef } from "react"
 
+import type { SearchEntry } from "@/lib/search"
+import { loadSearchEntries, preloadSearchEntries } from "@/lib/searchClient"
+import { scoreSearchEntry } from "@/lib/search"
 import { foldSearchText, tokenizeSearchQuery } from "@/lib/text"
 
-type SearchResult = {
-  title: string
-  slug: string
-  excerpt: string
-  date?: string
-  categories: string[]
-  permalink: string
-}
-
-type SearchProps = {
-  posts: SearchResult[]
-}
-
-export function Search({ posts }: SearchProps) {
+export function Search() {
   const [isOpen, setIsOpen] = useState(false)
   const [query, setQuery] = useState("")
-  const [results, setResults] = useState<SearchResult[]>([])
+  const [posts, setPosts] = useState<SearchEntry[]>([])
+  const [results, setResults] = useState<SearchEntry[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
 
@@ -43,10 +34,46 @@ export function Search({ posts }: SearchProps) {
 
   // Focus input when dialog opens
   useEffect(() => {
+    const run = () => preloadSearchEntries()
+
+    if (typeof globalThis.requestIdleCallback === "function") {
+      const idleId = globalThis.requestIdleCallback(run)
+      return () => globalThis.cancelIdleCallback?.(idleId)
+    }
+
+    const timeoutId = globalThis.setTimeout(run, 250)
+    return () => globalThis.clearTimeout(timeoutId)
+  }, [])
+
+  useEffect(() => {
     if (isOpen && inputRef.current) {
       inputRef.current.focus()
     }
   }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen || posts.length > 0) {
+      return
+    }
+
+    let cancelled = false
+
+    loadSearchEntries()
+      .then((payload) => {
+        if (!cancelled) {
+          setPosts(payload)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setPosts([])
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [isOpen, posts.length])
 
   // Close on outside click
   useEffect(() => {
@@ -73,27 +100,15 @@ export function Search({ posts }: SearchProps) {
     
     const filtered = posts
       .map(post => {
-        let score = 0
-        const titleLower = foldSearchText(post.title)
-        const excerptLower = foldSearchText(post.excerpt)
-        const categoriesLower = foldSearchText(post.categories.join(' '))
-
-        searchTerms.forEach(term => {
-          // Title matches are worth more
-          if (titleLower.includes(term)) {
-            score += 10
-          }
-          // Category matches
-          if (categoriesLower.includes(term)) {
-            score += 5
-          }
-          // Excerpt matches
-          if (excerptLower.includes(term)) {
-            score += 2
-          }
-        })
-
-        return { post, score }
+        return {
+          post,
+          score: scoreSearchEntry(searchTerms, {
+            ...post,
+            title: foldSearchText(post.title),
+            excerpt: foldSearchText(post.excerpt),
+            categories: post.categories.map((category) => foldSearchText(category))
+          })
+        }
       })
       .filter(({ score }) => score > 0)
       .sort((a, b) => b.score - a.score)
@@ -174,9 +189,9 @@ export function Search({ posts }: SearchProps) {
               </div>
             )}
 
-            {query && results.length === 0 && (
+            {query && posts.length > 0 && results.length === 0 && (
               <div className="search-empty">
-                No results found for "{query}"
+                No results found for &quot;{query}&quot;
               </div>
             )}
 

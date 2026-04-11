@@ -2,6 +2,7 @@ import { compileMDX } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 
 import { mdxComponents } from "@/components/mdx-components";
+import { normalizeMdxSource } from "@/lib/mdx";
 
 type ContentRendererProps = {
   source: string;
@@ -9,7 +10,7 @@ type ContentRendererProps = {
 
 export async function ContentRenderer({ source }: ContentRendererProps) {
   const { content } = await compileMDX({
-    source,
+    source: normalizeMdxSource(source),
     components: mdxComponents,
     options: {
       mdxOptions: {

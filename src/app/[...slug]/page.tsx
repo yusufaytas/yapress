@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -163,7 +164,17 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
           </p>
           {mediaAsset.contentType.startsWith("image/") ? (
             <span className="article-image">
-              <img src={mediaAsset.assetPath} alt={mediaAsset.assetPath.split("/").pop() ?? "Media asset"} />
+              {mediaAsset.width && mediaAsset.height ? (
+                <Image
+                  src={mediaAsset.assetPath}
+                  alt={mediaAsset.assetPath.split("/").pop() ?? "Media asset"}
+                  width={mediaAsset.width}
+                  height={mediaAsset.height}
+                  sizes="(max-width: 48rem) 100vw, 48rem"
+                  unoptimized={mediaAsset.contentType === "image/svg+xml"}
+                  style={{ width: "100%", height: "auto", maxWidth: "100%" }}
+                />
+              ) : null}
             </span>
           ) : null}
           <div className="stack">

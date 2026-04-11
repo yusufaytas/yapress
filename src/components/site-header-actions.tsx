@@ -6,20 +6,7 @@ import { useState } from "react";
 import { Search } from "@/components/search";
 import siteConfig from "@/site.config";
 
-type SearchPost = {
-  title: string
-  slug: string
-  excerpt: string
-  date?: string
-  categories: string[]
-  permalink: string
-}
-
-type SiteHeaderActionsProps = {
-  searchPosts: SearchPost[]
-}
-
-export function SiteHeaderActions({ searchPosts }: SiteHeaderActionsProps) {
+export function SiteHeaderActions() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -42,7 +29,7 @@ export function SiteHeaderActions({ searchPosts }: SiteHeaderActionsProps) {
         ))}
       </nav>
       <div className="header-search">
-        <Search posts={searchPosts} />
+        <Search />
       </div>
     </div>
   );

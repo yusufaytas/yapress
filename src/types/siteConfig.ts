@@ -10,10 +10,14 @@ export type SiteConfig = {
   logo?: {
     src: string;
     alt?: string;
+    width?: number;
+    height?: number;
   };
   bannerImage?: {
     src: string;
     alt?: string;
+    width?: number;
+    height?: number;
   };
   postsPerPage?: number;
   excerptLength?: number;

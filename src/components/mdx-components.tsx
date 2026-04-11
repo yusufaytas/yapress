@@ -1,6 +1,8 @@
 import Image from "next/image";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
+import { renderHighlightedCode } from "@/lib/codeHighlight";
+
 function extractLanguage(className?: string) {
   const match = className?.match(/language-([\w-]+)/);
   return match?.[1] ?? "text";
@@ -69,9 +71,11 @@ export function MdxPre({ children }: { children: ReactNode }) {
   const child = children as {
     props?: {
       className?: string;
+      children?: ReactNode;
     };
   };
   const language = extractLanguage(child?.props?.className);
+  const source = flattenText(child?.props?.children);
 
   return (
     <div className="code-block">
@@ -83,7 +87,11 @@ export function MdxPre({ children }: { children: ReactNode }) {
         </span>
         <span className="code-block__label">{language}</span>
       </div>
-      <pre>{children}</pre>
+      <pre>
+        <code className={child?.props?.className}>
+          {source ? renderHighlightedCode(source, language) : children}
+        </code>
+      </pre>
     </div>
   );
 }
@@ -100,45 +108,32 @@ export function MdxCode(props: ComponentPropsWithoutRef<"code">) {
 
 export function MdxImage(props: ComponentPropsWithoutRef<"img">) {
   const { src, alt = "", title, width, height, ...rest } = props;
-  
+
   if (!src || typeof src !== "string") {
     return null;
   }
 
-  // Use title if provided, otherwise fall back to alt
   const caption = title || alt;
-
-  // Check if it's an external image
   const isExternal = src.startsWith("http://") || src.startsWith("https://");
-  
-  if (isExternal) {
-    // For external images, use regular img tag
-    return (
-      <span className="article-image">
-        <img src={src} alt={alt} title={title} {...rest} />
-        {caption && <span className="article-image__caption">{caption}</span>}
-      </span>
-    );
-  }
-
-  // For local images, use Next.js Image with optimization
-  // Parse width and height if they're strings
   const imgWidth = typeof width === "string" ? parseInt(width, 10) : width || 800;
   const imgHeight = typeof height === "string" ? parseInt(height, 10) : height || 600;
-  
+  const resolvedSrc = isExternal || src.startsWith("/") ? src : `/${src}`;
+  const unoptimized = resolvedSrc.endsWith(".svg");
+
   return (
     <span className="article-image">
       <Image
-        src={src}
+        src={resolvedSrc}
         alt={alt}
         title={title}
         width={imgWidth}
         height={imgHeight}
-        style={{ 
-          width: "auto",
+        sizes="(max-width: 48rem) 100vw, 48rem"
+        unoptimized={unoptimized}
+        style={{
+          width: "100%",
           height: "auto",
           maxWidth: "100%",
-          maxHeight: imgHeight
         }}
         {...rest}
       />

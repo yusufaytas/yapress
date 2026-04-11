@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { PropsWithChildren } from "react";
 
@@ -5,20 +6,11 @@ import { SiteHeaderActions } from "@/components/site-header-actions";
 import { getPluginComponents } from "@/lib/plugins";
 import siteConfig from "@/site.config";
 
-type SearchPost = {
-  title: string
-  slug: string
-  excerpt: string
-  date?: string
-  categories: string[]
-  permalink: string
+function normalizePublicAssetPath(src: string) {
+  return src.startsWith("/") ? src : `/${src}`;
 }
 
-type SiteShellProps = PropsWithChildren<{
-  searchPosts?: SearchPost[]
-}>
-
-export function SiteShell({ children, searchPosts = [] }: SiteShellProps) {
+export function SiteShell({ children }: PropsWithChildren) {
   return (
     <div className="shell">
       {getPluginComponents("bodyStart")}
@@ -30,9 +22,11 @@ export function SiteShell({ children, searchPosts = [] }: SiteShellProps) {
               <div className="site-banner__main">
                 <Link href="/" className="brand-wrap">
                   {siteConfig.logo ? (
-                    <img
-                      src={siteConfig.logo.src}
+                    <Image
+                      src={normalizePublicAssetPath(siteConfig.logo.src)}
                       alt={siteConfig.logo.alt ?? `${siteConfig.title} logo`}
+                      width={siteConfig.logo.width ?? 400}
+                      height={siteConfig.logo.height ?? 400}
                       className="site-logo"
                     />
                   ) : null}
@@ -43,14 +37,16 @@ export function SiteShell({ children, searchPosts = [] }: SiteShellProps) {
             </div>
             {siteConfig.bannerImage ? (
               <div className="site-banner-image-wrap">
-                <img
-                  src={siteConfig.bannerImage.src}
+                <Image
+                  src={normalizePublicAssetPath(siteConfig.bannerImage.src)}
                   alt={siteConfig.bannerImage.alt ?? `${siteConfig.title} banner`}
+                  fill
+                  sizes="(min-width: 64rem) 600px, 100vw"
                   className="site-banner-image"
                 />
               </div>
             ) : null}
-            <SiteHeaderActions searchPosts={searchPosts} />
+            <SiteHeaderActions />
           </div>
           {getPluginComponents("headerEnd")}
           <div className="site-divider" />

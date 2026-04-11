@@ -547,6 +547,7 @@ function escapeYamlValue(value) {
   
   // Check if value needs quoting (contains special YAML characters)
   const needsQuoting = /[:#@&*!|>'"{}[\],&%`]/.test(str) || 
+                       /^(?:[-+]?\d+(?:\.\d+)?|true|false|null|~)$/i.test(str) ||
                        str.startsWith('-') || 
                        str.startsWith('?') ||
                        str.trim() !== str; // has leading/trailing whitespace

@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/clean-build.mjs && node scripts/generate-rss.mjs && next build",
+    "build": "node scripts/clean-build.mjs && node scripts/validate-content.mjs && node scripts/generate-rss.mjs && next build",
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "next lint",
+    "lint": "eslint .",
     "validate:content": "node scripts/validate-content.mjs",
     "import:wordpress": "node scripts/import-wordpress.mjs",
     "enable-plugin": "node scripts/enable-plugin.mjs"
