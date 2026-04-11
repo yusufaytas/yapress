@@ -15,7 +15,7 @@ describe("feed", () => {
         permalink: "/a-and-b",
         description: "Description with <xml>",
         excerpt: "Excerpt",
-        date: "2026-04-10T00:00:00.000Z",
+        datePublished: new Date("2026-04-10T00:00:00.000Z"),
       },
     ] as never[]);
   });

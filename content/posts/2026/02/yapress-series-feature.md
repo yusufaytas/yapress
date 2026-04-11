@@ -1,7 +1,7 @@
 ---
 title: Organizing Content with Series in YaPress
 slug: yapress-series-feature
-date: 2026-02-22
+datePublished: 2026-02-22
 categories:
   - writing
 tags:

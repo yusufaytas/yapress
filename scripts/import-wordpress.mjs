@@ -331,6 +331,36 @@ async function downloadImage(url, outputPath) {
   });
 }
 
+function convertWordPressCaptions(content) {
+  // Convert WordPress caption shortcodes to Markdown
+  // [caption id="attachment_2844" align="aligncenter" width="1024"]<a href="..."><img src="..." alt="..." /></a> caption text[/caption]
+  const captionRegex = /\[caption[^\]]*\](.*?)\[\/caption\]/gs;
+  
+  return content.replace(captionRegex, (match, captionContent) => {
+    // Extract image URL and alt text
+    const imgMatch = captionContent.match(/<img[^>]+src=["']([^"']+)["'][^>]*alt=["']([^"']*)["'][^>]*>/i);
+    if (!imgMatch) {
+      // Try without alt attribute
+      const simpleImgMatch = captionContent.match(/<img[^>]+src=["']([^"']+)["'][^>]*>/i);
+      if (!simpleImgMatch) return match; // Keep original if can't parse
+      
+      const src = simpleImgMatch[1];
+      // Extract caption text (everything after the closing </a> or </img>)
+      const captionText = captionContent.replace(/<[^>]+>/g, '').trim();
+      
+      return `![${captionText}](${src})`;
+    }
+    
+    const src = imgMatch[1];
+    const alt = imgMatch[2];
+    
+    // Extract caption text (everything after the closing </a> or </img>)
+    const captionText = captionContent.replace(/<[^>]+>/g, '').trim() || alt;
+    
+    return `![${captionText}](${src})`;
+  });
+}
+
 function extractImageUrls(content) {
   const imageRegex = /<img[^>]+src=["']([^"']+)["']/gi;
   const urls = [];
@@ -437,6 +467,7 @@ async function parseWordPressXML(xmlPath, publicDir) {
     const content = item["content:encoded"]?.[0] || "";
     const excerpt = item["excerpt:encoded"]?.[0] || extractExcerpt(content);
     const pubDate = item.pubDate?.[0] || item["wp:post_date"]?.[0];
+    const modifiedDate = item["wp:post_modified"]?.[0];
     const slug = item["wp:post_name"]?.[0] || slugify(title);
     const legacyLink = item.link?.[0];
     
@@ -464,8 +495,11 @@ async function parseWordPressXML(xmlPath, publicDir) {
       }
     }
     
+    // Convert WordPress caption shortcodes first (before processing images)
+    const contentWithCaptions = convertWordPressCaptions(content);
+    
     // Process images and update content
-    const { content: processedContent, redirects } = await processImages(content, publicDir);
+    const { content: processedContent, redirects } = await processImages(contentWithCaptions, publicDir);
     allRedirects.push(...redirects);
     
     // Strip WordPress block comments before conversion
@@ -493,6 +527,7 @@ async function parseWordPressXML(xmlPath, publicDir) {
       title,
       slug,
       date: parseWordPressDate(pubDate),
+      lastUpdated: modifiedDate ? parseWordPressDate(modifiedDate) : undefined,
       content: markdown,
       excerpt: turndownService.turndown(excerpt),
       categories: postCategories,
@@ -530,8 +565,13 @@ function generateFrontmatter(post) {
     "---",
     `title: ${escapeYamlValue(post.title)}`,
     `slug: ${post.slug}`,
-    `date: ${post.date}`,
+    `datePublished: ${post.date}`,
   ];
+  
+  // Add dateModified if it exists and is different from datePublished
+  if (post.lastUpdated && post.lastUpdated !== post.date) {
+    lines.push(`dateModified: ${post.lastUpdated}`);
+  }
   
   if (post.categories.length > 0) {
     lines.push("categories:");

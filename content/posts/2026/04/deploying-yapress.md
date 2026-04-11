@@ -1,7 +1,7 @@
 ---
 title: Deploying YaPress to Production
 slug: deploying-yapress
-date: 2026-04-02
+datePublished: 2026-04-02
 categories:
   - engineering
 tags:

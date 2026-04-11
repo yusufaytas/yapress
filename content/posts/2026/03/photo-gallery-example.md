@@ -2,7 +2,7 @@
 title: "Photo Gallery: Travel and Life Moments"
 slug: "photo-gallery-example"
 description: "A collection of memorable moments from travels around the world - from Paris to Indonesia, capturing adventures across continents."
-date: "2026-03-20"
+datePublished: "2026-03-20"
 author: "Yusuf Aytaş"
 categories:
   - documentation

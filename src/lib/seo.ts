@@ -9,8 +9,8 @@ type MetadataInput = {
   description?: string;
   pathname?: string;
   keywords?: string[];
-  publishedTime?: string;
-  modifiedTime?: string;
+  datePublished?: Date;
+  dateModified?: Date;
   openGraphType?: "article" | "website";
   noIndex?: boolean;
   locale?: string;
@@ -22,8 +22,8 @@ type JsonLdArticle = {
   headline: string;
   description?: string;
   url: string;
-  datePublished?: string;
-  dateModified?: string;
+  datePublished?: Date;
+  dateModified?: Date;
   author: {
     "@type": "Person";
     name: string;
@@ -110,8 +110,8 @@ export function buildMetadata({
   description, 
   pathname = "/", 
   keywords = [],
-  publishedTime,
-  modifiedTime,
+  datePublished,
+  dateModified,
   openGraphType = "website",
   noIndex = false,
   locale = siteConfig.language
@@ -137,8 +137,8 @@ export function buildMetadata({
       locale,
       type: openGraphType,
       tags: resolvedKeywords,
-      publishedTime,
-      modifiedTime
+      publishedTime: datePublished?.toISOString(),
+      modifiedTime: dateModified?.toISOString()
     },
     twitter: {
       card: "summary_large_image",
@@ -168,8 +168,8 @@ export function buildContentMetadata(content: ContentEntry): Metadata {
     description: content.description ?? content.excerpt,
     pathname: content.permalink,
     keywords,
-    publishedTime: content.date,
-    modifiedTime: content.lastUpdated,
+    datePublished: content.datePublished,
+    dateModified: content.dateModified ?? content.datePublished,
     openGraphType: content.kind === "post" ? "article" : "website",
     locale: content.locale
   });
@@ -194,8 +194,8 @@ export function buildArticleJsonLd(content: ContentEntry): JsonLdArticle {
     headline: content.title,
     description: content.description ?? content.excerpt,
     url: getAbsoluteUrl(content.permalink),
-    datePublished: content.date,
-    dateModified: content.lastUpdated ?? content.date,
+    datePublished: content.datePublished,
+    dateModified: content.dateModified ?? content.datePublished,
     author: {
       "@type": "Person",
       name: siteConfig.author
@@ -354,7 +354,7 @@ export function buildMediaObjectJsonLd(asset: MediaAsset) {
   } satisfies JsonLdMediaObject;
 }
 
-export function formatDisplayDate(value?: string, locale = siteConfig.language) {
+export function formatDisplayDate(value?: Date, locale = siteConfig.language) {
   if (!value) {
     return "Undated";
   }
@@ -362,9 +362,15 @@ export function formatDisplayDate(value?: string, locale = siteConfig.language) 
   return new Intl.DateTimeFormat(locale, {
     dateStyle: "long",
     timeZone: "UTC"
-  }).format(new Date(value));
+  }).format(value);
 }
 
 export function serializeJsonLd(value: unknown) {
-  return JSON.stringify(value).replace(/</g, "\\u003c");
+  return JSON.stringify(value, (key, val) => {
+    // Convert Date objects to ISO strings for JSON-LD
+    if (val instanceof Date) {
+      return val.toISOString();
+    }
+    return val;
+  }).replace(/</g, "\\u003c");
 }

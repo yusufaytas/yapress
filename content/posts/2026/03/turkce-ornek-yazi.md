@@ -2,7 +2,7 @@
 title: "Türkçe Örnek Yazı"
 slug: "turkce-ornek-yazi"
 description: "YaPress'te Türkçe karakter desteğini test etmek için örnek bir yazı."
-date: "2026-03-10"
+datePublished: "2026-03-10"
 author: "Yusuf Aytaş"
 categories:
   - documentation

@@ -1,7 +1,7 @@
 ---
 title: My Writing Workflow with YaPress
 slug: writing-workflow-yapress
-date: 2026-01-10
+datePublished: 2026-01-10
 categories:
   - writing
 tags:

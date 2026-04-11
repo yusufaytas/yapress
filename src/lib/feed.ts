@@ -12,6 +12,7 @@ function escapeXml(input: string) {
 
 export function buildRssFeed() {
   const items = getAllPosts()
+    .filter((post) => post.datePublished) // Only include posts with dates
     .map((post) => {
       const link = getAbsoluteUrl(post.permalink);
       const description = escapeXml(post.description ?? post.excerpt);
@@ -21,7 +22,7 @@ export function buildRssFeed() {
         `<title>${escapeXml(post.title)}</title>`,
         `<link>${link}</link>`,
         `<guid>${link}</guid>`,
-        `<pubDate>${new Date(post.date ?? Date.now()).toUTCString()}</pubDate>`,
+        `<pubDate>${post.datePublished!.toUTCString()}</pubDate>`,
         `<description>${description}</description>`,
         "</item>"
       ].join("");

@@ -1,7 +1,7 @@
 ---
 title: Theming Your YaPress Site
 slug: theming-yapress
-date: 2026-02-12
+datePublished: 2026-02-12
 categories:
   - engineering
 tags:

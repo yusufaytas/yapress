@@ -1,7 +1,7 @@
 ---
 title: Introducing YaPress
 slug: introducing-yapress
-date: 2025-12-15
+datePublished: 2025-12-15
 categories:
   - engineering
 tags:

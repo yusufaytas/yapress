@@ -26,7 +26,7 @@ describe("urls", () => {
   });
 
   it("builds slug permalinks by default", () => {
-    expect(getPostPermalink({ slug: "hello-world", date: "2026-04-10T00:00:00.000Z" })).toBe("/hello-world");
+    expect(getPostPermalink({ slug: "hello-world", date: new Date("2026-04-10T00:00:00.000Z") })).toBe("/hello-world");
   });
 
   it("supports prefixed year-month permalinks", () => {
@@ -38,7 +38,7 @@ describe("urls", () => {
       },
     };
 
-    expect(getPostPermalink({ slug: "hello-world", date: "2026-04-10T00:00:00.000Z" })).toBe("/blog/2026/04/hello-world");
+    expect(getPostPermalink({ slug: "hello-world", date: new Date("2026-04-10T00:00:00.000Z") })).toBe("/blog/2026/04/hello-world");
   });
 
   it("respects archive configuration", () => {

@@ -11,7 +11,12 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default function TagsPage() {
-  const buckets = getTagBuckets();
+  const allBuckets = getTagBuckets();
+  
+  // Show only top 50 tags sorted by post count
+  const buckets = allBuckets
+    .sort((a, b) => b.posts.length - a.posts.length)
+    .slice(0, 50);
   
   const jsonLd = buildItemListJsonLd(
     "Tags",

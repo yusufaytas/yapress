@@ -1,7 +1,7 @@
 ---
 title: Version Control for Content Writers
 slug: version-control-content
-date: 2026-01-15
+datePublished: 2026-01-15
 categories:
   - writing
 tags:

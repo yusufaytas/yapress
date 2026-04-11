@@ -1,7 +1,7 @@
 ---
 title: Customizing Your YaPress Design
 slug: customizing-yapress-design
-date: 2026-03-28
+datePublished: 2026-03-28
 categories:
   - engineering
 tags:

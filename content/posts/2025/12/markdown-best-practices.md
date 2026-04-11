@@ -1,7 +1,7 @@
 ---
 title: Markdown Best Practices for YaPress
 slug: markdown-best-practices
-date: 2025-12-28
+datePublished: 2025-12-28
 categories:
   - writing
 tags:

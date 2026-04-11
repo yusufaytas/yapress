@@ -7,7 +7,7 @@ export function ArticleCard({ post }: { post: ContentEntry }) {
   return (
     <article className="post-preview">
       <div className="post-preview__meta">
-        <span>{formatDisplayDate(post.date)}</span>
+        <span>{formatDisplayDate(post.datePublished)}</span>
         <span className="post-preview__dot" aria-hidden="true">
           ·
         </span>

@@ -1,7 +1,7 @@
 ---
 title: Understanding the YaPress Plugin System
 slug: yapress-plugin-system
-date: 2026-02-05
+datePublished: 2026-02-05
 categories:
   - engineering
 tags:

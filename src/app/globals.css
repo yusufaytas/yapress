@@ -1221,6 +1221,15 @@ img {
   text-align: center;
 }
 
+.article-body iframe {
+  display: block;
+  margin: 2rem auto;
+  max-width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 .stack {
   display: grid;
   gap: 1rem;

@@ -25,8 +25,8 @@ type FrontmatterBase = {
 };
 
 type PostFrontmatter = FrontmatterBase & {
-  date: string;
-  lastUpdated?: string;
+  datePublished: string;
+  dateModified?: string;
   draft?: boolean;
   categories: string[];
   tags?: string[];
@@ -50,8 +50,8 @@ export type ContentEntry = {
   description?: string;
   language: string;
   locale: string;
-  date?: string;
-  lastUpdated?: string;
+  datePublished?: Date;
+  dateModified?: Date;
   draft?: boolean;
   content: string;
   excerpt: string;
@@ -98,8 +98,7 @@ function normalizeAlias(input: string) {
 }
 
 function normalizeDate(input: string | Date) {
-  const date = input instanceof Date ? input : new Date(input);
-  return date.toISOString();
+  return input instanceof Date ? input : new Date(input);
 }
 
 function titleFromSlug(slug: string) {
@@ -241,8 +240,8 @@ function resolveAliases(rawAliases: string[] = []) {
 
 function sortPosts(posts: ContentEntry[]) {
   return [...posts].sort((left, right) => {
-    const leftDate = left.date ? new Date(left.date).getTime() : 0;
-    const rightDate = right.date ? new Date(right.date).getTime() : 0;
+    const leftDate = left.datePublished?.getTime() ?? 0;
+    const rightDate = right.datePublished?.getTime() ?? 0;
     if (leftDate !== rightDate) {
       return rightDate - leftDate;
     }
@@ -325,8 +324,8 @@ export function getAllPosts() {
     const { data, content } = matter(source);
     const frontmatter = data as PostFrontmatter;
 
-    if (!frontmatter.title || !frontmatter.slug || !frontmatter.date || !frontmatter.categories?.length) {
-      throw new Error(`Post "${fileName}" is missing one of: title, slug, date, categories.`);
+    if (!frontmatter.title || !frontmatter.slug || !frontmatter.datePublished || !frontmatter.categories?.length) {
+      throw new Error(`Post "${fileName}" is missing one of: title, slug, datePublished, categories.`);
     }
 
     return {
@@ -336,8 +335,8 @@ export function getAllPosts() {
       description: frontmatter.description,
       language: frontmatter.language ?? siteConfig.language,
       locale: frontmatter.locale ?? frontmatter.language ?? siteConfig.language,
-      date: normalizeDate(frontmatter.date),
-      lastUpdated: frontmatter.lastUpdated ? normalizeDate(frontmatter.lastUpdated) : undefined,
+      datePublished: normalizeDate(frontmatter.datePublished),
+      dateModified: frontmatter.dateModified ? normalizeDate(frontmatter.dateModified) : undefined,
       draft: frontmatter.draft ?? false,
       content,
       excerpt: buildExcerpt(content),
@@ -347,7 +346,7 @@ export function getAllPosts() {
       series: resolveSeries(frontmatter.series, frontmatter.locale ?? frontmatter.language ?? siteConfig.language),
       permalink: getPostPermalink({
         slug: normalizeSlug(frontmatter.slug, frontmatter.locale ?? frontmatter.language ?? siteConfig.language),
-        date: normalizeDate(frontmatter.date)
+        date: normalizeDate(frontmatter.datePublished)
       }),
       aliases: resolveAliases(frontmatter.aliases)
     } satisfies ContentEntry;
@@ -531,11 +530,11 @@ export function getDateArchiveBuckets() {
   const buckets = new Map<string, DateArchiveBucket>();
 
   for (const post of getAllPosts()) {
-    if (!post.date) {
+    if (!post.datePublished) {
       continue;
     }
 
-    const date = new Date(post.date);
+    const date = post.datePublished;
     if (Number.isNaN(date.getTime())) {
       continue;
     }

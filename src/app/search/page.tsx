@@ -18,7 +18,7 @@ export default function SearchPage() {
     title: post.title,
     slug: post.slug,
     excerpt: post.excerpt,
-    date: post.date,
+    date: post.datePublished?.toISOString(),
     categories: post.categories.map((category) => category.title),
     permalink: post.permalink
   }));

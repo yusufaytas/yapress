@@ -1,7 +1,7 @@
 ---
 title: Getting Started with YaPress in 10 Minutes
 slug: getting-started-yapress
-date: 2026-01-05
+datePublished: 2026-01-05
 categories:
   - engineering
 tags:

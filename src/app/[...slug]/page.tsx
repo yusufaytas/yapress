@@ -122,9 +122,9 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
             </div>
             <h2 className="article-title">{post.title}</h2>
             <div className="meta">
-              Published {formatDisplayDate(post.date, post.locale)} · {post.readingTime.text}
-              {post.lastUpdated && post.lastUpdated !== post.date && (
-                <> · Updated {formatDisplayDate(post.lastUpdated, post.locale)}</>
+              Published {formatDisplayDate(post.datePublished, post.locale)} · {post.readingTime.text}
+              {post.dateModified && post.dateModified.getTime() !== post.datePublished?.getTime() && (
+                <> · Updated {formatDisplayDate(post.dateModified, post.locale)}</>
               )}
             </div>
           </header>

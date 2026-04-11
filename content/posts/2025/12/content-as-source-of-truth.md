@@ -1,7 +1,7 @@
 ---
 title: Content as Source of Truth
 slug: content-as-source-of-truth
-date: 2025-12-20
+datePublished: 2025-12-20
 categories:
   - writing
 tags:

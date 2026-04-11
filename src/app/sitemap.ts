@@ -17,7 +17,7 @@ export const dynamic = "force-static";
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts().map((post) => ({
     url: getAbsoluteUrl(post.permalink),
-    lastModified: post.date
+    lastModified: post.datePublished
   }));
 
   const pages = getAllPages().map((page) => ({

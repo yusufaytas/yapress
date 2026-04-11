@@ -20,8 +20,8 @@ describe("content", () => {
     expect(posts.some((post) => post.slug === "draft-example")).toBe(false);
 
     for (let index = 1; index < posts.length; index += 1) {
-      const previous = new Date(posts[index - 1].date ?? 0).getTime();
-      const current = new Date(posts[index].date ?? 0).getTime();
+      const previous = posts[index - 1].datePublished?.getTime() ?? 0;
+      const current = posts[index].datePublished?.getTime() ?? 0;
       expect(previous).toBeGreaterThanOrEqual(current);
     }
   });

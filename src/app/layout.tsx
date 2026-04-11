@@ -37,7 +37,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     title: post.title,
     slug: post.slug,
     excerpt: post.excerpt,
-    date: post.date,
+    date: post.datePublished?.toISOString(),
     categories: post.categories.map(c => c.title),
     permalink: post.permalink
   }));

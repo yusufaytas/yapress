@@ -3,7 +3,7 @@ import siteConfig from "@/site.config";
 
 type DatedEntry = {
   slug: string;
-  date?: string;
+  date?: Date;
   permalink?: string;
 };
 
@@ -92,20 +92,19 @@ export function getUrlConfig() {
   };
 }
 
-function formatYearMonth(date?: string) {
+function formatYearMonth(date?: Date) {
   if (!date) {
     return null;
   }
 
-  const value = new Date(date);
-  if (Number.isNaN(value.getTime())) {
+  if (Number.isNaN(date.getTime())) {
     return null;
   }
 
   return {
-    year: String(value.getUTCFullYear()),
-    month: String(value.getUTCMonth() + 1).padStart(2, "0"),
-    day: String(value.getUTCDate()).padStart(2, "0"),
+    year: String(date.getUTCFullYear()),
+    month: String(date.getUTCMonth() + 1).padStart(2, "0"),
+    day: String(date.getUTCDate()).padStart(2, "0"),
   };
 }
 

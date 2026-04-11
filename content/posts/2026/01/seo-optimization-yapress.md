@@ -1,7 +1,7 @@
 ---
 title: SEO Optimization for YaPress Sites
 slug: seo-optimization-yapress
-date: 2026-01-20
+datePublished: 2026-01-20
 categories:
   - engineering
 tags:

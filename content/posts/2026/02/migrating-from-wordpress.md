@@ -1,7 +1,7 @@
 ---
 title: Migrating from WordPress to YaPress
 slug: migrating-from-wordpress
-date: 2026-02-18
+datePublished: 2026-02-18
 categories:
   - engineering
 tags:

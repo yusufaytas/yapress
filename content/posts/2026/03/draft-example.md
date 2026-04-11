@@ -1,7 +1,7 @@
 ---
 title: Draft Post Example
 slug: draft-example
-date: 2026-03-25
+datePublished: 2026-03-25
 draft: true
 categories:
   - documentation
