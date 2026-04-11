@@ -14,6 +14,181 @@ const turndownService = new TurndownService({
   emDelimiter: "*",
 });
 
+const SUPPORTED_IMPORTED_LANGUAGES = new Set([
+  "bash",
+  "c",
+  "cpp",
+  "csharp",
+  "css",
+  "go",
+  "html",
+  "java",
+  "javascript",
+  "json",
+  "kotlin",
+  "markdown",
+  "php",
+  "python",
+  "ruby",
+  "rust",
+  "scala",
+  "sql",
+  "swift",
+  "typescript",
+  "xml",
+  "yaml",
+]);
+
+function normalizeImportedLanguage(language) {
+  if (!language) {
+    return "";
+  }
+
+  const normalized = String(language).trim().toLowerCase();
+  const aliases = new Map([
+    ["js", "javascript"],
+    ["node", "javascript"],
+    ["ts", "typescript"],
+    ["py", "python"],
+    ["pyton", "python"],
+    ["shell", "bash"],
+    ["sh", "bash"],
+    ["zsh", "bash"],
+    ["html5", "html"],
+    ["xhtml", "html"],
+  ]);
+
+  return aliases.get(normalized) ?? normalized;
+}
+
+function extractLanguageFromClassName(className = "") {
+  if (!className) {
+    return "";
+  }
+
+  const patterns = [
+    /language-([\w-]+)/i,
+    /\b(?:lang|language)-([\w-]+)/i,
+    /\bbrush:\s*([\w-]+)/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = className.match(pattern);
+    if (match) {
+      return normalizeImportedLanguage(match[1]);
+    }
+  }
+
+  const candidates = className
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter(Boolean)
+    .map((token) => token.replace(/^language-/, ""));
+
+  for (const candidate of candidates) {
+    const normalized = normalizeImportedLanguage(candidate);
+    if (SUPPORTED_IMPORTED_LANGUAGES.has(normalized)) {
+      return normalized;
+    }
+  }
+
+  return "";
+}
+
+function detectCodeLanguage(node) {
+  if (!node) {
+    return "";
+  }
+
+  const candidates = [
+    node.getAttribute?.("lang"),
+    node.getAttribute?.("language"),
+    node.getAttribute?.("data-language"),
+    node.className,
+  ];
+
+  const code = node.querySelector?.("code");
+  if (code) {
+    candidates.push(
+      code.getAttribute?.("lang"),
+      code.getAttribute?.("language"),
+      code.getAttribute?.("data-language"),
+      code.className
+    );
+  }
+
+  const nestedPre = node.querySelector?.("pre");
+  if (nestedPre && nestedPre !== node) {
+    candidates.push(
+      nestedPre.getAttribute?.("lang"),
+      nestedPre.getAttribute?.("language"),
+      nestedPre.getAttribute?.("data-language"),
+      nestedPre.className
+    );
+  }
+
+  for (const candidate of candidates) {
+    if (!candidate) {
+      continue;
+    }
+
+    const fromClass = extractLanguageFromClassName(candidate);
+    if (fromClass) {
+      return fromClass;
+    }
+
+    const normalized = normalizeImportedLanguage(candidate);
+    if (SUPPORTED_IMPORTED_LANGUAGES.has(normalized)) {
+      return normalized;
+    }
+  }
+
+  const rawCode =
+    node.querySelector?.("code")?.textContent ||
+    node.querySelector?.("pre")?.textContent ||
+    node.textContent ||
+    "";
+
+  return guessLanguageFromCode(rawCode);
+}
+
+function guessLanguageFromCode(source = "") {
+  const code = source.trim();
+  if (!code) {
+    return "";
+  }
+
+  if (/^\s*</.test(code) && /<\/?[A-Za-z]/.test(code)) {
+    return "xml";
+  }
+
+  if (/#include\s*[<"]|std::|cout\s*<</.test(code)) {
+    return code.includes("using namespace std") || code.includes("std::") ? "cpp" : "c";
+  }
+
+  if (/\bpublic\s+class\b|\bpublic\s+interface\b|\bimport\s+java\./.test(code)) {
+    return "java";
+  }
+
+  if (/^\s*def\s+\w+\s*\(|^\s*class\s+\w+\s*:|print\s*\(/m.test(code)) {
+    return "python";
+  }
+
+  if (/\bfunction\b|=>|console\.log|const\s+|let\s+|var\s+/.test(code)) {
+    return "javascript";
+  }
+
+  if (/^\s*SELECT\b|^\s*INSERT\b|^\s*UPDATE\b|^\s*DELETE\b/m.test(code)) {
+    return "sql";
+  }
+
+  if (/^\s*[.#]?[A-Za-z_-][\w-]*\s*\{|--[\w-]+\s*:/.test(code)) {
+    return "css";
+  }
+
+  return "";
+}
+
 // Improve HTML to Markdown conversion
 turndownService.addRule("strikethrough", {
   filter: ["del", "s", "strike"],
@@ -23,8 +198,7 @@ turndownService.addRule("strikethrough", {
 turndownService.addRule("pre", {
   filter: "pre",
   replacement: (content, node) => {
-    const code = node.querySelector("code");
-    const language = code?.className?.match(/language-(\w+)/)?.[1] || "";
+    const language = detectCodeLanguage(node);
     return `\n\`\`\`${language}\n${content}\n\`\`\`\n`;
   },
 });
@@ -205,13 +379,27 @@ turndownService.addRule("wpCode", {
   replacement: (content, node) => {
     const code = node.querySelector("code");
     if (!code) return content;
-    
-    // Try to detect language from class or content
-    const className = code.className || "";
-    const languageMatch = className.match(/language-(\w+)/);
-    const language = languageMatch ? languageMatch[1] : "";
-    
+
+    const language = detectCodeLanguage(node);
+
     return `\n\`\`\`${language}\n${code.textContent}\n\`\`\`\n\n`;
+  },
+});
+
+// Handle legacy wp_syntax blocks with nested pre[class="java"] and line number columns
+turndownService.addRule("wpSyntax", {
+  filter: (node) => {
+    if (node.nodeName !== "DIV") return false;
+    const className = node.getAttribute("class") || "";
+    return className.includes("wp_syntax");
+  },
+  replacement: (content, node) => {
+    const codePre = node.querySelector("td.code pre") || node.querySelector("pre");
+    const fallbackText = node.querySelector("p.theCode")?.textContent || "";
+    const codeText = codePre?.textContent || fallbackText || content;
+    const language = detectCodeLanguage(codePre || node);
+
+    return `\n\`\`\`${language}\n${codeText.trimEnd()}\n\`\`\`\n\n`;
   },
 });
 
