@@ -132,7 +132,7 @@ const siteConfig: SiteConfig = {
   },
   sharing: {
     enabled: true,
-    platforms: ["twitter", "linkedin", "reddit", "facebook", "email", "copy"]
+    platforms: ["twitter", "linkedin", "reddit", "email", "copy"]
   }
 };
 

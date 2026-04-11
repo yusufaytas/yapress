@@ -60,7 +60,7 @@ npm run validate:content
 ### Design & UX
 - **Theme Presets + Overrides** - Start from `dark`, `earth`, `ocean`, or `forest`, then override tokens, typography, or full CSS
 - **Responsive Design** - Mobile-optimized layouts
-- **Social Sharing** - Share buttons for Twitter, LinkedIn, Reddit, Facebook, email
+- **Social Sharing** - Share buttons for Twitter, LinkedIn, Reddit, email, copy link, and native share where supported
 - **Pagination** - Configurable posts per page
 - **Search** - Client-side content search
 - **Date Archives** - Month-based archive pages such as `/2026/04`

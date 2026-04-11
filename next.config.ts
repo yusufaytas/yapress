@@ -1,10 +1,25 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
   pageExtensions: ["ts", "tsx", "md", "mdx"],
-  images: {
-    unoptimized: true
+  async redirects() {
+    return [
+      {
+        source: "/category/:slug",
+        destination: "/categories/:slug",
+        permanent: true
+      },
+      {
+        source: "/tag/:slug",
+        destination: "/tags/:slug",
+        permanent: true
+      },
+      {
+        source: "/wp-content/uploads/:path*",
+        destination: "/images/:path*",
+        permanent: true
+      }
+    ];
   }
 };
 

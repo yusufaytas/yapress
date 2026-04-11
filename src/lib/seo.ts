@@ -105,6 +105,19 @@ function getXHandle() {
   return xUrl.startsWith("@") ? xUrl : undefined;
 }
 
+function getSocialImage() {
+  const imageSrc = siteConfig.bannerImage?.src ?? siteConfig.logo?.src;
+
+  if (!imageSrc) {
+    return undefined;
+  }
+
+  return {
+    url: getAbsoluteUrl(imageSrc),
+    alt: siteConfig.bannerImage?.alt ?? siteConfig.logo?.alt ?? siteConfig.title,
+  };
+}
+
 export function buildMetadata({ 
   title, 
   description, 
@@ -121,6 +134,7 @@ export function buildMetadata({
   const absoluteUrl = getAbsoluteUrl(pathname);
   const resolvedKeywords = keywords.length > 0 ? keywords : (siteConfig.keywords ?? []);
   const xHandle = getXHandle();
+  const socialImage = getSocialImage();
 
   return {
     title: resolvedTitle,
@@ -134,6 +148,7 @@ export function buildMetadata({
       description: resolvedDescription,
       url: absoluteUrl,
       siteName: siteConfig.title,
+      images: socialImage ? [socialImage] : undefined,
       locale,
       type: openGraphType,
       tags: resolvedKeywords,
@@ -144,6 +159,7 @@ export function buildMetadata({
       card: "summary_large_image",
       title: resolvedTitle,
       description: resolvedDescription,
+      images: socialImage ? [socialImage.url] : undefined,
       creator: xHandle,
       site: xHandle
     },

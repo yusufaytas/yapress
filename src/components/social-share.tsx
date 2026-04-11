@@ -18,10 +18,11 @@ export function SocialShare({ title, url, description }: SocialShareProps) {
     return null
   }
   
-  const platforms = sharing.platforms || ["twitter", "linkedin", "reddit", "facebook", "email", "copy"]
+  const platforms = sharing.platforms || ["twitter", "linkedin", "reddit", "email", "copy"]
   const encodedUrl = encodeURIComponent(url)
   const encodedTitle = encodeURIComponent(title)
   const encodedDescription = encodeURIComponent(description || title)
+  const canUseNativeShare = typeof navigator !== "undefined" && typeof navigator.share === "function"
   
   const shareLinks = {
     twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
@@ -31,7 +32,38 @@ export function SocialShare({ title, url, description }: SocialShareProps) {
     email: `mailto:?subject=${encodedTitle}&body=${encodedDescription}%0A%0A${encodedUrl}`,
   }
   
+  const buildNativeShareData = () => {
+    const shareDataWithText = {
+      title,
+      text: description || title,
+      url,
+    }
+
+    if (typeof navigator.canShare === "function" && !navigator.canShare(shareDataWithText)) {
+      const shareDataWithTitle = { title, url }
+
+      if (navigator.canShare(shareDataWithTitle)) {
+        return shareDataWithTitle
+      }
+    }
+
+    return shareDataWithText
+  }
+
   const handleCopy = async () => {
+    if (canUseNativeShare) {
+      try {
+        await navigator.share(buildNativeShareData())
+        return
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return
+        }
+
+        console.error("Failed to share:", err)
+      }
+    }
+
     try {
       await navigator.clipboard.writeText(url)
       setCopied(true)
@@ -67,7 +99,11 @@ export function SocialShare({ title, url, description }: SocialShareProps) {
         <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="currentColor"/>
       </svg>
     ),
-    copy: copied ? (
+    copy: canUseNativeShare ? (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7a2.994 2.994 0 0 0 0-1.39l7.05-4.11A2.99 2.99 0 1 0 15 5a2.9 2.9 0 0 0 .04.49L7.99 9.6a3 3 0 1 0 0 4.8l7.05 4.11c-.03.16-.04.32-.04.49a3 3 0 1 0 3-2.92z" fill="currentColor"/>
+      </svg>
+    ) : copied ? (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
       </svg>
@@ -84,7 +120,7 @@ export function SocialShare({ title, url, description }: SocialShareProps) {
     reddit: "Reddit",
     facebook: "Facebook",
     email: "Email",
-    copy: copied ? "Copied!" : "Copy link",
+    copy: canUseNativeShare ? "Share" : copied ? "Copied!" : "Copy link",
   }
   
   return (

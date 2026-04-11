@@ -21,7 +21,14 @@ describe("seo", () => {
     expect(metadata.alternates?.canonical?.toString()).toContain("/archives");
     expect(metadata.openGraph).toMatchObject({ type: "website" });
     expect(metadata.keywords).toEqual(["archives"]);
+    expect(metadata.openGraph?.images).toEqual([
+      {
+        url: "https://example.com/yapress.jpg",
+        alt: "Yapress",
+      },
+    ]);
     expect(metadata.twitter).toMatchObject({
+      images: ["https://example.com/yapress.jpg"],
       creator: siteConfig.social?.x ? "@example" : undefined,
       site: siteConfig.social?.x ? "@example" : undefined,
     });

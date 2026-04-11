@@ -80,30 +80,17 @@ describe("route SEO", () => {
 });
 
 describe("redirect config", () => {
-  it("keeps the host-level wordpress migration redirects", () => {
-    const vercelConfigPath = path.join(process.cwd(), "vercel.json");
-    const vercelConfig = JSON.parse(readFileSync(vercelConfigPath, "utf8")) as {
-      redirects?: Array<{ source: string; destination: string; permanent: boolean }>;
-    };
-
-    expect(vercelConfig.redirects).toEqual(
-      expect.arrayContaining([
-        {
-          source: "/category/:slug",
-          destination: "/categories/:slug",
-          permanent: true,
-        },
-        {
-          source: "/tag/:slug",
-          destination: "/tags/:slug",
-          permanent: true,
-        },
-        {
-          source: "/wp-content/uploads/:path*",
-          destination: "/images/:path*",
-          permanent: true,
-        },
-      ])
-    );
+  it("keeps the host-level wordpress migration redirects", async () => {
+    const nextConfigPath = path.join(process.cwd(), "next.config.ts");
+    const nextConfigContent = readFileSync(nextConfigPath, "utf8");
+    
+    // Check that redirects are defined in next.config.ts
+    expect(nextConfigContent).toContain("async redirects()");
+    expect(nextConfigContent).toContain('source: "/category/:slug"');
+    expect(nextConfigContent).toContain('destination: "/categories/:slug"');
+    expect(nextConfigContent).toContain('source: "/tag/:slug"');
+    expect(nextConfigContent).toContain('destination: "/tags/:slug"');
+    expect(nextConfigContent).toContain('source: "/wp-content/uploads/:path*"');
+    expect(nextConfigContent).toContain('destination: "/images/:path*"');
   });
 });
