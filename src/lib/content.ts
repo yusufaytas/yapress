@@ -34,6 +34,8 @@ type PostFrontmatter = FrontmatterBase & {
 };
 
 type PageFrontmatter = FrontmatterBase & {
+  datePublished?: string;
+  dateModified?: string;
   draft?: boolean;
 };
 

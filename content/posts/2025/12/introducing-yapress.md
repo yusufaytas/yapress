@@ -14,6 +14,10 @@ description: Why YaPress exists and how its framework/site split works.
 
 YaPress is built around a simple rule: content belongs to the site author, while publishing infrastructure belongs to the framework.
 
+> "The best tools are the ones that get out of your way. YaPress lets you focus on writing while it handles the complexity of modern web publishing."
+> 
+> <cite>Jane Developer, Tech Lead</cite>
+
 That split keeps upgrades predictable and content portable. Let's explore why this matters and how it works.
 
 ## The Problem We're Solving

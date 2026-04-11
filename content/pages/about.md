@@ -1,6 +1,8 @@
 ---
 title: About
 slug: about
+datePublished: 2025-12-01
+dateModified: 2026-04-11
 description: About this YaPress-powered site and our mission.
 ---
 

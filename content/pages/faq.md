@@ -1,6 +1,8 @@
 ---
 title: Frequently Asked Questions
 slug: faq
+datePublished: 2025-12-01
+dateModified: 2026-04-11
 description: Common questions about YaPress and how to use it.
 ---
 

@@ -1,6 +1,8 @@
 ---
 title: Privacy Policy
 slug: privacy
+datePublished: 2025-12-01
+dateModified: 2026-04-09
 description: How we handle your data and privacy.
 ---
 
