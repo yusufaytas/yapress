@@ -8,7 +8,8 @@ tags:
   - workflow
   - version-control
 series:
-  - best-practices
+  - slug: best-practices
+    order: 2
 description: The case for file-based publishing with deterministic builds.
 ---
 
@@ -125,4 +126,3 @@ But for developers and technical writers, these trade-offs are worth it for the 
 When content is the source of truth, everything else becomes derivable and replaceable. The framework can evolve, hosting can change, but your content remains yours—portable, version-controlled, and future-proof.
 
 That's the YaPress philosophy.
-

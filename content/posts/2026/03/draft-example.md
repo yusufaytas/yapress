@@ -9,7 +9,7 @@ tags:
   - example
   - draft
 series:
-  - getting-started
+  - slug: getting-started
 description: This is a draft post that won't be published in production.
 ---
 

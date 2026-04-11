@@ -6,8 +6,16 @@ categories:
   - engineering
 tags:
   - mobile
-  - responsive-design
+  - responsive design
   - ux
+  - compact branding
+  - hamburger icon
+  - smooth animations
+  - visual hierarchy
+  - spreading metadata
+  - responsive font sizing
+  - spaced for touch
+  - flows naturally
 description: How we optimized YaPress for mobile devices with elegant navigation, improved layouts, and better content rendering.
 ---
 

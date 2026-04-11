@@ -11,7 +11,7 @@ tags:
   - test
   - unicode
 series:
-  - getting-started
+  - slug: getting-started
 draft: false
 ---
 

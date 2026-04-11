@@ -9,7 +9,8 @@ tags:
   - workflow
   - documentation
 series:
-  - best-practices
+  - slug: best-practices
+    order: 3
 description: Practical tips and conventions for writing clean, maintainable markdown content.
 ---
 
@@ -37,7 +38,7 @@ tags:
   - markdown
   - best-practices
 series:
-  - tutorial-series-name
+  - slug: tutorial-series-name
 ```
 
 ## Heading Hierarchy

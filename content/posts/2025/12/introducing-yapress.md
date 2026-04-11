@@ -8,7 +8,8 @@ tags:
   - static-sites
   - markdown
 series:
-  - best-practices
+  - slug: best-practices
+    order: 1
 description: Why YaPress exists and how its framework/site split works.
 ---
 
@@ -261,4 +262,3 @@ Check out the [GitHub repository](https://github.com/yusufaytascom/yapress) to g
 YaPress exists to give you full control over your content while handling the complexity of modern web publishing. The framework/site split makes this possible.
 
 Try it out and let us know what you think!
-

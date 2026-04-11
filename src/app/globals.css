@@ -628,6 +628,11 @@ img {
   transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
 }
 
+.pill-button {
+  cursor: pointer;
+  font: inherit;
+}
+
 .pill:hover {
   background: var(--accent-soft);
   color: var(--text);

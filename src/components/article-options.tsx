@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react"
 type LayoutMode = "spacious" | "editorial"
 
 export function ArticleOptions() {
-  const [layoutMode, setLayoutMode] = useState<LayoutMode>("spacious")
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>("editorial")
   const rootRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {

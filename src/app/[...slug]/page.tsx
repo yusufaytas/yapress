@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArticleCard } from "@/components/article-card";
 import { ArticleOptions } from "@/components/article-options";
 import { ContentRenderer } from "@/components/content-renderer";
+import { ExpandableTaxonomyList } from "@/components/expandable-taxonomy-list";
 import { SocialShare } from "@/components/social-share";
 import { TaxonomyPill } from "@/components/taxonomy-pill";
 import {
@@ -114,31 +115,19 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
               {post.categories.length > 0 ? (
                 <div className="article-meta-group">
                   <div className="article-taxonomy-label">Categories</div>
-                  <div className="pill-row">
-                    {post.categories.map((category) => (
-                      <TaxonomyPill key={category.slug} href={category.permalink} label={category.title} />
-                    ))}
-                  </div>
+                  <ExpandableTaxonomyList items={post.categories} />
                 </div>
               ) : null}
               {post.series.length > 0 ? (
                 <div className="article-meta-group">
                   <div className="article-taxonomy-label">Series</div>
-                  <div className="pill-row">
-                    {post.series.map((s) => (
-                      <TaxonomyPill key={s.slug} href={s.permalink} label={s.title} />
-                    ))}
-                  </div>
+                  <ExpandableTaxonomyList items={post.series} />
                 </div>
               ) : null}
               {post.tags.length > 0 ? (
                 <div className="article-meta-group">
                   <div className="article-taxonomy-label">Tags</div>
-                  <div className="pill-row">
-                    {post.tags.map((tag) => (
-                      <TaxonomyPill key={tag.slug} href={tag.permalink} label={`#${tag.title}`} />
-                    ))}
-                  </div>
+                  <ExpandableTaxonomyList items={post.tags} labelPrefix="#" />
                 </div>
               ) : null}
             </div>

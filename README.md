@@ -192,7 +192,8 @@ language: "tr"
 locale: "tr"
 categories: ["category-slug"]
 tags: ["tag1", "tag2"]
-series: "series-name"
+series:
+  - slug: series-name
 aliases: ["/old-post-path"]
 draft: false
 ---

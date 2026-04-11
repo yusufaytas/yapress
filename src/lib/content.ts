@@ -30,7 +30,12 @@ type PostFrontmatter = FrontmatterBase & {
   draft?: boolean;
   categories: string[];
   tags?: string[];
-  series?: string[];
+  series?: SeriesFrontmatterItem[];
+};
+
+type SeriesFrontmatterItem = {
+  slug: string;
+  order?: number;
 };
 
 type PageFrontmatter = FrontmatterBase & {
@@ -43,6 +48,7 @@ export type TaxonomyItem = {
   slug: string;
   title: string;
   permalink: string;
+  order?: number;
 };
 
 export type ContentEntry = {
@@ -212,28 +218,56 @@ function resolveTags(rawTags: string[] = [], locale = siteConfig.language) {
     });
 }
 
-function resolveSeries(series?: string[], locale = siteConfig.language) {
+function resolveSeries(series?: SeriesFrontmatterItem[], locale = siteConfig.language) {
   if (!series || series.length === 0) {
     return [];
   }
 
   const registry = seriesMap();
-  const normalized = [...new Set(series.map((item) => normalizeSlug(item, locale)))].filter(Boolean);
+  const normalized = new Map<string, SeriesFrontmatterItem>();
 
-  return normalized
-    .map((seriesSlug) => {
-      const match = registry.get(seriesSlug);
+  for (const item of series) {
+    const seriesSlug = normalizeSlug(item.slug, locale);
+
+    if (!seriesSlug) {
+      continue;
+    }
+
+    normalized.set(seriesSlug, {
+      slug: seriesSlug,
+      order: item.order
+    });
+  }
+
+  return [...normalized.values()]
+    .map((item) => {
+      const match = registry.get(item.slug);
       if (!match) {
-        throw new Error(`Unknown series "${seriesSlug}". Register it in content/series.ts.`);
+        throw new Error(`Unknown series "${item.slug}". Register it in content/series.ts.`);
       }
 
       return {
         slug: match.slug,
         title: match.title,
-        permalink: `/series/${match.slug}`
+        permalink: `/series/${match.slug}`,
+        order: item.order
       } satisfies TaxonomyItem;
     })
-    .sort((left, right) => left.slug.localeCompare(right.slug));
+    .sort((left, right) => {
+      if (left.order != null && right.order != null && left.order !== right.order) {
+        return left.order - right.order;
+      }
+
+      if (left.order != null) {
+        return -1;
+      }
+
+      if (right.order != null) {
+        return 1;
+      }
+
+      return left.slug.localeCompare(right.slug);
+    });
 }
 
 function resolveAliases(rawAliases: string[] = []) {
@@ -441,7 +475,34 @@ export function getPostsByTag(slug: string) {
 }
 
 export function getPostsBySeries(slug: string) {
-  return getAllPosts().filter((post) => post.series.some((s) => s.slug === slug));
+  return getAllPosts()
+    .filter((post) => post.series.some((s) => s.slug === slug))
+    .sort((left, right) => {
+      const leftSeries = left.series.find((item) => item.slug === slug);
+      const rightSeries = right.series.find((item) => item.slug === slug);
+      const leftOrder = leftSeries?.order;
+      const rightOrder = rightSeries?.order;
+
+      if (leftOrder != null && rightOrder != null && leftOrder !== rightOrder) {
+        return leftOrder - rightOrder;
+      }
+
+      if (leftOrder != null) {
+        return -1;
+      }
+
+      if (rightOrder != null) {
+        return 1;
+      }
+
+      const leftDate = left.datePublished?.getTime() ?? 0;
+      const rightDate = right.datePublished?.getTime() ?? 0;
+      if (leftDate !== rightDate) {
+        return leftDate - rightDate;
+      }
+
+      return left.slug.localeCompare(right.slug);
+    });
 }
 
 export function getRelatedPosts(post: ContentEntry, limit = 3) {

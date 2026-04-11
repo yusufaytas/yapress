@@ -5,6 +5,7 @@ import {
   getAllPosts,
   getDateArchiveBuckets,
   getPageByPermalink,
+  getPostsBySeries,
   getPostsByDateArchive,
   getTagBuckets,
   stripMarkdown,
@@ -56,6 +57,17 @@ describe("content", () => {
 
     expect(post.language).toBeTruthy();
     expect(post.locale).toBeTruthy();
+  });
+
+  it("sorts series posts by explicit order before chronology", () => {
+    const posts = getPostsBySeries("best-practices");
+
+    expect(posts.length).toBeGreaterThan(0);
+    expect(posts.map((post) => post.slug)).toEqual([
+      "introducing-yapress",
+      "content-as-source-of-truth",
+      "markdown-best-practices"
+    ]);
   });
 
   it("strips images from post excerpts", () => {
