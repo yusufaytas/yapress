@@ -97,6 +97,33 @@ function writeXml(relativePath, xml) {
   return outputPath;
 }
 
+function listMarkdownFiles(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    return [];
+  }
+
+  const files = [];
+
+  function scan(currentPath) {
+    const entries = fs.readdirSync(currentPath, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const fullPath = path.join(currentPath, entry.name);
+      if (entry.isDirectory()) {
+        scan(fullPath);
+        continue;
+      }
+
+      if (entry.name.endsWith(".md") || entry.name.endsWith(".mdx")) {
+        files.push(fullPath);
+      }
+    }
+  }
+
+  scan(dirPath);
+  return files.sort((left, right) => left.localeCompare(right));
+}
+
 const configSource = fs.readFileSync(configPath, "utf8");
 const config = {
   siteUrl: extractString(configSource, /siteUrl:\s*"([^"]+)"/),
@@ -109,14 +136,13 @@ const config = {
   tagFeeds: extractBoolean(configSource, /feeds:\s*{[\s\S]*?tags:\s*(true|false)/, true),
 };
 
-const posts = fs
-  .readdirSync(postsDir)
-  .filter((file) => file.endsWith(".md") || file.endsWith(".mdx"))
-  .map((file) => {
-    const source = fs.readFileSync(path.join(postsDir, file), "utf8");
+const posts = listMarkdownFiles(postsDir)
+  .map((filePath) => {
+    const source = fs.readFileSync(filePath, "utf8");
     const { data, content } = matter(source);
+    const datePublished = data.datePublished ?? data.date;
 
-    if (!data.title || !data.slug || !data.date || data.draft) {
+    if (!data.title || !data.slug || !datePublished || data.draft) {
       return null;
     }
 
@@ -125,7 +151,7 @@ const posts = fs
     return {
       title: String(data.title),
       slug: String(data.slug),
-      date: String(data.date),
+      date: String(datePublished),
       description: excerpt,
       excerpt,
       categories: Array.isArray(data.categories) ? data.categories.map(String) : [],

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { buildMetadata, buildItemListJsonLd } from "@/lib/seo";
+import { buildMetadata, buildItemListJsonLd, serializeJsonLd } from "@/lib/seo";
 import { getAllPages } from "@/lib/content";
 
 export const metadata: Metadata = buildMetadata({
@@ -28,7 +28,7 @@ export default function PagesIndexPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       <div className="container section stack">
         <div className="taxonomy-header">

@@ -160,9 +160,8 @@ The practical split is:
 Use `site.config.ts` to control public URL behavior:
 
 - `url.postPermalink.style` controls canonical post URLs
-- `url.redirects` defines exact-path redirects for migrated URLs
-- `aliases` in post/page frontmatter creates redirecting legacy URLs
-- WordPress-style redirects for `/category/<slug>`, `/tag/<slug>`, and legacy dated post URLs are generated automatically
+- `url.redirects` is deployment metadata you can use outside YaPress if your host supports redirects
+- `aliases` can be used to record legacy URLs during migration, but YaPress does not serve redirects for them
 
 Supported post permalink styles:
 

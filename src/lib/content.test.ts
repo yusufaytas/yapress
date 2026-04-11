@@ -3,11 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   getAllPages,
   getAllPosts,
-  getContentRedirects,
   getDateArchiveBuckets,
   getPageByPermalink,
   getPostsByDateArchive,
-  getRedirectTarget,
   getTagBuckets,
   stripMarkdown,
 } from "@/lib/content";
@@ -53,36 +51,11 @@ describe("content", () => {
     expect(markdown?.description).toBeTruthy();
   });
 
-  it("generates legacy redirects for tag and category routes", () => {
-    const redirects = getContentRedirects();
-
-    expect(redirects).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ from: "/category/documentation", to: "/categories/documentation" }),
-        expect.objectContaining({ from: "/tag/seo", to: "/tags/seo" }),
-      ])
-    );
-  });
-
   it("stores language and locale per content entry", () => {
     const post = getAllPosts()[0];
 
     expect(post.language).toBeTruthy();
     expect(post.locale).toBeTruthy();
-  });
-
-  it("redirects WordPress uploads to images directory", () => {
-    // Test various WordPress upload URL patterns
-    expect(getRedirectTarget("/wp-content/uploads/2024/01/image.jpg")).toBe("/images/2024/01/image.jpg");
-    expect(getRedirectTarget("/wp-content/uploads/2023/12/photo.png")).toBe("/images/2023/12/photo.png");
-    expect(getRedirectTarget("/wp-content/uploads/2025/06/document.pdf")).toBe("/images/2025/06/document.pdf");
-    
-    // Test with trailing slashes (should be normalized)
-    expect(getRedirectTarget("/wp-content/uploads/2024/01/image.jpg/")).toBe("/images/2024/01/image.jpg");
-    
-    // Test non-WordPress paths should not redirect to images
-    expect(getRedirectTarget("/some-other-path/2024/01/image.jpg")).not.toBe("/images/2024/01/image.jpg");
-    expect(getRedirectTarget("/uploads/2024/01/image.jpg")).not.toBe("/images/2024/01/image.jpg");
   });
 
   it("strips images from post excerpts", () => {

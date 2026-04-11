@@ -2,6 +2,16 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
+      "source": "/category/:slug",
+      "destination": "/categories/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/tag/:slug",
+      "destination": "/tags/:slug",
+      "permanent": true
+    },
+    {
       "source": "/wp-content/uploads/:path*",
       "destination": "/images/:path*",
       "permanent": true

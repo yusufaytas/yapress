@@ -4,23 +4,20 @@ import { notFound } from "next/navigation";
 import { ArticleCard } from "@/components/article-card";
 import { ArticleOptions } from "@/components/article-options";
 import { ContentRenderer } from "@/components/content-renderer";
-import { RedirectPage } from "@/components/redirect-page";
 import { SocialShare } from "@/components/social-share";
 import { TaxonomyPill } from "@/components/taxonomy-pill";
 import {
   getAllPages,
   getAllPosts,
-  getContentRedirects,
   getDateArchiveBuckets,
   getPageByPermalink,
   getPostByPermalink,
-  getPostsByDateArchive,
-  getRedirectTarget
+  getPostsByDateArchive
 } from "@/lib/content";
 import { getMediaAssetByPagePath, getMediaAssets } from "@/lib/media";
 import { getPluginComponents } from "@/lib/plugins";
 import { buildCollectionPageJsonLd, buildMediaObjectJsonLd, buildMetadata, buildPostMetadata, buildPageMetadata, buildContentJsonLd, formatDisplayDate, serializeJsonLd } from "@/lib/seo";
-import { getAbsoluteUrl, siteConfig } from "@/lib/site";
+import { getAbsoluteUrl } from "@/lib/site";
 import { joinPath } from "@/lib/urls";
 
 export function generateStaticParams() {
@@ -30,28 +27,13 @@ export function generateStaticParams() {
       .map((page) => ({ slug: page.permalink.split("/").filter(Boolean) })),
     ...getAllPosts().map((post) => ({ slug: post.permalink.split("/").filter(Boolean) })),
     ...getDateArchiveBuckets().map((bucket) => ({ slug: bucket.permalink.split("/").filter(Boolean) })),
-    ...getMediaAssets().map((asset) => ({ slug: asset.pagePath.split("/").filter(Boolean) })),
-    ...getContentRedirects().map((redirect) => ({ slug: redirect.from.split("/").filter(Boolean) }))
+    ...getMediaAssets().map((asset) => ({ slug: asset.pagePath.split("/").filter(Boolean) }))
   ];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
   const { slug } = await params;
   const pathname = joinPath(...slug);
-  const redirectTarget = getRedirectTarget(pathname);
-
-  if (redirectTarget) {
-    return {
-      title: "Redirecting",
-      alternates: {
-        canonical: getAbsoluteUrl(redirectTarget)
-      },
-      robots: {
-        index: false,
-        follow: true
-      }
-    };
-  }
 
   const post = getPostByPermalink(pathname);
   if (post) {
@@ -91,11 +73,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ContentPage({ params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
   const pathname = joinPath(...slug);
-  const redirectTarget = getRedirectTarget(pathname);
-
-  if (redirectTarget) {
-    return <RedirectPage to={redirectTarget} />;
-  }
 
   const post = getPostByPermalink(pathname);
   if (post) {

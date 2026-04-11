@@ -220,6 +220,10 @@ postPermalink: {
 }
 ```
 
+For this repository, the original site permalink style is slug-only, such as `/markdown-best-practices`, not dated paths like `/2025/12/28/markdown-best-practices`. Migration should preserve or redirect from the real legacy slug URLs only, rather than assuming WordPress-style dated permalinks.
+
+If someone needs host-level permanent redirects for a migration, they have to configure those rules in their own deployment platform. YaPress should not assume or generate provider-specific redirect manifests for them.
+
 #### WordPress with Custom Base
 
 ```

@@ -17,7 +17,7 @@ export const dynamic = "force-static";
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts().map((post) => ({
     url: getAbsoluteUrl(post.permalink),
-    lastModified: post.datePublished
+    lastModified: post.dateModified ?? post.datePublished
   }));
 
   const pages = getAllPages().map((page) => ({
@@ -38,11 +38,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: getAbsoluteUrl(asset.pagePath)
   }));
 
-  const paginatedRoutes = getPaginationParams().map(({ page }) => ({
+  const paginatedRoutes = getPaginationParams(undefined, 2).map(({ page }) => ({
     url: getAbsoluteUrl(`/page/${page}`)
   }));
 
-  const staticRoutes = ["/", "/pages", "/archives", "/search", "/categories", "/tags", "/series"].map((pathname) => ({
+  const staticRoutes = ["/", "/pages", "/archives", "/categories", "/tags", "/series"].map((pathname) => ({
     url: getAbsoluteUrl(pathname)
   }));
 
