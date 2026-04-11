@@ -10,9 +10,12 @@ favicon.ico merge=ours
 # Framework-owned code - always take upstream version (theirs) on merge conflicts
 src/** merge=theirs
 scripts/** merge=theirs
-*.config.* merge=theirs
+eslint.config.* merge=theirs
+postcss.config.* merge=theirs
+vitest.config.* merge=theirs
 tsconfig.json merge=theirs
 package.json merge=theirs
 
+# Exception: next.config.ts and vercel.json may need customization for deployment
 # Exception: Keep local package.json if you've added custom dependencies
 # Remove the package.json line above if you customize dependencies

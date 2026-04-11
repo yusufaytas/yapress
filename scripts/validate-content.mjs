@@ -11,6 +11,10 @@ const categoriesPath = path.join(contentRoot, "categories.ts");
 const seriesPath = path.join(contentRoot, "series.ts");
 const tagsPath = path.join(contentRoot, "tags.ts");
 
+function extractString(source, pattern, fallback = "") {
+  return source.match(pattern)?.[1] ?? fallback;
+}
+
 function listMarkdownFiles(dirPath) {
   if (!fs.existsSync(dirPath)) {
     return [];
@@ -76,6 +80,79 @@ function normalizeTaxonomyValue(input) {
   return "";
 }
 
+function normalizeSlug(input, locale = "en") {
+  if (!input || typeof input !== "string") {
+    return "";
+  }
+
+  return input
+    .trim()
+    .normalize("NFKC")
+    .toLocaleLowerCase(locale)
+    .replace(/[^\p{Letter}\p{Number}]+/gu, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function normalizePathSlug(input, locale = "en") {
+  return String(input ?? "")
+    .split("/")
+    .map((segment) => normalizeSlug(segment, locale))
+    .filter(Boolean)
+    .join("/");
+}
+
+function trimSlashes(input = "") {
+  return String(input).replace(/^\/+|\/+$/g, "");
+}
+
+function joinPath(...segments) {
+  const joined = segments
+    .map((segment) => trimSlashes(segment ?? ""))
+    .filter(Boolean)
+    .join("/");
+
+  return joined ? `/${joined}` : "/";
+}
+
+function getPostPermalink(entry, config) {
+  const date = new Date(entry.datePublished);
+  const year = String(date.getUTCFullYear());
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+
+  switch (config.postPermalinkStyle) {
+    case "prefix-slug":
+      return joinPath(config.postPermalinkPrefix, entry.slug);
+    case "year-month-slug":
+      return joinPath(year, month, entry.slug);
+    case "prefix-year-month-slug":
+      return joinPath(config.postPermalinkPrefix, year, month, entry.slug);
+    case "slug":
+    default:
+      return joinPath(entry.slug);
+  }
+}
+
+function getReservedRootSlugs(config) {
+  const reserved = new Set(["posts", "page", "pages", "categories", "tags", "series", "robots.txt", "sitemap.xml"]);
+
+  for (const value of [
+    config.postPermalinkPrefix,
+    config.archivesBasePath,
+    config.searchBasePath,
+    config.mediaBasePath,
+    config.feedsBasePath,
+    config.wpCategoryBase,
+    config.wpTagBase,
+  ]) {
+    const normalized = trimSlashes(value);
+    if (normalized) {
+      reserved.add(normalized);
+    }
+  }
+
+  return reserved;
+}
+
 function collectSeriesSlugs(series) {
   if (!Array.isArray(series)) {
     return [];
@@ -99,6 +176,18 @@ function collectSeriesSlugs(series) {
 const categories = readRegistry(categoriesPath);
 const seriesRegistry = readRegistry(seriesPath);
 const tagsRegistry = readRegistry(tagsPath);
+const configSource = fs.readFileSync(path.join(root, "site.config.ts"), "utf8");
+const config = {
+  siteLanguage: extractString(configSource, /language:\s*"([^"]+)"/, "en"),
+  postPermalinkStyle: extractString(configSource, /postPermalink:\s*{[\s\S]*?style:\s*"([^"]+)"/, "slug"),
+  postPermalinkPrefix: extractString(configSource, /postPermalink:\s*{[\s\S]*?prefix:\s*"([^"]+)"/, "blog"),
+  archivesBasePath: extractString(configSource, /archives:\s*{[\s\S]*?basePath:\s*"([^"]+)"/, ""),
+  searchBasePath: extractString(configSource, /search:\s*{[\s\S]*?basePath:\s*"([^"]+)"/, "search"),
+  mediaBasePath: extractString(configSource, /media:\s*{[\s\S]*?basePath:\s*"([^"]+)"/, "media"),
+  feedsBasePath: extractString(configSource, /feeds:\s*{[\s\S]*?basePath:\s*"([^"]+)"/, "feeds"),
+  wpCategoryBase: extractString(configSource, /legacyCategoryBase:\s*"([^"]+)"/, "category"),
+  wpTagBase: extractString(configSource, /legacyTagBase:\s*"([^"]+)"/, "tag"),
+};
 
 const posts = listMarkdownFiles(postsDir);
 const pages = listMarkdownFiles(pagesDir);
@@ -112,7 +201,10 @@ function fail(message) {
 
 const seenPostSlugs = new Set();
 const seenPageSlugs = new Set();
+const seenPostPermalinks = new Set();
+const seenPagePermalinks = new Set();
 const seenAliases = new Map();
+const reservedRootSlugs = getReservedRootSlugs(config);
 
 for (const file of posts) {
   const source = fs.readFileSync(path.join(postsDir, file), "utf8");
@@ -134,11 +226,26 @@ for (const file of posts) {
     fail(`Invalid datePublished "${String(data.datePublished)}" in ${file}.`);
   }
 
-  const normalizedSlug = data.slug.trim();
+  const locale = data.locale ?? data.language ?? config.siteLanguage;
+  const normalizedSlug = normalizeSlug(data.slug, locale);
+  const permalink = getPostPermalink({
+    slug: normalizedSlug,
+    datePublished: data.datePublished,
+  }, config);
+
+  if (reservedRootSlugs.has(normalizedSlug)) {
+    fail(`Post slug "${normalizedSlug}" conflicts with a reserved route in ${file}.`);
+  }
+
   if (seenPostSlugs.has(normalizedSlug)) {
     fail(`Duplicate post slug "${normalizedSlug}" in ${file}.`);
   }
   seenPostSlugs.add(normalizedSlug);
+
+  if (seenPostPermalinks.has(permalink)) {
+    fail(`Duplicate post permalink "${permalink}" in ${file}.`);
+  }
+  seenPostPermalinks.add(permalink);
 
   for (const category of data.categories.map(normalizeTaxonomyValue).filter(Boolean)) {
     if (!categories.has(category)) {
@@ -194,11 +301,24 @@ for (const file of pages) {
     continue;
   }
 
-  const normalizedSlug = data.slug.trim().replace(/^\/+|\/+$/g, "");
+  const locale = data.locale ?? data.language ?? config.siteLanguage;
+  const normalizedSlug = normalizePathSlug(data.slug, locale);
+  const permalink = normalizedSlug === "index" ? "/" : `/${normalizedSlug}`;
+  const rootSlug = normalizedSlug.split("/")[0];
+
+  if (rootSlug && reservedRootSlugs.has(rootSlug) && permalink !== "/") {
+    fail(`Page slug "${normalizedSlug}" conflicts with a reserved route in ${file}.`);
+  }
+
   if (seenPageSlugs.has(normalizedSlug)) {
     fail(`Duplicate page slug "${normalizedSlug}" in ${file}.`);
   }
   seenPageSlugs.add(normalizedSlug);
+
+  if (seenPagePermalinks.has(permalink)) {
+    fail(`Duplicate page permalink "${permalink}" in ${file}.`);
+  }
+  seenPagePermalinks.add(permalink);
 
   if (Array.isArray(data.aliases)) {
     for (const alias of data.aliases) {
@@ -219,9 +339,9 @@ for (const file of pages) {
   }
 }
 
-for (const slug of seenPostSlugs) {
-  if (seenPageSlugs.has(slug)) {
-    fail(`Slug conflict "${slug}" exists in both posts and pages.`);
+for (const permalink of seenPostPermalinks) {
+  if (seenPagePermalinks.has(permalink)) {
+    fail(`Permalink conflict "${permalink}" exists in both posts and pages.`);
   }
 }
 

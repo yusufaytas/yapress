@@ -77,6 +77,12 @@ describe("route SEO", () => {
 
     expect(jsonLd).toHaveLength(0);
   });
+
+  it("links the not-found page to the configured search route", () => {
+    const markup = renderToStaticMarkup(NotFoundPage());
+
+    expect(markup).toContain(`href="/search"`);
+  });
 });
 
 describe("redirect config", () => {

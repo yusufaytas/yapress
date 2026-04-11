@@ -18,8 +18,6 @@ const siteConfig: SiteConfig = {
     },
     search: {
       enabled: true,
-      basePath: "search",
-      prettyUrls: true,
     },
     media: {
       enabled: true,

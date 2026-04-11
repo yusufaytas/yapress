@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import type { SearchEntry } from "@/lib/search";
@@ -15,7 +15,6 @@ type SearchViewProps = {
 };
 
 export function SearchView({ initialQuery = "" }: SearchViewProps) {
-  const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(initialQuery);
@@ -46,7 +45,7 @@ export function SearchView({ initialQuery = "" }: SearchViewProps) {
 
   useEffect(() => {
     const queryFromUrl = searchParams.get("q") ?? "";
-    if (queryFromUrl && queryFromUrl !== query) {
+    if (queryFromUrl !== query) {
       setQuery(queryFromUrl);
     }
   }, [query, searchParams]);
@@ -87,7 +86,7 @@ export function SearchView({ initialQuery = "" }: SearchViewProps) {
           className="stack"
           onSubmit={(event) => {
             event.preventDefault();
-            router.push(query.trim() ? getSearchPath(query) : pathname);
+            router.push(getSearchPath(query));
           }}
         >
           <input

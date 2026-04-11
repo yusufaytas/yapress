@@ -325,23 +325,25 @@ function getReservedRootSlugs() {
   const reserved = new Set(["posts", "page", "pages", "categories", "tags", "series", "robots.txt", "sitemap.xml"]);
   const prefixedPostRoot = trimSlashes(config.postPermalink.prefix ?? "");
   const archiveRoot = trimSlashes(config.archives.basePath ?? "");
-  const searchRoot = trimSlashes(config.search.basePath ?? "");
   const mediaRoot = trimSlashes(config.media.basePath ?? "");
   const feedsRoot = trimSlashes(config.feeds.basePath ?? "");
   const wpCategoryRoot = trimSlashes(config.wordpress.legacyCategoryBase ?? "");
   const wpTagRoot = trimSlashes(config.wordpress.legacyTagBase ?? "");
 
-  for (const value of [prefixedPostRoot, archiveRoot, searchRoot, mediaRoot, feedsRoot, wpCategoryRoot, wpTagRoot]) {
+  for (const value of [prefixedPostRoot, archiveRoot, mediaRoot, feedsRoot, wpCategoryRoot, wpTagRoot]) {
     if (value) {
       reserved.add(value);
     }
   }
 
+  reserved.add("search");
+
   return reserved;
 }
 
 function validatePostSlugConflicts(posts: ContentEntry[]) {
-  const pageSlugs = new Set(getAllPages().map((page) => page.slug));
+  const pages = getAllPages();
+  const pagePermalinks = new Set(pages.map((page) => page.permalink));
   const seen = new Set<string>();
   const reservedRootSlugs = getReservedRootSlugs();
 
@@ -350,8 +352,8 @@ function validatePostSlugConflicts(posts: ContentEntry[]) {
       throw new Error(`Post slug "${post.slug}" conflicts with a reserved route.`);
     }
 
-    if (pageSlugs.has(post.slug)) {
-      throw new Error(`Post slug "${post.slug}" conflicts with a page slug.`);
+    if (pagePermalinks.has(post.permalink)) {
+      throw new Error(`Post permalink "${post.permalink}" conflicts with a page permalink.`);
     }
 
     if (seen.has(post.slug)) {
@@ -359,6 +361,31 @@ function validatePostSlugConflicts(posts: ContentEntry[]) {
     }
 
     seen.add(post.slug);
+  }
+}
+
+function validatePageSlugConflicts(pages: ContentEntry[]) {
+  const seenSlugs = new Set<string>();
+  const seenPermalinks = new Set<string>();
+  const reservedRootSlugs = getReservedRootSlugs();
+
+  for (const page of pages) {
+    const rootSlug = page.slug.split("/")[0];
+
+    if (rootSlug && reservedRootSlugs.has(rootSlug) && page.permalink !== "/") {
+      throw new Error(`Page slug "${page.slug}" conflicts with a reserved route.`);
+    }
+
+    if (seenSlugs.has(page.slug)) {
+      throw new Error(`Duplicate page slug "${page.slug}".`);
+    }
+
+    if (seenPermalinks.has(page.permalink)) {
+      throw new Error(`Duplicate page permalink "${page.permalink}".`);
+    }
+
+    seenSlugs.add(page.slug);
+    seenPermalinks.add(page.permalink);
   }
 }
 
@@ -445,6 +472,8 @@ export function getAllPages() {
       aliases: resolveAliases(frontmatter.aliases)
     } satisfies ContentEntry;
   });
+
+  validatePageSlugConflicts(pages);
 
   // Filter out drafts in production
   const isDevelopment = process.env.NODE_ENV === "development";

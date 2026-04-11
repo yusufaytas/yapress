@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "export",
   pageExtensions: ["ts", "tsx", "md", "mdx"],
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -14,25 +16,29 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  async redirects() {
-    return [
-      {
-        source: "/category/:slug",
-        destination: "/categories/:slug",
-        permanent: true
-      },
-      {
-        source: "/tag/:slug",
-        destination: "/tags/:slug",
-        permanent: true
-      },
-      {
-        source: "/wp-content/uploads/:path*",
-        destination: "/images/:path*",
-        permanent: true
-      }
-    ];
-  }
+  // Redirects only work in dev mode with output: export
+  // In production, vercel.json handles redirects
+  ...(process.env.NODE_ENV === "development" && {
+    async redirects() {
+      return [
+        {
+          source: "/category/:slug",
+          destination: "/categories/:slug",
+          permanent: true
+        },
+        {
+          source: "/tag/:slug",
+          destination: "/tags/:slug",
+          permanent: true
+        },
+        {
+          source: "/wp-content/uploads/:path*",
+          destination: "/images/:path*",
+          permanent: true
+        }
+      ];
+    },
+  }),
 };
 
 export default nextConfig;

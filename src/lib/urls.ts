@@ -18,8 +18,6 @@ const defaultUrlConfig: Required<UrlConfig> = {
   },
   search: {
     enabled: true,
-    basePath: "search",
-    prettyUrls: true,
   },
   media: {
     enabled: true,
@@ -136,20 +134,11 @@ export function getArchivePath(year: string, month?: string) {
 }
 
 export function getSearchPath(query?: string) {
-  const basePath = "/search";
   if (!query?.trim()) {
-    return basePath;
+    return "/search";
   }
 
-  return `${basePath}?q=${encodeURIComponent(query.trim())}`;
-}
-
-export function getSearchQueryFromSegments(segments?: string[]) {
-  if (!segments || segments.length === 0) {
-    return "";
-  }
-
-  return segments.map(decodeURIComponent).join(" ").trim();
+  return `/search?q=${encodeURIComponent(query.trim())}`;
 }
 
 export function getMediaPagePath(assetPath: string) {

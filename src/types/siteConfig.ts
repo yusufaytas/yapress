@@ -123,8 +123,6 @@ export type UrlConfig = {
   };
   search?: {
     enabled?: boolean;
-    basePath?: string;
-    prettyUrls?: boolean;
   };
   media?: {
     enabled?: boolean;
