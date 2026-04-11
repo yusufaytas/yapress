@@ -22,8 +22,10 @@ import { buildCollectionPageJsonLd, buildMediaObjectJsonLd, buildMetadata, build
 import { getAbsoluteUrl } from "@/lib/site";
 import { joinPath } from "@/lib/urls";
 
-export function generateStaticParams() {
-  return [
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  const params = [
     ...getAllPages()
       .filter((page) => page.permalink !== "/")
       .map((page) => ({ slug: page.permalink.split("/").filter(Boolean) })),
@@ -31,6 +33,9 @@ export function generateStaticParams() {
     ...getDateArchiveBuckets().map((bucket) => ({ slug: bucket.permalink.split("/").filter(Boolean) })),
     ...getMediaAssets().map((asset) => ({ slug: asset.pagePath.split("/").filter(Boolean) }))
   ];
+  
+  // Filter out any invalid params (empty slug arrays)
+  return params.filter(p => p.slug && p.slug.length > 0);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
@@ -66,7 +71,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (page) {
     return buildPageMetadata(page);
   }
-  
+
   return {
     title: "Page Not Found"
   };
@@ -80,7 +85,7 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
   if (post) {
     const postUrl = getAbsoluteUrl(post.permalink);
     const jsonLd = buildContentJsonLd(post);
-    
+
     return (
       <div className="container section stack">
         <script

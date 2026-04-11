@@ -598,29 +598,58 @@ export function getPaginationParams(pageSize = POSTS_PER_PAGE, startPage = 1) {
 
 export function getCategoryBuckets() {
   const registry = new Map<string, CategoryDefinition>(categoryRegistry.map((item) => [item.slug, item]));
-  return collectBuckets(getAllPosts(), (post) => post.categories).map((bucket) => ({
-    ...bucket,
-    description: registry.get(bucket.slug)?.description
-  }));
+  const buckets = collectBuckets(getAllPosts(), (post) => post.categories);
+
+  return categoryRegistry.map((category) => {
+    const existing = buckets.find((b) => b.slug === category.slug);
+    if (existing) {
+      return { ...existing, description: category.description };
+    }
+    return {
+      slug: category.slug,
+      title: category.title,
+      permalink: `/categories/${category.slug}`,
+      posts: [],
+      description: category.description
+    };
+  });
 }
 
 export function getTagBuckets() {
   const registry = new Map<string, TagDefinition>(tagRegistry.map((item) => [item.slug, item]));
-  return collectBuckets(getAllPosts(), (post) => post.tags).map((bucket) => ({
-    ...bucket,
-    description: registry.get(bucket.slug)?.description
-  }));
+  const buckets = collectBuckets(getAllPosts(), (post) => post.tags);
+
+  // Return all buckets from actual posts, merging with registry data where available
+  return buckets.map((bucket) => {
+    const registryTag = registry.get(bucket.slug);
+    if (registryTag) {
+      return { ...bucket, description: registryTag.description };
+    }
+    return bucket;
+  });
 }
 
 export function getSeriesBuckets() {
   const registry = new Map<string, SeriesDefinition>(seriesRegistry.map((item) => [item.slug, item]));
-  return collectBuckets(
+  const buckets = collectBuckets(
     getAllPosts().filter((post) => post.series.length > 0),
     (post) => post.series
-  ).map((bucket) => ({
-    ...bucket,
-    description: registry.get(bucket.slug)?.description
-  }));
+  );
+
+  return seriesRegistry.map((series) => {
+    const existing = buckets.find((b) => b.slug === series.slug);
+    if (existing) {
+      return { ...existing, description: series.description };
+    }
+    return {
+      slug: series.slug,
+      title: series.title,
+      permalink: `/series/${series.slug}`,
+      posts: [],
+      description: series.description,
+      order: undefined
+    };
+  });
 }
 
 export type DateArchiveBucket = {

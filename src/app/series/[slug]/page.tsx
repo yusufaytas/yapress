@@ -5,8 +5,12 @@ import { ArticleCard } from "@/components/article-card";
 import { buildMetadata, buildCollectionPageJsonLd, serializeJsonLd } from "@/lib/seo";
 import { getPostsBySeries, getSeriesBuckets } from "@/lib/content";
 
-export function generateStaticParams() {
-  return getSeriesBuckets().map((bucket) => ({ slug: bucket.slug }));
+import seriesRegistry from "@/content/series";
+
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  return seriesRegistry.map((series) => ({ slug: series.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

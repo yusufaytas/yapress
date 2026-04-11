@@ -5,7 +5,7 @@ import { ArticleCard } from "@/components/article-card";
 import { buildMetadata, buildCollectionPageJsonLd, serializeJsonLd } from "@/lib/seo";
 import { getCategoryBuckets, getPostsByCategory } from "@/lib/content";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   return getCategoryBuckets().map((bucket) => ({ slug: bucket.slug }));
 }
 

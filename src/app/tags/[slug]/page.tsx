@@ -5,7 +5,9 @@ import { ArticleCard } from "@/components/article-card";
 import { buildMetadata, buildCollectionPageJsonLd, serializeJsonLd } from "@/lib/seo";
 import { getPostsByTag, getTagBuckets } from "@/lib/content";
 
-export function generateStaticParams() {
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
   return getTagBuckets().map((bucket) => ({ slug: bucket.slug }));
 }
 
