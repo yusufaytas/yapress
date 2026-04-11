@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/wp-content/uploads/:path*",
+      "destination": "/images/:path*",
+      "permanent": true
+    }
+  ]
+}
