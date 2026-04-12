@@ -9,7 +9,7 @@ import seriesRegistry from "@/content/series";
 import tagRegistry from "@/content/tags";
 import siteConfig from "@/site.config";
 import type { CategoryDefinition, SeriesDefinition, TagDefinition } from "@/types/content";
-import { getArchivePath, getLegacyDatePermalink, getPostPermalink, getUrlConfig, joinPath, normalizePathname, trimSlashes } from "@/lib/urls";
+import { getArchivePath, getPostPermalink, getUrlConfig, normalizePathname, trimSlashes } from "@/lib/urls";
 
 const CONTENT_ROOT = path.join(process.cwd(), "content");
 const POSTS_ROOT = path.join(CONTENT_ROOT, "posts");

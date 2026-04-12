@@ -156,15 +156,6 @@ export function getTagFeedPath(slug: string) {
   return joinPath(config.feeds.basePath, "tags", `${slug}.xml`);
 }
 
-export function getLegacyDatePermalink(entry: DatedEntry) {
-  const dateParts = formatYearMonth(entry.date);
-  if (!dateParts) {
-    return null;
-  }
-
-  return joinPath(dateParts.year, dateParts.month, dateParts.day, entry.slug);
-}
-
 export function isPageOnePath(pathname: string) {
   return normalizePathname(pathname) === "/page/1";
 }
