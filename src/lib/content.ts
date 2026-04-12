@@ -8,78 +8,24 @@ import categoryRegistry from "@/content/categories";
 import seriesRegistry from "@/content/series";
 import tagRegistry from "@/content/tags";
 import siteConfig from "@/site.config";
-import type { CategoryDefinition, SeriesDefinition, TagDefinition } from "@/types/content";
+import type {
+  CategoryDefinition,
+  ContentEntry,
+  DateArchiveBucket,
+  PageFrontmatter,
+  PostFrontmatter,
+  FrontmatterBase,
+  SeriesDefinition,
+  SeriesFrontmatterItem,
+  TagDefinition,
+  TaxonomyBucket,
+  TaxonomyItem,
+} from "@/types/content";
 import { getArchivePath, getPostPermalink, getUrlConfig, normalizePathname, trimSlashes } from "@/lib/urls";
 
 const CONTENT_ROOT = path.join(process.cwd(), "content");
 const POSTS_ROOT = path.join(CONTENT_ROOT, "posts");
 const PAGES_ROOT = path.join(CONTENT_ROOT, "pages");
-
-type FrontmatterBase = {
-  title: string;
-  slug: string;
-  description?: string;
-  aliases?: string[];
-  language?: string;
-  locale?: string;
-  image?: string;
-  ogImage?: string;
-};
-
-type PostFrontmatter = FrontmatterBase & {
-  datePublished: string;
-  dateModified?: string;
-  draft?: boolean;
-  categories: string[];
-  tags?: string[];
-  series?: SeriesFrontmatterItem[];
-};
-
-type SeriesFrontmatterItem = {
-  slug: string;
-  order?: number;
-};
-
-type PageFrontmatter = FrontmatterBase & {
-  datePublished?: string;
-  dateModified?: string;
-  draft?: boolean;
-};
-
-export type TaxonomyItem = {
-  slug: string;
-  title: string;
-  permalink: string;
-  order?: number;
-};
-
-export type ContentEntry = {
-  kind: "post" | "page";
-  title: string;
-  slug: string;
-  description?: string;
-  image?: string;
-  language: string;
-  locale: string;
-  datePublished?: Date;
-  dateModified?: Date;
-  draft?: boolean;
-  content: string;
-  excerpt: string;
-  readingTime: ReturnType<typeof readingTime>;
-  categories: TaxonomyItem[];
-  tags: TaxonomyItem[];
-  series: TaxonomyItem[];
-  permalink: string;
-  aliases: string[];
-};
-
-export type TaxonomyBucket = TaxonomyItem & {
-  description?: string;
-  posts: ContentEntry[];
-  datePublished?: Date;
-  dateModified?: Date;
-};
 
 export const POSTS_PER_PAGE = siteConfig.postsPerPage ?? 5;
 
@@ -736,15 +682,6 @@ export function getSeriesBuckets() {
     };
   });
 }
-
-export type DateArchiveBucket = {
-  year: string;
-  month: string;
-  permalink: string;
-  posts: ContentEntry[];
-  datePublished?: Date;
-  dateModified?: Date;
-};
 
 export function getDateArchiveBuckets() {
   const buckets = new Map<string, DateArchiveBucket>();

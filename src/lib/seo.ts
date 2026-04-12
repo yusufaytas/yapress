@@ -1,84 +1,14 @@
 import type { Metadata } from "next";
-import type { MediaAsset } from "@/lib/media";
-
-import type { ContentEntry } from "@/lib/content";
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
-
-type MetadataInput = {
-  title: string;
-  description?: string;
-  pathname?: string;
-  keywords?: string[];
-  image?: string;
-  datePublished?: Date;
-  dateModified?: Date;
-  openGraphType?: "article" | "website";
-  noIndex?: boolean;
-  locale?: string;
-};
-
-type JsonLdArticle = {
-  "@context": "https://schema.org";
-  "@type": "Article" | "BlogPosting";
-  headline: string;
-  description?: string;
-  url: string;
-  image?: string;
-  datePublished?: Date;
-  dateModified?: Date;
-  author: {
-    "@type": "Person";
-    name: string;
-  };
-  inLanguage?: string;
-  publisher: {
-    "@type": "Organization";
-    name: string;
-    url: string;
-  };
-  keywords?: string[];
-};
-
-type JsonLdWebPage = {
-  "@context": "https://schema.org";
-  "@type": "WebPage";
-  name: string;
-  description?: string;
-  url: string;
-  image?: string;
-  datePublished?: Date;
-  dateModified?: Date;
-  inLanguage?: string;
-  publisher: {
-    "@type": "Organization";
-    name: string;
-    url: string;
-  };
-};
-
-type JsonLdWebSite = {
-  "@context": "https://schema.org";
-  "@type": "WebSite";
-  name: string;
-  description: string;
-  url: string;
-  sameAs?: string[];
-  potentialAction?: {
-    "@type": "SearchAction";
-    target: string;
-    "query-input": string;
-  };
-};
-
-type JsonLdMediaObject = {
-  "@context": "https://schema.org";
-  "@type": "ImageObject" | "MediaObject";
-  name: string;
-  description?: string;
-  contentUrl: string;
-  url: string;
-  encodingFormat?: string;
-};
+import type { ContentEntry } from "@/types/content";
+import type { MediaAsset } from "@/types/media";
+import type {
+  JsonLdArticle,
+  JsonLdMediaObject,
+  JsonLdWebPage,
+  JsonLdWebSite,
+  MetadataInput,
+} from "@/types/seo";
 
 function getSocialLinks() {
   return Object.values(siteConfig.social ?? {}).filter(

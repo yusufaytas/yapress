@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { ContentEntry } from "@/lib/content";
+import type { ContentEntry } from "@/types/content";
 import type { Plugin } from "@/types/plugin";
 
 vi.mock("server-only", () => ({}));

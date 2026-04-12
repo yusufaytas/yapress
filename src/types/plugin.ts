@@ -4,7 +4,7 @@
  */
 
 import type { ReactNode } from 'react';
-import type { ContentEntry } from '@/lib/content';
+import type { ContentEntry } from '@/types/content';
 
 /**
  * Plugin slot names where components can be injected

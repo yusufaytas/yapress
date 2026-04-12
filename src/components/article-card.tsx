@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { ContentEntry } from "@/lib/content";
+import type { ContentEntry } from "@/types/content";
 import { formatDisplayDate } from "@/lib/seo";
 
 export function ArticleCard({ post }: { post: ContentEntry }) {

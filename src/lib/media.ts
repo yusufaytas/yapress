@@ -3,21 +3,7 @@ import path from "node:path";
 
 import { getAllPages, getAllPosts } from "@/lib/content";
 import { getMediaPagePath, getUrlConfig, normalizePathname } from "@/lib/urls";
-
-type ContentRef = {
-  title: string;
-  permalink: string;
-};
-
-export type MediaAsset = {
-  assetPath: string;
-  pagePath: string;
-  contentType: string;
-  size: number;
-  width?: number;
-  height?: number;
-  references: ContentRef[];
-};
+import type { MediaAsset } from "@/types/media";
 
 const PUBLIC_ROOT = path.join(process.cwd(), "public");
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import type { TaxonomyItem } from "@/lib/content";
+import type { TaxonomyItem } from "@/types/content";
 
 import { TaxonomyPill } from "@/components/taxonomy-pill";
 
