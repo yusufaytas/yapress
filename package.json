@@ -1,7 +1,22 @@
 {
-  "name": "yapress",
+  "name": "@yusufaytas/yapress",
   "version": "0.1.0",
-  "private": true,
+  "description": "A modern, content-first blogging platform built with Next.js and MDX.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yusufaytas/yapress.git"
+  },
+  "keywords": [
+    "yapress",
+    "blog",
+    "nextjs",
+    "mdx",
+    "markdown",
+    "cms",
+    "static-site"
+  ],
+  "author": "Yusuf Aytas",
+  "license": "Apache License",
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/clean-build.mjs && node scripts/validate-content.mjs && node scripts/generate-rss.mjs && next build",
@@ -12,6 +27,9 @@
     "validate:content": "node scripts/validate-content.mjs",
     "import:wordpress": "node scripts/import-wordpress.mjs",
     "enable-plugin": "node scripts/enable-plugin.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",
