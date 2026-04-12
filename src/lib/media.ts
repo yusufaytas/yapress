@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { getAllPages, getAllPosts } from "@/lib/content";
-import { getMediaPagePath, normalizePathname } from "@/lib/urls";
+import { getMediaPagePath, getUrlConfig, normalizePathname } from "@/lib/urls";
 
 type ContentRef = {
   title: string;
@@ -170,9 +170,18 @@ function readSvgSize(buffer: Buffer) {
     return undefined;
   }
 
+  const viewBoxValues = source.match(/\bviewBox=["']([^"']+)["']/i)?.[1]
+    ?.trim()
+    .split(/\s+/)
+    .map((value) => Number(value));
+
+  if (!viewBoxValues || viewBoxValues.length !== 4 || viewBoxValues.some((value) => Number.isNaN(value))) {
+    return undefined;
+  }
+
   return {
-    width: Math.round(Number(viewBoxMatch[1])),
-    height: Math.round(Number(viewBoxMatch[2])),
+    width: Math.round(viewBoxValues[2]),
+    height: Math.round(viewBoxValues[3]),
   };
 }
 
@@ -200,6 +209,10 @@ function readImageDimensions(absolutePath: string, contentType: string) {
 }
 
 export function getMediaAssets() {
+  if (!getUrlConfig().media.enabled) {
+    return [];
+  }
+
   const assets = new Map<string, MediaAsset>();
   const entries = [...getAllPosts(), ...getAllPages()];
 
@@ -215,9 +228,14 @@ export function getMediaAssets() {
       const stat = fs.statSync(absolutePath);
       const contentType = detectContentType(assetPath);
       const dimensions = readImageDimensions(absolutePath, contentType);
+      const pagePath = getMediaPagePath(assetPath);
+      if (!pagePath) {
+        continue;
+      }
+
       const existing = assets.get(assetPath) ?? {
         assetPath,
-        pagePath: getMediaPagePath(assetPath),
+        pagePath,
         contentType,
         size: stat.size,
         width: dimensions?.width,
@@ -238,6 +256,10 @@ export function getMediaAssets() {
 }
 
 export function getMediaAssetByPagePath(pathname: string) {
+  if (!getUrlConfig().media.enabled) {
+    return undefined;
+  }
+
   const normalized = normalizePathname(pathname);
   return getMediaAssets().find((asset) => asset.pagePath === normalized);
 }

@@ -19,6 +19,12 @@ export type SiteConfig = {
     width?: number;
     height?: number;
   };
+  siteImage?: {
+    src: string;
+    alt?: string;
+    width?: number;
+    height?: number;
+  };
   postsPerPage?: number;
   excerptLength?: number;
   keywords?: string[];

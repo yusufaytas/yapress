@@ -68,6 +68,18 @@ describe("content", () => {
     expect(post.locale).toBeTruthy();
   });
 
+  it("extracts the first body image as the OG image for posts", () => {
+    const post = getPostBySlug("seo-optimization-yapress");
+
+    expect(post?.image).toBe("/images/performance-chart.png");
+  });
+
+  it("extracts the first body image as the OG image for pages", () => {
+    const page = getPageByPermalink("/faq");
+
+    expect(page?.image).toBe("/images/my-image.jpg");
+  });
+
   it("sorts series posts by explicit order before chronology", () => {
     const posts = getPostsBySeries("best-practices");
 

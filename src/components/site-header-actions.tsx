@@ -8,6 +8,7 @@ import siteConfig from "@/site.config";
 
 export function SiteHeaderActions() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isSearchEnabled = siteConfig.url?.search?.enabled ?? true;
 
   return (
     <div className="header-actions">
@@ -28,9 +29,11 @@ export function SiteHeaderActions() {
           </Link>
         ))}
       </nav>
-      <div className="header-search">
-        <Search />
-      </div>
+      {isSearchEnabled ? (
+        <div className="header-search">
+          <Search />
+        </div>
+      ) : null}
     </div>
   );
 }

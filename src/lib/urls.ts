@@ -134,6 +134,11 @@ export function getArchivePath(year: string, month?: string) {
 }
 
 export function getSearchPath(query?: string) {
+  const config = getUrlConfig();
+  if (!config.search.enabled) {
+    return "/";
+  }
+
   if (!query?.trim()) {
     return "/search";
   }
@@ -143,6 +148,10 @@ export function getSearchPath(query?: string) {
 
 export function getMediaPagePath(assetPath: string) {
   const config = getUrlConfig();
+  if (!config.media.enabled) {
+    return null;
+  }
+
   return joinPath(config.media.basePath, trimSlashes(assetPath));
 }
 

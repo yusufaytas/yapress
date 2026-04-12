@@ -54,6 +54,7 @@ const siteConfig: SiteConfig = {
   },
   logo: { src: "/yapress.jpg", alt: "Yapress", width: 400, height: 400 },
   bannerImage: undefined,
+  siteImage: { src: "/yapress.jpg", alt: "Yapress" },
   postsPerPage: 5,
   excerptLength: 180,
   keywords: [

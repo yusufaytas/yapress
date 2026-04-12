@@ -9,6 +9,7 @@ type MetadataInput = {
   description?: string;
   pathname?: string;
   keywords?: string[];
+  image?: string;
   datePublished?: Date;
   dateModified?: Date;
   openGraphType?: "article" | "website";
@@ -22,6 +23,7 @@ type JsonLdArticle = {
   headline: string;
   description?: string;
   url: string;
+  image?: string;
   datePublished?: Date;
   dateModified?: Date;
   author: {
@@ -43,6 +45,7 @@ type JsonLdWebPage = {
   name: string;
   description?: string;
   url: string;
+  image?: string;
   inLanguage?: string;
   publisher: {
     "@type": "Organization";
@@ -105,16 +108,16 @@ function getXHandle() {
   return xUrl.startsWith("@") ? xUrl : undefined;
 }
 
-function getSocialImage() {
-  const imageSrc = siteConfig.bannerImage?.src ?? siteConfig.logo?.src;
+function getSocialImage(imageSrc?: string) {
+  const resolvedImageSrc = imageSrc ?? siteConfig.siteImage?.src;
 
-  if (!imageSrc) {
+  if (!resolvedImageSrc) {
     return undefined;
   }
 
   return {
-    url: getAbsoluteUrl(imageSrc),
-    alt: siteConfig.bannerImage?.alt ?? siteConfig.logo?.alt ?? siteConfig.title,
+    url: /^https?:\/\//i.test(resolvedImageSrc) ? resolvedImageSrc : getAbsoluteUrl(resolvedImageSrc),
+    alt: siteConfig.siteImage?.alt ?? siteConfig.title,
   };
 }
 
@@ -123,6 +126,7 @@ export function buildMetadata({
   description, 
   pathname = "/", 
   keywords = [],
+  image,
   datePublished,
   dateModified,
   openGraphType = "website",
@@ -134,7 +138,7 @@ export function buildMetadata({
   const absoluteUrl = getAbsoluteUrl(pathname);
   const resolvedKeywords = keywords.length > 0 ? keywords : (siteConfig.keywords ?? []);
   const xHandle = getXHandle();
-  const socialImage = getSocialImage();
+  const socialImage = getSocialImage(image);
 
   return {
     title: resolvedTitle,
@@ -184,6 +188,7 @@ export function buildContentMetadata(content: ContentEntry): Metadata {
     description: content.description ?? content.excerpt,
     pathname: content.permalink,
     keywords,
+    image: content.image,
     datePublished: content.datePublished,
     dateModified: content.dateModified ?? content.datePublished,
     openGraphType: content.kind === "post" ? "article" : "website",
@@ -210,6 +215,7 @@ export function buildArticleJsonLd(content: ContentEntry): JsonLdArticle {
     headline: content.title,
     description: content.description ?? content.excerpt,
     url: getAbsoluteUrl(content.permalink),
+    image: getSocialImage(content.image)?.url,
     datePublished: content.datePublished,
     dateModified: content.dateModified ?? content.datePublished,
     author: {
@@ -233,6 +239,7 @@ export function buildWebPageJsonLd(content: ContentEntry): JsonLdWebPage {
     name: content.title,
     description: content.description ?? content.excerpt,
     url: getAbsoluteUrl(content.permalink),
+    image: getSocialImage(content.image)?.url,
     inLanguage: content.language,
     publisher: {
       "@type": "Organization",
@@ -248,6 +255,8 @@ export function buildContentJsonLd(content: ContentEntry): JsonLdArticle | JsonL
 
 export function buildWebSiteJsonLd(): JsonLdWebSite {
   const socialLinks = getSocialLinks();
+  const isSearchEnabled = siteConfig.url?.search?.enabled ?? true;
+
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -255,11 +264,13 @@ export function buildWebSiteJsonLd(): JsonLdWebSite {
     description: siteConfig.description,
     url: getAbsoluteUrl("/"),
     sameAs: socialLinks.length > 0 ? socialLinks : undefined,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${getAbsoluteUrl("/search")}?q={search_term_string}`,
-      "query-input": "required name=search_term_string"
-    }
+    potentialAction: isSearchEnabled
+      ? {
+          "@type": "SearchAction",
+          target: `${getAbsoluteUrl("/search")}?q={search_term_string}`,
+          "query-input": "required name=search_term_string"
+        }
+      : undefined
   };
 }
 

@@ -46,7 +46,6 @@ export function SearchView({ initialQuery = "" }: SearchViewProps) {
   useEffect(() => {
     const queryFromUrl = searchParams.get("q") ?? "";
     setQuery(queryFromUrl);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   useEffect(() => {

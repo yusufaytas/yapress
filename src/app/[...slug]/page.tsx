@@ -53,6 +53,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: mediaAsset.assetPath.split("/").pop() ?? "Media",
       description: `Media attachment for ${mediaAsset.assetPath}.`,
       pathname: mediaAsset.pagePath,
+      image: mediaAsset.contentType.startsWith("image/") ? mediaAsset.assetPath : undefined,
       keywords: ["media", "attachment", mediaAsset.contentType]
     });
   }
@@ -165,7 +166,9 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
             {Intl.NumberFormat("en").format(mediaAsset.size)} bytes
           </p>
           {mediaAsset.contentType.startsWith("image/") ? (
-            <span className="article-image">
+            <span
+              className={`article-image${mediaAsset.contentType === "image/png" ? " article-image--png" : ""}`}
+            >
               {mediaAsset.width && mediaAsset.height ? (
                 <Image
                   src={mediaAsset.assetPath}

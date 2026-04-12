@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { SearchView } from "@/components/search-view";
 import { buildMetadata, buildSearchResultsJsonLd, serializeJsonLd } from "@/lib/seo";
+import siteConfig from "@/site.config";
 
 export const metadata: Metadata = buildMetadata({
   title: "Search",
@@ -13,6 +15,10 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default function SearchPage() {
+  if ((siteConfig.url?.search?.enabled ?? true) === false) {
+    notFound();
+  }
+
   const jsonLd = buildSearchResultsJsonLd("", "/search", []);
 
   return (

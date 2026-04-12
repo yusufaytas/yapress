@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("node:fs", () => ({
   default: {
@@ -21,8 +21,15 @@ vi.mock("@/lib/content", () => ({
 
 import { getAllPages, getAllPosts } from "@/lib/content";
 import { getMediaAssetByPagePath, getMediaAssets } from "@/lib/media";
+import siteConfig from "@/site.config";
+
+const originalUrlConfig = JSON.parse(JSON.stringify(siteConfig.url ?? {}));
 
 describe("media", () => {
+  afterEach(() => {
+    siteConfig.url = JSON.parse(JSON.stringify(originalUrlConfig));
+  });
+
   beforeEach(() => {
     vi.mocked(getAllPosts).mockReturnValue([
       {
@@ -56,5 +63,37 @@ describe("media", () => {
     const asset = getMediaAssetByPagePath("/media/images/post-image.png");
 
     expect(asset?.contentType).toBe("image/png");
+  });
+
+  it("uses the SVG viewBox width and height for image dimensions", async () => {
+    const { default: fs } = await import("node:fs");
+
+    vi.mocked(getAllPosts).mockReturnValue([
+      {
+        title: "Post with svg",
+        permalink: "/post-with-svg",
+        content: "![Alt text](/images/icon.svg)",
+      },
+    ] as never[]);
+    vi.mocked(getAllPages).mockReturnValue([] as never[]);
+    vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from('<svg viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg"></svg>'));
+
+    const assets = getMediaAssets();
+
+    expect(assets[0].width).toBe(24);
+    expect(assets[0].height).toBe(32);
+  });
+
+  it("returns no media assets when media pages are disabled", () => {
+    siteConfig.url = {
+      ...siteConfig.url,
+      media: {
+        enabled: false,
+        basePath: "media",
+      },
+    };
+
+    expect(getMediaAssets()).toEqual([]);
+    expect(getMediaAssetByPagePath("/media/images/post-image.png")).toBeUndefined();
   });
 });

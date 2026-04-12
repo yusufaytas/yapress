@@ -57,4 +57,16 @@ describe("urls", () => {
     expect(getSearchPath()).toBe("/search");
     expect(getSearchPath("static export")).toBe("/search?q=static%20export");
   });
+
+  it("falls back to the home page when search is disabled", () => {
+    siteConfig.url = {
+      ...siteConfig.url,
+      search: {
+        enabled: false,
+      },
+    };
+
+    expect(getSearchPath()).toBe("/");
+    expect(getSearchPath("static export")).toBe("/");
+  });
 });
