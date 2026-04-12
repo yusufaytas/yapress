@@ -514,6 +514,8 @@ export function getAllPages() {
       image: resolveImage(frontmatter, content),
       language: frontmatter.language ?? siteConfig.language,
       locale: pageLocale,
+      datePublished: frontmatter.datePublished ? normalizeDate(frontmatter.datePublished) : undefined,
+      dateModified: frontmatter.dateModified ? normalizeDate(frontmatter.dateModified) : undefined,
       draft: frontmatter.draft ?? false,
       content,
       excerpt: buildExcerpt(content),

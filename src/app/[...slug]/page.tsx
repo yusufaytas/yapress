@@ -240,10 +240,18 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
-      <article className="prose-wrap stack content-page" lang={page.language}>
+      <article className="prose-wrap prose-wrap--editorial stack content-page" lang={page.language}>
         <h1 className="page-title">{page.title}</h1>
         {page.description ? <p className="lede">{page.description}</p> : null}
         <ContentRenderer source={page.content} />
+        {page.datePublished && (
+          <div className="meta" style={{ textAlign: 'right' }}>
+            Published {formatDisplayDate(page.datePublished, page.locale)}
+            {page.dateModified && page.dateModified.getTime() !== page.datePublished.getTime() && (
+              <> · Updated {formatDisplayDate(page.dateModified, page.locale)}</>
+            )}
+          </div>
+        )}
       </article>
     </div>
   );

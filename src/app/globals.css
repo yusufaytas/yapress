@@ -875,6 +875,11 @@ img {
   --code-block-header-padding-x: 0.65rem;
 }
 
+.prose-wrap--editorial {
+  --article-panel-width: 56rem;
+  --article-body-width: 64ch;
+}
+
 .article[data-layout-mode="spacious"] {
   --article-panel-width: 100%;
   --article-header-width: 100%;

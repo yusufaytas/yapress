@@ -46,6 +46,8 @@ type JsonLdWebPage = {
   description?: string;
   url: string;
   image?: string;
+  datePublished?: Date;
+  dateModified?: Date;
   inLanguage?: string;
   publisher: {
     "@type": "Organization";
@@ -240,6 +242,8 @@ export function buildWebPageJsonLd(content: ContentEntry): JsonLdWebPage {
     description: content.description ?? content.excerpt,
     url: getAbsoluteUrl(content.permalink),
     image: getSocialImage(content.image)?.url,
+    datePublished: content.datePublished,
+    dateModified: content.dateModified ?? content.datePublished,
     inLanguage: content.language,
     publisher: {
       "@type": "Organization",
