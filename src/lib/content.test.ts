@@ -53,6 +53,37 @@ describe("content", () => {
     expect(firstArchive.permalink).toMatch(/^\/\d{4}\/\d{2}$/);
   });
 
+  it("computes publishedDate and modifiedDate for archive buckets", () => {
+    const archives = getDateArchiveBuckets();
+
+    for (const archive of archives) {
+      if (archive.posts.length > 0) {
+        expect(archive.datePublished).toBeDefined();
+        expect(archive.dateModified).toBeDefined();
+
+        // Find the earliest published date among posts
+        const postDates = archive.posts
+          .map((post) => post.datePublished)
+          .filter((date): date is Date => date !== undefined)
+          .sort((a, b) => a.getTime() - b.getTime());
+
+        if (postDates.length > 0) {
+          expect(archive.datePublished?.getTime()).toBe(postDates[0].getTime());
+        }
+
+        // Find the latest modified date among posts
+        const modifiedDates = archive.posts
+          .map((post) => post.dateModified ?? post.datePublished)
+          .filter((date): date is Date => date !== undefined)
+          .sort((a, b) => b.getTime() - a.getTime());
+
+        if (modifiedDates.length > 0) {
+          expect(archive.dateModified?.getTime()).toBe(modifiedDates[0].getTime());
+        }
+      }
+    }
+  });
+
   it("uses tag registry descriptions when available", () => {
     const tags = getTagBuckets();
     const markdown = tags.find((tag) => tag.slug === "markdown");
@@ -218,6 +249,54 @@ describe("getCategoryBuckets", () => {
       expect(slugs.length).toBe(uniqueSlugs.size);
     }
   });
+
+  it("computes publishedDate as earliest post date", () => {
+    const buckets = getCategoryBuckets();
+    const bucketsWithPosts = buckets.filter((bucket) => bucket.posts.length > 0);
+    
+    for (const bucket of bucketsWithPosts) {
+      expect(bucket.datePublished).toBeDefined();
+      
+      // Find the earliest published date among posts
+      const postDates = bucket.posts
+        .map((post) => post.datePublished)
+        .filter((date): date is Date => date !== undefined)
+        .sort((a, b) => a.getTime() - b.getTime());
+      
+      if (postDates.length > 0) {
+        expect(bucket.datePublished?.getTime()).toBe(postDates[0].getTime());
+      }
+    }
+  });
+
+  it("computes modifiedDate as latest post modified date", () => {
+    const buckets = getCategoryBuckets();
+    const bucketsWithPosts = buckets.filter((bucket) => bucket.posts.length > 0);
+    
+    for (const bucket of bucketsWithPosts) {
+      expect(bucket.dateModified).toBeDefined();
+      
+      // Find the latest modified date among posts
+      const modifiedDates = bucket.posts
+        .map((post) => post.dateModified ?? post.datePublished)
+        .filter((date): date is Date => date !== undefined)
+        .sort((a, b) => b.getTime() - a.getTime());
+      
+      if (modifiedDates.length > 0) {
+        expect(bucket.dateModified?.getTime()).toBe(modifiedDates[0].getTime());
+      }
+    }
+  });
+
+  it("has undefined dates for categories with no posts", () => {
+    const buckets = getCategoryBuckets();
+    const bucketsWithoutPosts = buckets.filter((bucket) => bucket.posts.length === 0);
+    
+    for (const bucket of bucketsWithoutPosts) {
+      expect(bucket.datePublished).toBeUndefined();
+      expect(bucket.dateModified).toBeUndefined();
+    }
+  });
 });
 
 describe("getTagBuckets", () => {
@@ -264,6 +343,44 @@ describe("getTagBuckets", () => {
       const slugs = bucket.posts.map((post) => post.slug);
       const uniqueSlugs = new Set(slugs);
       expect(slugs.length).toBe(uniqueSlugs.size);
+    }
+  });
+
+  it("computes publishedDate as earliest post date", () => {
+    const buckets = getTagBuckets();
+    const bucketsWithPosts = buckets.filter((bucket) => bucket.posts.length > 0);
+    
+    for (const bucket of bucketsWithPosts) {
+      expect(bucket.datePublished).toBeDefined();
+      
+      // Find the earliest published date among posts
+      const postDates = bucket.posts
+        .map((post) => post.datePublished)
+        .filter((date): date is Date => date !== undefined)
+        .sort((a, b) => a.getTime() - b.getTime());
+      
+      if (postDates.length > 0) {
+        expect(bucket.datePublished?.getTime()).toBe(postDates[0].getTime());
+      }
+    }
+  });
+
+  it("computes modifiedDate as latest post modified date", () => {
+    const buckets = getTagBuckets();
+    const bucketsWithPosts = buckets.filter((bucket) => bucket.posts.length > 0);
+    
+    for (const bucket of bucketsWithPosts) {
+      expect(bucket.dateModified).toBeDefined();
+      
+      // Find the latest modified date among posts
+      const modifiedDates = bucket.posts
+        .map((post) => post.dateModified ?? post.datePublished)
+        .filter((date): date is Date => date !== undefined)
+        .sort((a, b) => b.getTime() - a.getTime());
+      
+      if (modifiedDates.length > 0) {
+        expect(bucket.dateModified?.getTime()).toBe(modifiedDates[0].getTime());
+      }
     }
   });
 });
@@ -316,6 +433,54 @@ describe("getSeriesBuckets", () => {
       const slugs = bucket.posts.map((post) => post.slug);
       const uniqueSlugs = new Set(slugs);
       expect(slugs.length).toBe(uniqueSlugs.size);
+    }
+  });
+
+  it("computes publishedDate as earliest post date", () => {
+    const buckets = getSeriesBuckets();
+    const bucketsWithPosts = buckets.filter((bucket) => bucket.posts.length > 0);
+    
+    for (const bucket of bucketsWithPosts) {
+      expect(bucket.datePublished).toBeDefined();
+      
+      // Find the earliest published date among posts
+      const postDates = bucket.posts
+        .map((post) => post.datePublished)
+        .filter((date): date is Date => date !== undefined)
+        .sort((a, b) => a.getTime() - b.getTime());
+      
+      if (postDates.length > 0) {
+        expect(bucket.datePublished?.getTime()).toBe(postDates[0].getTime());
+      }
+    }
+  });
+
+  it("computes modifiedDate as latest post modified date", () => {
+    const buckets = getSeriesBuckets();
+    const bucketsWithPosts = buckets.filter((bucket) => bucket.posts.length > 0);
+    
+    for (const bucket of bucketsWithPosts) {
+      expect(bucket.dateModified).toBeDefined();
+      
+      // Find the latest modified date among posts
+      const modifiedDates = bucket.posts
+        .map((post) => post.dateModified ?? post.datePublished)
+        .filter((date): date is Date => date !== undefined)
+        .sort((a, b) => b.getTime() - a.getTime());
+      
+      if (modifiedDates.length > 0) {
+        expect(bucket.dateModified?.getTime()).toBe(modifiedDates[0].getTime());
+      }
+    }
+  });
+
+  it("has undefined dates for series with no posts", () => {
+    const buckets = getSeriesBuckets();
+    const bucketsWithoutPosts = buckets.filter((bucket) => bucket.posts.length === 0);
+    
+    for (const bucket of bucketsWithoutPosts) {
+      expect(bucket.datePublished).toBeUndefined();
+      expect(bucket.dateModified).toBeUndefined();
     }
   });
 });

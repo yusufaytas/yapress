@@ -20,7 +20,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: bucket?.title ?? "Series",
     description: bucket?.description ?? "Posts in this series.",
     pathname: `/series/${slug}`,
-    keywords: bucket ? [bucket.title, "series"] : ["series"]
+    keywords: bucket ? [bucket.title, "series"] : ["series"],
+    datePublished: bucket?.datePublished,
+    dateModified: bucket?.dateModified
   });
 }
 
@@ -37,7 +39,9 @@ export default async function SeriesDetailPage({ params }: { params: Promise<{ s
     bucket.title,
     bucket.description ?? `Posts in the ${bucket.title} series.`,
     bucket.permalink,
-    posts.length
+    posts.length,
+    bucket.datePublished,
+    bucket.dateModified
   );
 
   return (

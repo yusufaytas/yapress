@@ -18,7 +18,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: bucket ? `#${bucket.title}` : "Tag",
     description: bucket?.description ?? (bucket ? `Posts tagged with ${bucket.title}.` : "Posts grouped by tag."),
     pathname: `/tags/${slug}`,
-    keywords: bucket ? [bucket.title, "tag"] : []
+    keywords: bucket ? [bucket.title, "tag"] : [],
+    datePublished: bucket?.datePublished,
+    dateModified: bucket?.dateModified
   });
 }
 
@@ -35,7 +37,9 @@ export default async function TagPage({ params }: { params: Promise<{ slug: stri
     `#${bucket.title}`,
     bucket.description ?? `Posts tagged with ${bucket.title}.`,
     bucket.permalink,
-    posts.length
+    posts.length,
+    bucket.datePublished,
+    bucket.dateModified
   );
 
   return (

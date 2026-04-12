@@ -5,16 +5,33 @@ import React from "react";
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
+import CategoryPage, { generateMetadata as generateCategoryMetadata } from "@/app/categories/[slug]/page";
+import SeriesDetailPage, { generateMetadata as generateSeriesMetadata } from "@/app/series/[slug]/page";
+import TagPage, { generateMetadata as generateTagMetadata } from "@/app/tags/[slug]/page";
 import HomePage from "@/app/page";
 import NotFoundPage, { metadata as notFoundMetadata } from "@/app/not-found";
 import PaginatedPostsPage from "@/app/page/[page]/page";
 import PagesIndexPage from "@/app/pages/page";
+import { getCategoryBuckets, getSeriesBuckets, getTagBuckets } from "@/lib/content";
 
 (globalThis as typeof globalThis & { React: typeof React }).React = React;
 
 function extractJsonLd(markup: string) {
   return [...markup.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) =>
     JSON.parse(match[1]) as { "@type"?: string }
+  );
+}
+
+function expectCollectionDates(jsonLd: Array<Record<string, unknown>>, expectedName: string, datePublished?: Date, dateModified?: Date) {
+  expect(jsonLd).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        "@type": "CollectionPage",
+        name: expectedName,
+        datePublished: datePublished?.toISOString(),
+        dateModified: dateModified?.toISOString(),
+      }),
+    ])
   );
 }
 
@@ -82,6 +99,57 @@ describe("route SEO", () => {
     const markup = renderToStaticMarkup(NotFoundPage());
 
     expect(markup).toContain(`href="/search"`);
+  });
+
+  it("emits taxonomy dates on category detail pages", async () => {
+    const bucket = getCategoryBuckets().find((entry) => entry.posts.length > 0);
+    expect(bucket).toBeDefined();
+
+    const metadata = await generateCategoryMetadata({ params: Promise.resolve({ slug: bucket!.slug }) });
+    expect(metadata.openGraph).toMatchObject({
+      publishedTime: bucket!.datePublished?.toISOString(),
+      modifiedTime: bucket!.dateModified?.toISOString(),
+    });
+
+    const page = await CategoryPage({ params: Promise.resolve({ slug: bucket!.slug }) });
+    const markup = renderToStaticMarkup(page);
+    const jsonLd = extractJsonLd(markup);
+
+    expectCollectionDates(jsonLd, bucket!.title, bucket!.datePublished, bucket!.dateModified);
+  });
+
+  it("emits taxonomy dates on tag detail pages", async () => {
+    const bucket = getTagBuckets().find((entry) => entry.posts.length > 0);
+    expect(bucket).toBeDefined();
+
+    const metadata = await generateTagMetadata({ params: Promise.resolve({ slug: bucket!.slug }) });
+    expect(metadata.openGraph).toMatchObject({
+      publishedTime: bucket!.datePublished?.toISOString(),
+      modifiedTime: bucket!.dateModified?.toISOString(),
+    });
+
+    const page = await TagPage({ params: Promise.resolve({ slug: bucket!.slug }) });
+    const markup = renderToStaticMarkup(page);
+    const jsonLd = extractJsonLd(markup);
+
+    expectCollectionDates(jsonLd, `#${bucket!.title}`, bucket!.datePublished, bucket!.dateModified);
+  });
+
+  it("emits taxonomy dates on series detail pages", async () => {
+    const bucket = getSeriesBuckets().find((entry) => entry.posts.length > 0);
+    expect(bucket).toBeDefined();
+
+    const metadata = await generateSeriesMetadata({ params: Promise.resolve({ slug: bucket!.slug }) });
+    expect(metadata.openGraph).toMatchObject({
+      publishedTime: bucket!.datePublished?.toISOString(),
+      modifiedTime: bucket!.dateModified?.toISOString(),
+    });
+
+    const page = await SeriesDetailPage({ params: Promise.resolve({ slug: bucket!.slug }) });
+    const markup = renderToStaticMarkup(page);
+    const jsonLd = extractJsonLd(markup);
+
+    expectCollectionDates(jsonLd, bucket!.title, bucket!.datePublished, bucket!.dateModified);
   });
 });
 

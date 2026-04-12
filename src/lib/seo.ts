@@ -282,7 +282,9 @@ export function buildCollectionPageJsonLd(
   title: string,
   description: string,
   pathname: string,
-  itemCount: number
+  itemCount: number,
+  datePublished?: Date,
+  dateModified?: Date
 ): {
   "@context": "https://schema.org";
   "@type": "CollectionPage";
@@ -290,6 +292,8 @@ export function buildCollectionPageJsonLd(
   description: string;
   url: string;
   numberOfItems: number;
+  datePublished?: Date;
+  dateModified?: Date;
   publisher: {
     "@type": "Organization";
     name: string;
@@ -303,6 +307,8 @@ export function buildCollectionPageJsonLd(
     description,
     url: getAbsoluteUrl(pathname),
     numberOfItems: itemCount,
+    datePublished,
+    dateModified,
     publisher: {
       "@type": "Organization",
       name: siteConfig.title,

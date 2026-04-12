@@ -64,7 +64,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: `${archiveBucket.year}-${archiveBucket.month} Archive`,
       description: `Browse all posts published in ${archiveBucket.year}-${archiveBucket.month}.`,
       pathname: archiveBucket.permalink,
-      keywords: ["archive", archiveBucket.year, archiveBucket.month]
+      keywords: ["archive", archiveBucket.year, archiveBucket.month],
+      datePublished: archiveBucket.datePublished,
+      dateModified: archiveBucket.dateModified
     });
   }
 
@@ -206,7 +208,9 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
       `${archiveBucket.year}-${archiveBucket.month} Archive`,
       `Browse all posts published in ${archiveBucket.year}-${archiveBucket.month}.`,
       archiveBucket.permalink,
-      posts.length
+      posts.length,
+      archiveBucket.datePublished,
+      archiveBucket.dateModified
     );
 
     return (

@@ -16,7 +16,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: bucket?.title ?? "Category",
     description: bucket?.description ?? "Posts in this category.",
     pathname: `/categories/${slug}`,
-    keywords: bucket ? [bucket.title, "category"] : []
+    keywords: bucket ? [bucket.title, "category"] : [],
+    datePublished: bucket?.datePublished,
+    dateModified: bucket?.dateModified
   });
 }
 
@@ -33,7 +35,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     bucket.title,
     bucket.description ?? `Posts in the ${bucket.title} category.`,
     bucket.permalink,
-    posts.length
+    posts.length,
+    bucket.datePublished,
+    bucket.dateModified
   );
 
   return (

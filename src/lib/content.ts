@@ -77,6 +77,8 @@ export type ContentEntry = {
 export type TaxonomyBucket = TaxonomyItem & {
   description?: string;
   posts: ContentEntry[];
+  datePublished?: Date;
+  dateModified?: Date;
 };
 
 export const POSTS_PER_PAGE = siteConfig.postsPerPage ?? 5;
@@ -348,6 +350,27 @@ function sortPosts(posts: ContentEntry[]) {
   });
 }
 
+function computeBucketDates(posts: ContentEntry[]) {
+  if (posts.length === 0) {
+    return { datePublished: undefined, dateModified: undefined };
+  }
+
+  const publishedDates = posts
+    .map((post) => post.datePublished)
+    .filter((date): date is Date => date !== undefined)
+    .sort((a, b) => a.getTime() - b.getTime());
+
+  const modifiedDates = posts
+    .map((post) => post.dateModified ?? post.datePublished)
+    .filter((date): date is Date => date !== undefined)
+    .sort((a, b) => b.getTime() - a.getTime());
+
+  return {
+    datePublished: publishedDates[0],
+    dateModified: modifiedDates[0]
+  };
+}
+
 function collectBuckets(
   posts: ContentEntry[],
   selector: (post: ContentEntry) => TaxonomyItem[]
@@ -365,7 +388,10 @@ function collectBuckets(
     }
   }
 
-  return [...buckets.values()].sort((left, right) => left.title.localeCompare(right.title));
+  return [...buckets.values()].map((bucket) => {
+    const dates = computeBucketDates(bucket.posts);
+    return { ...bucket, ...dates };
+  }).sort((left, right) => left.title.localeCompare(right.title));
 }
 
 let cachedPosts: ContentEntry[] | undefined;
@@ -665,7 +691,9 @@ export function getCategoryBuckets() {
       title: category.title,
       permalink: `/categories/${category.slug}`,
       posts: [],
-      description: category.description
+      description: category.description,
+      datePublished: undefined,
+      dateModified: undefined
     };
   });
 }
@@ -702,7 +730,9 @@ export function getSeriesBuckets() {
       permalink: `/series/${series.slug}`,
       posts: [],
       description: series.description,
-      order: undefined
+      order: undefined,
+      datePublished: undefined,
+      dateModified: undefined
     };
   });
 }
@@ -712,6 +742,8 @@ export type DateArchiveBucket = {
   month: string;
   permalink: string;
   posts: ContentEntry[];
+  datePublished?: Date;
+  dateModified?: Date;
 };
 
 export function getDateArchiveBuckets() {
@@ -746,7 +778,10 @@ export function getDateArchiveBuckets() {
     buckets.set(key, existing);
   }
 
-  return [...buckets.values()].sort((left, right) =>
+  return [...buckets.values()].map((bucket) => {
+    const dates = computeBucketDates(bucket.posts);
+    return { ...bucket, ...dates };
+  }).sort((left, right) =>
     right.year.localeCompare(left.year) || right.month.localeCompare(left.month)
   );
 }
