@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { PropsWithChildren } from "react";
 
 import { SiteHeaderActions } from "@/components/site-header-actions";
+import { BUILD_YEAR } from "@/lib/dateFormat";
 import { getPluginComponents } from "@/lib/plugins";
 import siteConfig from "@/site.config";
 
@@ -86,7 +87,7 @@ export function SiteShell({ children }: PropsWithChildren) {
           ) : null}
         </div>
         <div className="container site-footer__bottom">
-          <span>Copyright © {new Date().getFullYear()} {siteConfig.title}</span>
+          <span>Copyright © {BUILD_YEAR} {siteConfig.title}</span>
           <span className="site-footer__separator">·</span>
           <span>All rights reserved</span>
         </div>

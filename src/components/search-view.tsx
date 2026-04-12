@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { formatDate } from "@/lib/dateFormat";
 import type { SearchEntry } from "@/lib/search";
 import { loadSearchEntries, preloadSearchEntries } from "@/lib/searchClient";
 import { scoreSearchEntry } from "@/lib/search";
@@ -107,7 +108,7 @@ export function SearchView({ initialQuery = "" }: SearchViewProps) {
                 {result.date ? (
                   <>
                     <span className="post-preview__dot" aria-hidden="true">·</span>
-                    <span>{new Date(result.date).toLocaleDateString()}</span>
+                    <span>{formatDate(result.date)}</span>
                   </>
                 ) : null}
               </div>

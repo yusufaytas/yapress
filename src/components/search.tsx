@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useEffect, useState, useRef } from "react"
 
+import { formatDate } from "@/lib/dateFormat"
 import type { SearchEntry } from "@/lib/search"
 import { loadSearchEntries, preloadSearchEntries } from "@/lib/searchClient"
 import { scoreSearchEntry } from "@/lib/search"
@@ -181,7 +182,7 @@ export function Search() {
                     <div className="search-result__title">{result.title}</div>
                     <div className="search-result__meta">
                       {result.categories.join(', ')}
-                      {result.date && ` · ${new Date(result.date).toLocaleDateString()}`}
+                      {result.date && ` · ${formatDate(result.date)}`}
                     </div>
                     <div className="search-result__excerpt">{result.excerpt}</div>
                   </Link>
