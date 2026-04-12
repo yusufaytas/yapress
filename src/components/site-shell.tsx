@@ -16,8 +16,8 @@ export function SiteShell({ children }: PropsWithChildren) {
     <div className="shell">
       {getPluginComponents("bodyStart")}
       <header className="site-header">
+        {getPluginComponents("headerStart")}
         <div className="container">
-          {getPluginComponents("headerStart")}
           <div className="site-header-row">
             <div className="site-banner">
               <div className="site-banner__main">
@@ -49,9 +49,9 @@ export function SiteShell({ children }: PropsWithChildren) {
             ) : null}
             <SiteHeaderActions />
           </div>
-          {getPluginComponents("headerEnd")}
           <div className="site-divider" />
         </div>
+        {getPluginComponents("headerEnd")}
       </header>
       <main>{children}</main>
       <footer className="site-footer-wrap">

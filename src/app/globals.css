@@ -1523,6 +1523,12 @@ img {
   display: none;
 }
 
+.footer-plugin-separator {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
 .site-footer-wrap {
   margin-top: 2rem;
   border-top: 1px solid var(--border);

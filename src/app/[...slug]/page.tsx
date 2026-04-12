@@ -95,7 +95,6 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
         />
-        {getPluginComponents('beforePost', { post })}
         <article className="article">
           <header className="article-header stack">
             <div className="article-header-top">
@@ -111,12 +110,13 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
             <div className="meta">
               Published {formatDisplayDate(post.datePublished, post.locale)} · {post.readingTime.text}
             </div>
+            {getPluginComponents('beforePost', { post })}
           </header>
           <div lang={post.language}>
             <ContentRenderer source={post.content} />
           </div>
-          {getPluginComponents('afterPost', { post })}
           <footer className="article-footer stack">
+            {getPluginComponents('afterPost', { post })}
             <div className="article-meta-grid">
               {post.categories.length > 0 ? (
                 <div className="article-meta-group">
