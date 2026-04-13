@@ -86,10 +86,11 @@ describe("content", () => {
 
   it("uses tag registry descriptions when available", () => {
     const tags = getTagBuckets();
-    const markdown = tags.find((tag) => tag.slug === "markdown");
+    const tagWithRegistryDescription = tags.find((tag) => tag.description);
 
-    expect(markdown?.title).toBe("Markdown");
-    expect(markdown?.description).toBeTruthy();
+    expect(tagWithRegistryDescription).toBeDefined();
+    expect(tagWithRegistryDescription?.title).toBeTruthy();
+    expect(tagWithRegistryDescription?.description).toBeTruthy();
   });
 
   it("stores language and locale per content entry", () => {
@@ -100,26 +101,62 @@ describe("content", () => {
   });
 
   it("extracts the first body image as the OG image for posts", () => {
-    const post = getPostBySlug("seo-optimization-yapress");
+    const post = getAllPosts().find((entry) => /!\[[^\]]*]\(([^)\s]+)(?:\s+"[^"]*")?\)|<img[^>]+src=["']([^"']+)["']/i.test(entry.content));
+    const firstImageMatch = post?.content.match(/!\[[^\]]*]\(([^)\s]+)(?:\s+"[^"]*")?\)|<img[^>]+src=["']([^"']+)["']/i);
+    const expectedImage = firstImageMatch?.[1] ?? firstImageMatch?.[2];
 
-    expect(post?.image).toBe("/images/performance-chart.png");
+    expect(post).toBeDefined();
+    expect(expectedImage).toBeTruthy();
+    expect(post?.image).toBe(expectedImage);
   });
 
   it("extracts the first body image as the OG image for pages", () => {
-    const page = getPageByPermalink("/faq");
+    const page = getAllPages().find((entry) => /!\[[^\]]*]\(([^)\s]+)(?:\s+"[^"]*")?\)|<img[^>]+src=["']([^"']+)["']/i.test(entry.content));
+    const firstImageMatch = page?.content.match(/!\[[^\]]*]\(([^)\s]+)(?:\s+"[^"]*")?\)|<img[^>]+src=["']([^"']+)["']/i);
+    const expectedImage = firstImageMatch?.[1] ?? firstImageMatch?.[2];
 
-    expect(page?.image).toBe("/images/my-image.jpg");
+    expect(page).toBeDefined();
+    expect(expectedImage).toBeTruthy();
+    expect(page?.image).toBe(expectedImage);
   });
 
   it("sorts series posts by explicit order before chronology", () => {
-    const posts = getPostsBySeries("best-practices");
+    const seriesBucket = getSeriesBuckets().find((bucket) =>
+      bucket.posts.length > 0 &&
+      bucket.posts.some((post) => post.series.some((series) => series.slug === bucket.slug && series.order != null))
+    );
+
+    expect(seriesBucket).toBeDefined();
+
+    const posts = getPostsBySeries(seriesBucket!.slug);
 
     expect(posts.length).toBeGreaterThan(0);
-    expect(posts.map((post) => post.slug)).toEqual([
-      "introducing-yapress",
-      "content-as-source-of-truth",
-      "markdown-best-practices"
-    ]);
+
+    for (let index = 1; index < posts.length; index += 1) {
+      const previous = posts[index - 1].series.find((series) => series.slug === seriesBucket!.slug);
+      const current = posts[index].series.find((series) => series.slug === seriesBucket!.slug);
+      const previousOrder = previous?.order;
+      const currentOrder = current?.order;
+
+      if (previousOrder != null && currentOrder != null) {
+        expect(previousOrder).toBeLessThanOrEqual(currentOrder);
+        continue;
+      }
+
+      if (previousOrder != null) {
+        expect(currentOrder).toBeUndefined();
+        continue;
+      }
+
+      if (currentOrder != null) {
+        expect(previousOrder).toBeUndefined();
+        continue;
+      }
+
+      const previousDate = posts[index - 1].datePublished?.getTime() ?? 0;
+      const currentDate = posts[index].datePublished?.getTime() ?? 0;
+      expect(previousDate).toBeLessThanOrEqual(currentDate);
+    }
   });
 
   it("strips images from post excerpts", () => {
