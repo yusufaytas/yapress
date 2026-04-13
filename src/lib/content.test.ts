@@ -121,20 +121,19 @@ describe("content", () => {
   });
 
   it("sorts series posts by explicit order before chronology", () => {
-    const seriesBucket = getSeriesBuckets().find((bucket) =>
-      bucket.posts.length > 0 &&
-      bucket.posts.some((post) => post.series.some((series) => series.slug === bucket.slug && series.order != null))
-    );
+    const orderedSeries = getAllPosts()
+      .flatMap((post) => post.series)
+      .find((series) => series.order != null);
 
-    expect(seriesBucket).toBeDefined();
+    expect(orderedSeries).toBeDefined();
 
-    const posts = getPostsBySeries(seriesBucket!.slug);
+    const posts = getPostsBySeries(orderedSeries!.slug);
 
     expect(posts.length).toBeGreaterThan(0);
 
     for (let index = 1; index < posts.length; index += 1) {
-      const previous = posts[index - 1].series.find((series) => series.slug === seriesBucket!.slug);
-      const current = posts[index].series.find((series) => series.slug === seriesBucket!.slug);
+      const previous = posts[index - 1].series.find((series) => series.slug === orderedSeries!.slug);
+      const current = posts[index].series.find((series) => series.slug === orderedSeries!.slug);
       const previousOrder = previous?.order;
       const currentOrder = current?.order;
 
