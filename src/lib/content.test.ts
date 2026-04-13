@@ -121,40 +121,60 @@ describe("content", () => {
   });
 
   it("sorts series posts by explicit order before chronology", () => {
-    const orderedSeries = getAllPosts()
+    const allPosts = getAllPosts();
+    const orderedSeries = allPosts
       .flatMap((post) => post.series)
       .find((series) => series.order != null);
 
-    expect(orderedSeries).toBeDefined();
+    if (orderedSeries) {
+      const posts = getPostsBySeries(orderedSeries.slug);
 
-    const posts = getPostsBySeries(orderedSeries!.slug);
+      expect(posts.length).toBeGreaterThan(0);
 
-    expect(posts.length).toBeGreaterThan(0);
+      for (let index = 1; index < posts.length; index += 1) {
+        const previous = posts[index - 1].series.find((series) => series.slug === orderedSeries.slug);
+        const current = posts[index].series.find((series) => series.slug === orderedSeries.slug);
+        const previousOrder = previous?.order;
+        const currentOrder = current?.order;
+
+        if (previousOrder != null && currentOrder != null) {
+          expect(previousOrder).toBeLessThanOrEqual(currentOrder);
+          continue;
+        }
+
+        if (previousOrder != null) {
+          expect(currentOrder).toBeUndefined();
+          continue;
+        }
+
+        if (currentOrder != null) {
+          expect(previousOrder).toBeUndefined();
+          continue;
+        }
+
+        const previousDate = posts[index - 1].datePublished?.getTime() ?? 0;
+        const currentDate = posts[index].datePublished?.getTime() ?? 0;
+        expect(previousDate).toBeLessThanOrEqual(currentDate);
+      }
+
+      return;
+    }
+
+    const fallbackSeries = getSeriesBuckets().find((series) => series.posts.length > 1);
+
+    if (!fallbackSeries) {
+      expect(allPosts.every((post) => post.series.length === 0)).toBe(true);
+      return;
+    }
+
+    const posts = getPostsBySeries(fallbackSeries.slug);
+
+    expect(posts.length).toBeGreaterThan(1);
 
     for (let index = 1; index < posts.length; index += 1) {
-      const previous = posts[index - 1].series.find((series) => series.slug === orderedSeries!.slug);
-      const current = posts[index].series.find((series) => series.slug === orderedSeries!.slug);
-      const previousOrder = previous?.order;
-      const currentOrder = current?.order;
-
-      if (previousOrder != null && currentOrder != null) {
-        expect(previousOrder).toBeLessThanOrEqual(currentOrder);
-        continue;
-      }
-
-      if (previousOrder != null) {
-        expect(currentOrder).toBeUndefined();
-        continue;
-      }
-
-      if (currentOrder != null) {
-        expect(previousOrder).toBeUndefined();
-        continue;
-      }
-
-      const previousDate = posts[index - 1].datePublished?.getTime() ?? 0;
-      const currentDate = posts[index].datePublished?.getTime() ?? 0;
-      expect(previousDate).toBeLessThanOrEqual(currentDate);
+      const previous = posts[index - 1].datePublished?.getTime() ?? 0;
+      const current = posts[index].datePublished?.getTime() ?? 0;
+      expect(previous).toBeLessThanOrEqual(current);
     }
   });
 

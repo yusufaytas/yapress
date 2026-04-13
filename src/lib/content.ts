@@ -229,7 +229,10 @@ function resolveTags(rawTags: string[] = [], locale = siteConfig.language) {
     });
 }
 
-function resolveSeries(series?: SeriesFrontmatterItem[], locale = siteConfig.language) {
+function resolveSeries(
+  series: SeriesFrontmatterItem[] | undefined,
+  locale = siteConfig.language
+) {
   if (!series || series.length === 0) {
     return [];
   }
@@ -442,7 +445,10 @@ export function getAllPosts() {
       readingTime: readingTime(content),
       categories: resolveCategories(frontmatter.categories),
       tags: resolveTags(frontmatter.tags, frontmatter.locale ?? frontmatter.language ?? siteConfig.language),
-      series: resolveSeries(frontmatter.series, frontmatter.locale ?? frontmatter.language ?? siteConfig.language),
+      series: resolveSeries(
+        frontmatter.series,
+        frontmatter.locale ?? frontmatter.language ?? siteConfig.language
+      ),
       permalink: getPostPermalink({
         slug: normalizeSlug(frontmatter.slug, frontmatter.locale ?? frontmatter.language ?? siteConfig.language),
         date: normalizeDate(frontmatter.datePublished)

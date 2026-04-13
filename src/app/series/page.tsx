@@ -6,7 +6,7 @@ import { getSeriesBuckets } from "@/lib/content";
 
 export const metadata: Metadata = buildMetadata({
   title: "Series",
-  description: "Browse ordered post series.",
+  description: "Browse post series.",
   pathname: "/series"
 });
 
@@ -15,7 +15,7 @@ export default function SeriesPage() {
   
   const jsonLd = buildItemListJsonLd(
     "Series",
-    "Browse ordered post series.",
+    "Browse post series.",
     "/series",
     buckets.map((bucket) => ({
       name: bucket.title,

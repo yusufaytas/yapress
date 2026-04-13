@@ -11,11 +11,11 @@ tags:
 description: Learn how to use the series feature to organize related posts into cohesive multi-part content.
 ---
 
-Series let you group related posts into sequential, multi-part content. Perfect for tutorials, guides, or any content that builds on previous posts.
+Series let you group related posts into multi-part content. Perfect for tutorials, guides, or any content that builds on previous posts.
 
 ## What Are Series?
 
-A series is a collection of related posts that should be read in order. Think of it as chapters in a book or episodes in a show.
+A series is a collection of related posts. If you want a specific reading sequence, set that on each post inside its `series` frontmatter entry.
 
 ### Use Cases
 
@@ -32,29 +32,18 @@ A series is a collection of related posts that should be read in order. Think of
 Create or edit `content/series.ts`:
 
 ```typescript
-export const series = {
-  'getting-started': {
-    name: 'Getting Started with YaPress',
-    description: 'Everything you need to know to start using YaPress',
-    order: [
-      'introducing-yapress',
-      'getting-started-yapress',
-      'markdown-best-practices',
-      'deploying-yapress',
-    ],
+const series = [
+  {
+    slug: "getting-started",
+    title: "Getting Started with YaPress",
+    description: "Everything you need to know to start using YaPress"
   },
-  
-  'advanced-features': {
-    name: 'Advanced YaPress Features',
-    description: 'Deep dive into advanced functionality',
-    order: [
-      'yapress-plugin-system',
-      'theming-yapress',
-      'custom-components',
-      'performance-optimization',
-    ],
-  },
-};
+  {
+    slug: "advanced-features",
+    title: "Advanced YaPress Features",
+    description: "Deep dive into advanced functionality"
+  }
+];
 ```
 
 ### Add Posts to Series
@@ -65,71 +54,60 @@ In your post frontmatter:
 ---
 title: Getting Started with YaPress
 slug: getting-started-yapress
-date: 2026-01-05
+datePublished: 2026-01-05
 series:
-  - getting-started
+  - slug: getting-started
+    order: 2
 ---
 ```
 
 ### Multiple Series
 
-Posts can belong to multiple series:
+Posts can belong to multiple series, and each series can have its own position:
 
 ```markdown
 ---
 title: Advanced Theming
 slug: advanced-theming
+datePublished: 2026-02-10
 series:
-  - getting-started
-  - advanced-features
-  - design-guide
+  - slug: getting-started
+    order: 4
+  - slug: advanced-features
+    order: 1
+  - slug: design-guide
 ---
 ```
 
 ## Series Configuration
 
-### Basic Series
+### Basic Series Registry
 
 Minimal configuration:
 
 ```typescript
-export const series = {
-  'tutorial-series': {
-    name: 'Tutorial Series',
-    description: 'Learn the basics',
-    order: ['part-1', 'part-2', 'part-3'],
-  },
-};
+const series = [
+  {
+    slug: "tutorial-series",
+    title: "Tutorial Series",
+    description: "Learn the basics"
+  }
+];
 ```
 
-### Detailed Series
+### Ordered Posts Within a Series
 
 With more metadata:
 
-```typescript
-export const series = {
-  'web-performance': {
-    name: 'Web Performance Optimization',
-    description: 'Complete guide to making your site blazing fast',
-    
-    // Post order (by slug)
-    order: [
-      'intro-to-performance',
-      'measuring-performance',
-      'optimizing-images',
-      'code-splitting',
-      'caching-strategies',
-      'cdn-setup',
-    ],
-    
-    // Optional metadata
-    author: 'Jane Developer',
-    startDate: '2026-01-01',
-    endDate: '2026-03-01',
-    difficulty: 'intermediate',
-    estimatedTime: '6 hours',
-  },
-};
+```markdown
+---
+title: Measuring Performance
+slug: measuring-performance
+datePublished: 2026-01-12
+series:
+  - slug: web-performance
+    order: 2
+---
 ```
 
 ## Series Display
@@ -183,9 +161,9 @@ Displays:
 ---
 title: Post Title
 slug: post-slug
-date: 2026-01-05
+datePublished: 2026-01-05
 series:
-  - series-slug
+  - slug: series-slug
 ---
 ```
 
@@ -195,11 +173,12 @@ series:
 ---
 title: Post Title
 slug: post-slug
-date: 2026-01-05
+datePublished: 2026-01-05
 series:
-  - series-slug
-seriesOrder: 2  # Override automatic ordering
-seriesNote: "Prerequisites: Basic JavaScript knowledge"
+  - slug: series-slug
+    order: 2
+  - slug: another-series
+    order: 5
 ---
 ```
 
@@ -266,62 +245,37 @@ export function SeriesNavigation({
 ### Tutorial Series
 
 ```typescript
-export const series = {
-  'react-hooks': {
-    name: 'Mastering React Hooks',
-    description: 'Complete guide to React Hooks from basics to advanced patterns',
-    order: [
-      'intro-to-hooks',
-      'usestate-hook',
-      'useeffect-hook',
-      'custom-hooks',
-      'advanced-patterns',
-    ],
-    difficulty: 'beginner-to-advanced',
-    estimatedTime: '4 hours',
-  },
-};
+const series = [
+  {
+    slug: "react-hooks",
+    title: "Mastering React Hooks",
+    description: "Complete guide to React Hooks from basics to advanced patterns"
+  }
+];
 ```
 
 ### Project Series
 
 ```typescript
-export const series = {
-  'building-saas': {
-    name: 'Building a SaaS from Scratch',
-    description: 'Follow along as we build a complete SaaS application',
-    order: [
-      'project-planning',
-      'tech-stack-selection',
-      'database-design',
-      'authentication-setup',
-      'payment-integration',
-      'deployment',
-      'scaling',
-    ],
-    author: 'John Developer',
-    startDate: '2026-01-01',
-  },
-};
+const series = [
+  {
+    slug: "building-saas",
+    title: "Building a SaaS from Scratch",
+    description: "Follow along as we build a complete SaaS application"
+  }
+];
 ```
 
 ### Story Series
 
 ```typescript
-export const series = {
-  'startup-journey': {
-    name: 'My Startup Journey',
-    description: 'Lessons learned building a startup from zero to exit',
-    order: [
-      'the-idea',
-      'first-customers',
-      'raising-funding',
-      'scaling-team',
-      'product-market-fit',
-      'the-exit',
-    ],
-  },
-};
+const series = [
+  {
+    slug: "startup-journey",
+    title: "My Startup Journey",
+    description: "Lessons learned building a startup from zero to exit"
+  }
+];
 ```
 
 ## Series SEO
@@ -408,21 +362,7 @@ Access at:
 
 ### Updating Series
 
-When adding posts to existing series:
-
-```typescript
-export const series = {
-  'existing-series': {
-    name: 'Existing Series',
-    order: [
-      'post-1',
-      'post-2',
-      'new-post',  // Add here
-      'post-3',
-    ],
-  },
-};
-```
+When adding posts to an existing series, update the post frontmatter and give the new post the intended `order` value for that series.
 
 ## Series Analytics
 
@@ -463,20 +403,18 @@ export default {
 ### Post Not Showing in Series
 
 Check:
-1. Post slug matches series order
-2. Series slug in frontmatter is correct
+1. Series slug in frontmatter is correct
+2. Per-post `series[].order` values are set the way you expect
 3. Post is published (not draft)
 
 ### Wrong Order
 
-Verify order in `series.ts`:
+Verify the post frontmatter instead:
 
-```typescript
-order: [
-  'first-post',   // Shows first
-  'second-post',  // Shows second
-  'third-post',   // Shows third
-],
+```markdown
+series:
+  - slug: getting-started
+    order: 1
 ```
 
 ### Series Page 404
@@ -485,7 +423,7 @@ Ensure series exists in `series.ts` and matches URL slug.
 
 ## Advanced: Dynamic Series
 
-Generate series programmatically:
+Generate the registry programmatically:
 
 ```typescript
 // content/series.ts
@@ -499,12 +437,11 @@ export async function generateSeries() {
     post.tags?.forEach(tag => {
       if (!acc[tag]) {
         acc[tag] = {
-          name: `${tag} Posts`,
+          slug: tag,
+          title: `${tag} Posts`,
           description: `All posts about ${tag}`,
-          order: [],
         };
       }
-      acc[tag].order.push(post.slug);
     });
     return acc;
   }, {});
@@ -519,22 +456,16 @@ Create reusable series templates:
 
 ```typescript
 // Series template for tutorials
-export const tutorialSeries = (name: string, posts: string[]) => ({
-  name: `${name} Tutorial`,
+export const tutorialSeries = (name: string) => ({
+  slug: `${name.toLowerCase()}-tutorial`,
+  title: `${name} Tutorial`,
   description: `Learn ${name} step by step`,
-  order: posts,
-  difficulty: 'beginner',
-  type: 'tutorial',
 });
 
 // Use template
-export const series = {
-  'react-tutorial': tutorialSeries('React', [
-    'react-basics',
-    'react-components',
-    'react-hooks',
-  ]),
-};
+export const series = [
+  tutorialSeries("React"),
+];
 ```
 
 ## Resources
