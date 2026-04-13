@@ -11,7 +11,6 @@ export type FrontmatterBase = {
   language?: string;
   locale?: string;
   image?: string;
-  ogImage?: string;
 };
 
 export type SeriesFrontmatterItem = {

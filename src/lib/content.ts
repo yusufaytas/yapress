@@ -7,6 +7,7 @@ import readingTime from "reading-time";
 import categoryRegistry from "@/content/categories";
 import seriesRegistry from "@/content/series";
 import tagRegistry from "@/content/tags";
+import { resolveContentImage } from "@/lib/image";
 import siteConfig from "@/site.config";
 import type {
   CategoryDefinition,
@@ -54,24 +55,6 @@ function normalizePathSlug(input: string, locale = siteConfig.language) {
 function normalizeAlias(input: string) {
   const normalized = normalizePathname(input);
   return normalized === "/" ? normalized : normalized.replace(/\/+$/, "");
-}
-
-function normalizeImageSource(input: string) {
-  const trimmed = input.trim();
-
-  if (!trimmed) {
-    return undefined;
-  }
-
-  if (/^https?:\/\//i.test(trimmed)) {
-    return trimmed;
-  }
-
-  if (trimmed.startsWith("/")) {
-    return normalizePathname(trimmed);
-  }
-
-  return undefined;
 }
 
 function normalizeDate(input: string | Date) {
@@ -163,36 +146,6 @@ function buildExcerpt(input: string, maxLength = siteConfig.excerptLength ?? 180
 function readFileContent(root: string, fileName: string) {
   const fullPath = path.join(root, fileName);
   return fs.readFileSync(fullPath, "utf8");
-}
-
-function extractFirstImageSource(input: string) {
-  const patterns = [
-    /!\[[^\]]*]\(([^)\s]+)(?:\s+"[^"]*")?\)/g,
-    /<img[^>]+src=["']([^"']+)["']/gi,
-  ];
-
-  let firstMatch: { index: number; src: string } | undefined;
-
-  for (const pattern of patterns) {
-    for (const match of input.matchAll(pattern)) {
-      const src = normalizeImageSource(match[1] ?? "");
-      const index = match.index ?? Number.POSITIVE_INFINITY;
-
-      if (!src) {
-        continue;
-      }
-
-      if (!firstMatch || index < firstMatch.index) {
-        firstMatch = { index, src };
-      }
-    }
-  }
-
-  return firstMatch?.src;
-}
-
-function resolveImage(frontmatter: FrontmatterBase, content: string) {
-  return normalizeImageSource(frontmatter.ogImage ?? frontmatter.image ?? "") ?? extractFirstImageSource(content);
 }
 
 function resolveCategories(rawCategories: string[]) {
@@ -434,7 +387,7 @@ export function getAllPosts() {
       title: frontmatter.title,
       slug: normalizeSlug(frontmatter.slug, frontmatter.locale ?? frontmatter.language ?? siteConfig.language),
       description: frontmatter.description,
-      image: resolveImage(frontmatter, content),
+      image: resolveContentImage(frontmatter.image, content),
       language: frontmatter.language ?? siteConfig.language,
       locale: frontmatter.locale ?? frontmatter.language ?? siteConfig.language,
       datePublished: normalizeDate(frontmatter.datePublished),
@@ -489,7 +442,7 @@ export function getAllPages() {
       title: frontmatter.title,
       slug: normalizedSlug,
       description: frontmatter.description,
-      image: resolveImage(frontmatter, content),
+      image: resolveContentImage(frontmatter.image, content),
       language: frontmatter.language ?? siteConfig.language,
       locale: pageLocale,
       datePublished: frontmatter.datePublished ? normalizeDate(frontmatter.datePublished) : undefined,

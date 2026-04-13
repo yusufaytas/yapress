@@ -10,6 +10,9 @@ import type {
   MetadataInput,
 } from "@/types/seo";
 
+// Re-export image utilities for backward compatibility
+export { extractFirstImageFromContent, resolveContentImage } from "@/lib/image";
+
 function getSocialLinks() {
   return Object.values(siteConfig.social ?? {}).filter(
     (value): value is string => Boolean(value && value.trim())

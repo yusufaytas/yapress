@@ -86,8 +86,8 @@ export const siteConfig = {
   language: 'en',
   locale: 'en_US',
   
-  // Open Graph defaults
-  ogImage: '/images/og-default.png',
+  // Default site image for social sharing
+  siteImage: { src: '/images/og-default.png', alt: 'Site Default Image' },
 }
 ```
 

@@ -107,7 +107,8 @@ describe("content", () => {
 
     expect(post).toBeDefined();
     expect(expectedImage).toBeTruthy();
-    expect(post?.image).toBe(expectedImage);
+    // Image should be normalized to absolute URL for SEO
+    expect(post?.image).toContain(expectedImage ?? "");
   });
 
   it("extracts the first body image as the OG image for pages", () => {
@@ -117,7 +118,8 @@ describe("content", () => {
 
     expect(page).toBeDefined();
     expect(expectedImage).toBeTruthy();
-    expect(page?.image).toBe(expectedImage);
+    // Image should be normalized to absolute URL for SEO
+    expect(page?.image).toContain(expectedImage ?? "");
   });
 
   it("sorts series posts by explicit order before chronology", () => {
