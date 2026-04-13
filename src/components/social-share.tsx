@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import siteConfig from "@/site.config"
 
 type SocialShareProps = {
@@ -11,18 +11,20 @@ type SocialShareProps = {
 
 export function SocialShare({ title, url, description }: SocialShareProps) {
   const [copied, setCopied] = useState(false)
-  
+  const [canUseNativeShare, setCanUseNativeShare] = useState(false)
   const sharing = siteConfig.sharing
-  
-  if (!sharing?.enabled) {
-    return null
-  }
-  
-  const platforms = sharing.platforms || ["twitter", "linkedin", "reddit", "email", "copy"]
+  const platforms = sharing?.platforms || ["twitter", "linkedin", "reddit", "email", "copy"]
   const encodedUrl = encodeURIComponent(url)
   const encodedTitle = encodeURIComponent(title)
   const encodedDescription = encodeURIComponent(description || title)
-  const canUseNativeShare = typeof navigator !== "undefined" && typeof navigator.share === "function"
+
+  useEffect(() => {
+    setCanUseNativeShare(typeof navigator !== "undefined" && typeof navigator.share === "function")
+  }, [])
+
+  if (!sharing?.enabled) {
+    return null
+  }
   
   const shareLinks = {
     twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
