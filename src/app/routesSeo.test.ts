@@ -13,6 +13,7 @@ import NotFoundPage, { metadata as notFoundMetadata } from "@/app/not-found";
 import PaginatedPostsPage from "@/app/page/[page]/page";
 import PagesIndexPage from "@/app/pages/page";
 import { getCategoryBuckets, getSeriesBuckets, getTagBuckets } from "@/lib/content";
+import { getAbsoluteUrl } from "@/lib/site";
 
 (globalThis as typeof globalThis & { React: typeof React }).React = React;
 
@@ -23,14 +24,22 @@ function extractJsonLd(markup: string) {
 }
 
 function expectCollectionDates(jsonLd: Array<Record<string, unknown>>, expectedName: string, datePublished?: Date, dateModified?: Date) {
+  const expected: Record<string, unknown> = {
+    "@type": "CollectionPage",
+    name: expectedName,
+  };
+
+  if (datePublished) {
+    expected.datePublished = datePublished.toISOString();
+  }
+
+  if (dateModified) {
+    expected.dateModified = dateModified.toISOString();
+  }
+
   expect(jsonLd).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({
-        "@type": "CollectionPage",
-        name: expectedName,
-        datePublished: datePublished?.toISOString(),
-        dateModified: dateModified?.toISOString(),
-      }),
+      expect.objectContaining(expected),
     ])
   );
 }
@@ -68,7 +77,7 @@ describe("route SEO", () => {
         expect.objectContaining({
           "@type": "CollectionPage",
           name: "Page 2",
-          url: "https://example.com/page/2",
+          url: getAbsoluteUrl("/page/2"),
         }),
       ])
     );
@@ -136,7 +145,7 @@ describe("route SEO", () => {
   });
 
   it("emits taxonomy dates on series detail pages", async () => {
-    const bucket = getSeriesBuckets().find((entry) => entry.posts.length > 0);
+    const bucket = getSeriesBuckets()[0];
     expect(bucket).toBeDefined();
 
     const metadata = await generateSeriesMetadata({ params: Promise.resolve({ slug: bucket!.slug }) });

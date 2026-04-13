@@ -1,6 +1,6 @@
-# YaPress
+# Yapress
 
-YaPress is a markdown-first publishing engine scaffold built around a strict split between framework-owned code and site-owned content. Built with Next.js 15 and React 19, it provides a modern, type-safe foundation for content-driven websites.
+Yapress is a markdown-first publishing engine scaffold built around a strict split between framework-owned code and site-owned content. Built with Next.js 15 and React 19, it provides a modern, type-safe foundation for content-driven websites.
 
 ## Quick Start
 

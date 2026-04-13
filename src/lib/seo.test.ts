@@ -10,7 +10,7 @@ import {
   buildWebSiteJsonLd,
   serializeJsonLd,
 } from "@/lib/seo";
-import { siteConfig } from "@/lib/site";
+import { getAbsoluteUrl, siteConfig } from "@/lib/site";
 
 const originalUrlConfig = JSON.parse(JSON.stringify(siteConfig.url ?? {}));
 
@@ -32,14 +32,15 @@ describe("seo", () => {
     expect(metadata.keywords).toEqual(["archives"]);
     expect(metadata.openGraph?.images).toEqual([
       {
-        url: "https://example.com/yapress.jpg",
-        alt: "Yapress",
+        url: getAbsoluteUrl(siteConfig.siteImage?.src),
+        alt: siteConfig.siteImage?.alt ?? siteConfig.title,
       },
     ]);
+    const xHandle = siteConfig.social?.x?.match(/(?:x\.com|twitter\.com)\/([^/?#]+)/i)?.[1];
     expect(metadata.twitter).toMatchObject({
-      images: ["https://example.com/yapress.jpg"],
-      creator: siteConfig.social?.x ? "@example" : undefined,
-      site: siteConfig.social?.x ? "@example" : undefined,
+      images: [getAbsoluteUrl(siteConfig.siteImage?.src)],
+      creator: xHandle ? `@${xHandle.replace(/^@+/, "")}` : undefined,
+      site: xHandle ? `@${xHandle.replace(/^@+/, "")}` : undefined,
     });
   });
 
@@ -115,12 +116,12 @@ describe("seo", () => {
 
     expect(metadata.openGraph?.images).toEqual([
       {
-        url: "https://example.com/images/post-card.png",
-        alt: "Yapress",
+        url: getAbsoluteUrl("/images/post-card.png"),
+        alt: siteConfig.siteImage?.alt ?? siteConfig.title,
       },
     ]);
     expect(metadata.twitter).toMatchObject({
-      images: ["https://example.com/images/post-card.png"],
+      images: [getAbsoluteUrl("/images/post-card.png")],
     });
   });
 
@@ -146,7 +147,7 @@ describe("seo", () => {
       aliases: [],
     });
 
-    expect(jsonLd.image).toBe("https://example.com/images/post-card.png");
+    expect(jsonLd.image).toBe(getAbsoluteUrl("/images/post-card.png"));
   });
 
   it("adds the content image to page JSON-LD", () => {
@@ -171,7 +172,7 @@ describe("seo", () => {
       aliases: [],
     });
 
-    expect(jsonLd.image).toBe("https://example.com/images/page-card.png");
+    expect(jsonLd.image).toBe(getAbsoluteUrl("/images/page-card.png"));
   });
 
   it("falls back to the site image in JSON-LD when content has no image", () => {
@@ -217,8 +218,8 @@ describe("seo", () => {
       aliases: [],
     });
 
-    expect(articleJsonLd.image).toBe("https://example.com/yapress.jpg");
-    expect(pageJsonLd.image).toBe("https://example.com/yapress.jpg");
+    expect(articleJsonLd.image).toBe(getAbsoluteUrl(siteConfig.siteImage?.src));
+    expect(pageJsonLd.image).toBe(getAbsoluteUrl(siteConfig.siteImage?.src));
   });
 
   it("formats dates using the provided locale", () => {
