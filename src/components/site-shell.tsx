@@ -31,7 +31,7 @@ export function SiteShell({ children }: PropsWithChildren) {
                       className="site-logo"
                     />
                   ) : null}
-                  <span className="brand">{siteConfig.title}</span>
+                  <h1 className="brand">{siteConfig.title}</h1>
                 </Link>
                 {siteConfig.tagline ? <p className="site-tagline">{siteConfig.tagline}</p> : null}
               </div>
