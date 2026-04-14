@@ -1,7 +1,16 @@
+import type { Metadata } from "next";
+
 import { ArticleCard } from "@/components/article-card";
 import { PaginationNav } from "@/components/pagination-nav";
 import { getPaginatedPosts } from "@/lib/content";
-import { buildCollectionPageJsonLd, serializeJsonLd } from "@/lib/seo";
+import { buildMetadata, buildCollectionPageJsonLd, serializeJsonLd } from "@/lib/seo";
+import siteConfig from "@/site.config";
+
+export const metadata: Metadata = buildMetadata({
+  title: `${siteConfig.title} | ${siteConfig.tagline}`,
+  description: siteConfig.description,
+  pathname: "/"
+});
 
 export default function HomePage() {
   const pagination = getPaginatedPosts(1);
