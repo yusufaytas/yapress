@@ -7,6 +7,8 @@ import readingTime from "reading-time";
 import categoryRegistry from "@/content/categories";
 import seriesRegistry from "@/content/series";
 import tagRegistry from "@/content/tags";
+import { getCanonicalCategoryOrder } from "@/lib/categoryUtils";
+import { MAX_CATEGORY_FILTER_DEPTH } from "@/lib/constants";
 import { resolveContentImage } from "@/lib/image";
 import siteConfig from "@/site.config";
 import type {
@@ -15,7 +17,6 @@ import type {
   DateArchiveBucket,
   PageFrontmatter,
   PostFrontmatter,
-  FrontmatterBase,
   SeriesDefinition,
   SeriesFrontmatterItem,
   TagDefinition,
@@ -35,7 +36,7 @@ function normalizeSlug(input: string, locale = siteConfig.language) {
   if (!input || typeof input !== "string") {
     return "";
   }
-  
+
   return input
     .trim()
     .normalize("NFKC")
@@ -87,14 +88,14 @@ function ensureDirectory(dirPath: string) {
   }
 
   const files: string[] = [];
-  
+
   function scanDirectory(currentPath: string, relativePath = "") {
     const entries = fs.readdirSync(currentPath, { withFileTypes: true });
-    
+
     for (const entry of entries) {
       const fullPath = path.join(currentPath, entry.name);
       const relPath = relativePath ? path.join(relativePath, entry.name) : entry.name;
-      
+
       if (entry.isDirectory()) {
         // Recursively scan subdirectories
         scanDirectory(fullPath, relPath);
@@ -103,7 +104,7 @@ function ensureDirectory(dirPath: string) {
       }
     }
   }
-  
+
   scanDirectory(dirPath);
   return files.sort((left, right) => left.localeCompare(right));
 }
@@ -411,11 +412,11 @@ export function getAllPosts() {
   });
 
   validatePostSlugConflicts(posts);
-  
+
   // Filter out drafts in production
   const isDevelopment = process.env.NODE_ENV === "development";
   const filteredPosts = isDevelopment ? posts : posts.filter((post) => !post.draft);
-  
+
   cachedPosts = sortPosts(filteredPosts);
   return cachedPosts;
 }
@@ -464,7 +465,7 @@ export function getAllPages() {
   // Filter out drafts in production
   const isDevelopment = process.env.NODE_ENV === "development";
   cachedPages = isDevelopment ? pages : pages.filter((page) => !page.draft);
-  
+
   return cachedPages;
 }
 
@@ -493,8 +494,93 @@ export function getPageByPermalink(pathname: string) {
   return getAllPages().find((page) => page.permalink === normalized);
 }
 
-export function getPostsByCategory(slug: string) {
-  return getAllPosts().filter((post) => post.categories.some((category) => category.slug === slug));
+export function getPostsByCategories(slugs: string[]) {
+  return getAllPosts().filter((post) =>
+    slugs.every((slug) => post.categories.some((category) => category.slug === slug))
+  );
+}
+
+export function getCategoryPostCounts(): Map<string, number> {
+  const postCounts = new Map<string, number>();
+  const posts = getAllPosts();
+  
+  for (const post of posts) {
+    for (const category of post.categories) {
+      postCounts.set(category.slug, (postCounts.get(category.slug) ?? 0) + 1);
+    }
+  }
+  
+  return postCounts;
+}
+
+export function getCategoryCombinationParams() {
+  const buckets = new Set<string>();
+  const posts = getAllPosts();
+  
+  // Compute post counts for each category
+  const postCounts = new Map<string, number>();
+  for (const post of posts) {
+    for (const category of post.categories) {
+      postCounts.set(category.slug, (postCounts.get(category.slug) ?? 0) + 1);
+    }
+  }
+
+  for (const post of posts) {
+    // Use canonical order based on post count (most posts first)
+    const cats = getCanonicalCategoryOrder(
+      post.categories.map((c) => c.slug),
+      postCounts
+    );
+
+    // Limit to MAX_CATEGORY_FILTER_DEPTH categories
+    const limitedCats = cats.slice(0, MAX_CATEGORY_FILTER_DEPTH);
+
+    // Generate combinations in canonical order for better SEO
+    // Only canonical ordered URLs are generated, reducing duplicate content
+    const generateCombinations = (arr: string[], start: number, prefix: string[] = []) => {
+      if (prefix.length > 0) {
+        buckets.add(prefix.join("/"));
+      }
+      for (let i = start; i < arr.length; i++) {
+        generateCombinations(arr, i + 1, [...prefix, arr[i]]);
+      }
+    };
+
+    generateCombinations(limitedCats, 0);
+  }
+
+  return Array.from(buckets).map((b) => ({ slug: b.split("/") }));
+}
+
+export function getFurtherCategoryOptions(posts: ContentEntry[], currentSlugs: string[]) {
+  // Don't show more options if we've reached max depth
+  if (currentSlugs.length >= MAX_CATEGORY_FILTER_DEPTH) {
+    return [];
+  }
+
+  const currentSet = new Set(currentSlugs);
+  const options = new Map<string, TaxonomyItem & { postCount: number }>();
+
+  for (const post of posts) {
+    for (const cat of post.categories) {
+      if (!currentSet.has(cat.slug)) {
+        const existing = options.get(cat.slug);
+        if (existing) {
+          existing.postCount++;
+        } else {
+          options.set(cat.slug, { ...cat, postCount: 1 });
+        }
+      }
+    }
+  }
+
+  return Array.from(options.values()).sort((a, b) => {
+    // Sort by post count descending, then by title
+    if (a.postCount !== b.postCount) {
+      return b.postCount - a.postCount;
+    }
+    return a.title.localeCompare(b.title);
+  });
 }
 
 export function getPostsByTag(slug: string) {

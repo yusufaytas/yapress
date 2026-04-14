@@ -1447,6 +1447,122 @@ img {
   color: var(--accent);
 }
 
+.category-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 64rem) {
+  .category-layout {
+    grid-template-columns: 1fr 18rem;
+  }
+}
+
+.category-main {
+  min-width: 0;
+}
+
+.category-sidebar {
+  position: sticky;
+  top: 2rem;
+  padding-top: 1.5rem;
+}
+
+.category-sidebar .eyebrow {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+/* Subtle Breadcrumb Trail */
+.subtle-breadcrumb {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  margin: 0 0 2rem 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.subtle-breadcrumb li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.subtle-breadcrumb-separator {
+  opacity: 0.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.subtle-breadcrumb-separator svg {
+  width: 0.8em;
+  height: 0.8em;
+}
+
+.subtle-breadcrumb-link {
+  color: var(--muted);
+  transition: color 150ms ease;
+  white-space: nowrap;
+}
+
+.subtle-breadcrumb-link:hover {
+  color: var(--text);
+}
+
+.subtle-breadcrumb-active {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Sidebar Refine List */
+.sidebar-refine-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.sidebar-refine-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.35rem 0.6rem;
+  margin-left: -0.6rem;
+  color: color-mix(in srgb, var(--text) 85%, var(--muted));
+  font-size: 0.94rem;
+  border-radius: 0.4rem;
+  transition: all 160ms ease;
+}
+
+.sidebar-refine-link:hover {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  color: var(--accent);
+}
+
+.sidebar-refine-icon {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 160ms ease;
+}
+
+.sidebar-refine-link:hover .sidebar-refine-icon {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 .taxonomy-list {
   padding: 1rem;
 }

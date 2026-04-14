@@ -5,7 +5,7 @@ import React from "react";
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import CategoryPage, { generateMetadata as generateCategoryMetadata } from "@/app/categories/[slug]/page";
+import CategoryPage, { generateMetadata as generateCategoryMetadata } from "@/app/categories/[...slug]/page";
 import SeriesDetailPage, { generateMetadata as generateSeriesMetadata } from "@/app/series/[slug]/page";
 import TagPage, { generateMetadata as generateTagMetadata } from "@/app/tags/[slug]/page";
 import HomePage from "@/app/page";
@@ -114,13 +114,13 @@ describe("route SEO", () => {
     const bucket = getCategoryBuckets().find((entry) => entry.posts.length > 0);
     expect(bucket).toBeDefined();
 
-    const metadata = await generateCategoryMetadata({ params: Promise.resolve({ slug: bucket!.slug }) });
+    const metadata = await generateCategoryMetadata({ params: Promise.resolve({ slug: [bucket!.slug] }) });
     expect(metadata.openGraph).toMatchObject({
       publishedTime: bucket!.datePublished?.toISOString(),
       modifiedTime: bucket!.dateModified?.toISOString(),
     });
 
-    const page = await CategoryPage({ params: Promise.resolve({ slug: bucket!.slug }) });
+    const page = await CategoryPage({ params: Promise.resolve({ slug: [bucket!.slug] }) });
     const markup = renderToStaticMarkup(page);
     const jsonLd = extractJsonLd(markup);
 

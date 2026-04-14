@@ -4,6 +4,8 @@ slug: seo-optimization-yapress
 datePublished: 2026-01-20
 categories:
   - engineering
+  - writing
+  - documentation
 tags:
   - seo
   - optimization

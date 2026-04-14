@@ -4,6 +4,7 @@ slug: getting-started-yapress
 datePublished: 2026-01-05
 categories:
   - engineering
+  - writing
 tags:
   - tutorial
   - getting-started

@@ -4,6 +4,7 @@ import {
   getAllPages,
   getAllPosts,
   getCategoryBuckets,
+  getCategoryCombinationParams,
   getDateArchiveBuckets,
   getPaginationParams,
   getSeriesBuckets,
@@ -30,6 +31,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...getSeriesBuckets().map((bucket) => ({ url: getAbsoluteUrl(bucket.permalink) }))
   ];
 
+  // Include multi-category combination pages
+  const categoryCombinations = getCategoryCombinationParams()
+    .filter((param) => param.slug.length > 1) // Only multi-category combinations
+    .map((param) => ({
+      url: getAbsoluteUrl(`/categories/${param.slug.join("/")}`)
+    }));
+
   const archives = getDateArchiveBuckets().map((bucket) => ({
     url: getAbsoluteUrl(bucket.permalink)
   }));
@@ -46,5 +54,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: getAbsoluteUrl(pathname)
   }));
 
-  return [...staticRoutes, ...pages, ...posts, ...taxonomies, ...archives, ...media, ...paginatedRoutes];
+  return [...staticRoutes, ...pages, ...posts, ...taxonomies, ...categoryCombinations, ...archives, ...media, ...paginatedRoutes];
 }

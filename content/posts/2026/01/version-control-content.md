@@ -4,6 +4,7 @@ slug: version-control-content
 datePublished: 2026-01-15
 categories:
   - writing
+  - documentation
 tags:
   - git
   - workflow

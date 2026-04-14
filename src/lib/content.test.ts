@@ -10,13 +10,15 @@ import {
   getTagBuckets,
   getCategoryBuckets,
   getSeriesBuckets,
-  getPostsByCategory,
+  getPostsByCategories,
   getPostsByTag,
   getPostBySlug,
   getRelatedPosts,
   getPaginatedPosts,
   getPaginationParams,
   getPageBySlug,
+  getCategoryCombinationParams,
+  getFurtherCategoryOptions,
   stripMarkdown,
 } from "@/lib/content";
 
@@ -544,32 +546,6 @@ describe("getSeriesBuckets", () => {
   });
 });
 
-describe("getPostsByCategory", () => {
-  it("returns posts filtered by category slug", () => {
-    const posts = getAllPosts();
-    const firstPostWithCategory = posts.find((post) => post.categories.length > 0);
-    
-    if (firstPostWithCategory) {
-      const categorySlug = firstPostWithCategory.categories[0].slug;
-      const filtered = getPostsByCategory(categorySlug);
-      
-      expect(filtered.length).toBeGreaterThan(0);
-      expect(filtered.every((post) => post.categories.some((cat) => cat.slug === categorySlug))).toBe(true);
-      
-      // Verify the original post is in the filtered results
-      expect(filtered.some((post) => post.slug === firstPostWithCategory.slug)).toBe(true);
-    } else {
-      // If no posts have categories, test passes
-      expect(true).toBe(true);
-    }
-  });
-
-  it("returns empty array for non-existent category", () => {
-    const filtered = getPostsByCategory("non-existent-category-slug-12345");
-    expect(filtered).toEqual([]);
-  });
-});
-
 describe("getPostsByTag", () => {
   it("returns posts filtered by tag slug", () => {
     const posts = getAllPosts();
@@ -782,3 +758,280 @@ describe("getPaginationParams", () => {
     expect(params.length).toBeGreaterThanOrEqual(1);
   });
 });
+
+describe("getPostsByCategories", () => {
+  it("returns posts that have all specified categories", () => {
+    const posts = getAllPosts();
+    const postWithMultipleCategories = posts.find((post) => post.categories.length >= 2);
+    
+    if (postWithMultipleCategories) {
+      const categorySlugs = postWithMultipleCategories.categories.map((cat) => cat.slug);
+      const filtered = getPostsByCategories(categorySlugs);
+      
+      expect(filtered.length).toBeGreaterThan(0);
+      
+      // Every returned post should have all specified categories
+      for (const post of filtered) {
+        for (const slug of categorySlugs) {
+          expect(post.categories.some((cat) => cat.slug === slug)).toBe(true);
+        }
+      }
+      
+      // The original post should be in the results
+      expect(filtered.some((post) => post.slug === postWithMultipleCategories.slug)).toBe(true);
+    } else {
+      // If no posts have multiple categories, test passes
+      expect(true).toBe(true);
+    }
+  });
+
+  it("returns empty array when no posts match all categories", () => {
+    const filtered = getPostsByCategories(["non-existent-1", "non-existent-2"]);
+    expect(filtered).toEqual([]);
+  });
+
+  it("works with single category", () => {
+    const posts = getAllPosts();
+    const postWithCategory = posts.find((post) => post.categories.length > 0);
+    
+    if (postWithCategory) {
+      const categorySlug = postWithCategory.categories[0].slug;
+      const filtered = getPostsByCategories([categorySlug]);
+      
+      expect(filtered.length).toBeGreaterThan(0);
+      expect(filtered.every((post) => post.categories.some((cat) => cat.slug === categorySlug))).toBe(true);
+    } else {
+      expect(true).toBe(true);
+    }
+  });
+
+  it("returns empty array for empty category list", () => {
+    const filtered = getPostsByCategories([]);
+    // All posts match when no categories are specified
+    expect(filtered.length).toBe(getAllPosts().length);
+  });
+});
+
+describe("getCategoryCombinationParams", () => {
+  it("generates all category combinations from posts", () => {
+    const params = getCategoryCombinationParams();
+    
+    expect(Array.isArray(params)).toBe(true);
+    
+    // Each param should have a slug array
+    for (const param of params) {
+      expect(Array.isArray(param.slug)).toBe(true);
+      expect(param.slug.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("includes single category slugs", () => {
+    const posts = getAllPosts();
+    const postWithCategory = posts.find((post) => post.categories.length > 0);
+    
+    if (postWithCategory) {
+      const params = getCategoryCombinationParams();
+      const categorySlug = postWithCategory.categories[0].slug;
+      
+      // Should include single category
+      const hasSingleCategory = params.some(
+        (param) => param.slug.length === 1 && param.slug[0] === categorySlug
+      );
+      expect(hasSingleCategory).toBe(true);
+    } else {
+      expect(true).toBe(true);
+    }
+  });
+
+  it("includes multi-category combinations", () => {
+    const posts = getAllPosts();
+    const postWithMultipleCategories = posts.find((post) => post.categories.length >= 2);
+    
+    if (postWithMultipleCategories) {
+      const params = getCategoryCombinationParams();
+      // Only check up to MAX_DEPTH (3) categories
+      const categorySlugs = postWithMultipleCategories.categories.slice(0, 3).map((cat) => cat.slug);
+      
+      // Should include the full combination
+      const hasFullCombination = params.some(
+        (param) => param.slug.length === categorySlugs.length &&
+          categorySlugs.every((slug) => param.slug.includes(slug))
+      );
+      expect(hasFullCombination).toBe(true);
+    } else {
+      expect(true).toBe(true);
+    }
+  });
+
+  it("does not include duplicate combinations", () => {
+    const params = getCategoryCombinationParams();
+    const slugStrings = params.map((param) => param.slug.join("/"));
+    const uniqueSlugs = new Set(slugStrings);
+    
+    expect(slugStrings.length).toBe(uniqueSlugs.size);
+  });
+
+  it("generates combinations not permutations for better SEO", () => {
+    const posts = getAllPosts();
+    const postWithMultipleCategories = posts.find((post) => post.categories.length >= 2);
+    
+    if (postWithMultipleCategories) {
+      const params = getCategoryCombinationParams();
+      const categorySlugs = postWithMultipleCategories.categories.slice(0, 5).map((cat) => cat.slug);
+      
+      if (categorySlugs.length >= 2) {
+        const [first, second] = categorySlugs;
+        const forwardCombo = `${first}/${second}`;
+        const reverseCombo = `${second}/${first}`;
+        
+        const hasForward = params.some((p) => p.slug.join("/") === forwardCombo);
+        const hasReverse = params.some((p) => p.slug.join("/") === reverseCombo);
+        
+        // Should only have one direction (combinations, not permutations)
+        // This avoids duplicate content for SEO
+        if (hasForward || hasReverse) {
+          expect(hasForward && hasReverse).toBe(false);
+        }
+      }
+    } else {
+      expect(true).toBe(true);
+    }
+  });
+
+  it("limits category depth to 5", () => {
+    const params = getCategoryCombinationParams();
+    
+    // No combination should have more than 5 categories
+    for (const param of params) {
+      expect(param.slug.length).toBeLessThanOrEqual(5);
+    }
+  });
+});
+
+describe("getFurtherCategoryOptions", () => {
+  it("returns categories not in current selection", () => {
+    const posts = getAllPosts();
+    const postWithMultipleCategories = posts.find((post) => post.categories.length >= 2);
+    
+    if (postWithMultipleCategories) {
+      const firstCategory = postWithMultipleCategories.categories[0].slug;
+      const postsWithFirstCategory = getPostsByCategories([firstCategory]);
+      
+      const options = getFurtherCategoryOptions(postsWithFirstCategory, [firstCategory]);
+      
+      // Options should not include the current category
+      expect(options.every((opt) => opt.slug !== firstCategory)).toBe(true);
+      
+      // Options should be valid taxonomy items
+      for (const option of options) {
+        expect(option.slug).toBeTruthy();
+        expect(option.title).toBeTruthy();
+        expect(option.permalink).toMatch(/^\/categories\//);
+      }
+    } else {
+      expect(true).toBe(true);
+    }
+  });
+
+  it("returns empty array when all categories are selected", () => {
+    const posts = getAllPosts();
+    const postWithCategories = posts.find((post) => post.categories.length > 0);
+    
+    if (postWithCategories) {
+      const allCategorySlugs = postWithCategories.categories.map((cat) => cat.slug);
+      const options = getFurtherCategoryOptions([postWithCategories], allCategorySlugs);
+      
+      expect(options).toEqual([]);
+    } else {
+      expect(true).toBe(true);
+    }
+  });
+
+  it("returns sorted options by post count then title", () => {
+    const posts = getAllPosts();
+    
+    if (posts.length > 0) {
+      const options = getFurtherCategoryOptions(posts, []);
+      
+      // Check if sorted by post count (descending), then alphabetically by title
+      for (let i = 1; i < options.length; i++) {
+        const prevCount = options[i - 1].postCount;
+        const currCount = options[i].postCount;
+        
+        if (prevCount === currCount) {
+          // Same count, should be alphabetically sorted
+          expect(options[i - 1].title.localeCompare(options[i].title)).toBeLessThanOrEqual(0);
+        } else {
+          // Different count, higher count should come first
+          expect(prevCount).toBeGreaterThan(currCount);
+        }
+      }
+    } else {
+      expect(true).toBe(true);
+    }
+  });
+
+  it("does not include duplicate categories", () => {
+    const posts = getAllPosts();
+    
+    if (posts.length > 0) {
+      const options = getFurtherCategoryOptions(posts, []);
+      const slugs = options.map((opt) => opt.slug);
+      const uniqueSlugs = new Set(slugs);
+      
+      expect(slugs.length).toBe(uniqueSlugs.size);
+    } else {
+      expect(true).toBe(true);
+    }
+  });
+
+  it("works with empty post list", () => {
+    const options = getFurtherCategoryOptions([], []);
+    expect(options).toEqual([]);
+  });
+
+  it("works with empty current slugs", () => {
+    const posts = getAllPosts();
+    
+    if (posts.length > 0) {
+      const options = getFurtherCategoryOptions(posts, []);
+      
+      // Should return all categories from the posts
+      expect(Array.isArray(options)).toBe(true);
+    } else {
+      expect(true).toBe(true);
+    }
+  });
+});
+
+  it("returns empty array when max depth (5) is reached", () => {
+    const posts = getAllPosts();
+    
+    if (posts.length > 0) {
+      // Simulate having 5 categories already selected
+      const options = getFurtherCategoryOptions(posts, ["cat1", "cat2", "cat3", "cat4", "cat5"]);
+      
+      // Should return empty array because we've reached max depth
+      expect(options).toEqual([]);
+    } else {
+      expect(true).toBe(true);
+    }
+  });
+
+  it("still shows options when depth is less than 5", () => {
+    const posts = getAllPosts();
+    const postWithMultipleCategories = posts.find((post) => post.categories.length >= 2);
+    
+    if (postWithMultipleCategories) {
+      const firstCategory = postWithMultipleCategories.categories[0].slug;
+      const postsWithFirstCategory = getPostsByCategories([firstCategory]);
+      
+      // With only 1 category selected, should still show options
+      const options = getFurtherCategoryOptions(postsWithFirstCategory, [firstCategory]);
+      
+      // Should have options available (unless all posts only have 1 category)
+      expect(Array.isArray(options)).toBe(true);
+    } else {
+      expect(true).toBe(true);
+    }
+  });

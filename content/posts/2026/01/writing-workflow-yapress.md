@@ -4,6 +4,7 @@ slug: writing-workflow-yapress
 datePublished: 2026-01-10
 categories:
   - writing
+  - engineering
 tags:
   - workflow
   - productivity

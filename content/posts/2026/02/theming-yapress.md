@@ -4,6 +4,10 @@ slug: theming-yapress
 datePublished: 2026-02-12
 categories:
   - engineering
+  - documentation
+  - writing
+  - my-new-category
+  - my-other-category
 tags:
   - design
   - themes

@@ -4,6 +4,10 @@ slug: migrating-from-wordpress
 datePublished: 2026-02-18
 categories:
   - engineering
+  - documentation
+  - writing
+  - my-new-category
+  - my-other-category
 tags:
   - migration
   - wordpress
