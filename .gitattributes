@@ -3,6 +3,7 @@
 
 # Site-owned content - always keep local version (ours) on merge conflicts
 content/** merge=ours
+content-starter/** merge=ours
 site.config.ts merge=ours
 public/** merge=ours
 favicon.ico merge=ours

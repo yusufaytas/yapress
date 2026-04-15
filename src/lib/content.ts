@@ -15,7 +15,6 @@ import type {
   DateArchiveBucket,
   PageFrontmatter,
   PostFrontmatter,
-  FrontmatterBase,
   SeriesDefinition,
   SeriesFrontmatterItem,
   TagDefinition,
@@ -24,7 +23,7 @@ import type {
 } from "@/types/content";
 import { getArchivePath, getPostPermalink, getUrlConfig, normalizePathname, trimSlashes } from "@/lib/urls";
 
-const CONTENT_ROOT = path.join(process.cwd(), "content");
+const CONTENT_ROOT = path.join(process.cwd(), process.env.CONTENT_DIR || "content");
 const POSTS_ROOT = path.join(CONTENT_ROOT, "posts");
 const PAGES_ROOT = path.join(CONTENT_ROOT, "pages");
 
@@ -576,8 +575,15 @@ export function getPaginatedPosts(pageNumber: number, pageSize = POSTS_PER_PAGE)
 export function getPaginationParams(pageSize = POSTS_PER_PAGE, startPage = 1) {
   const totalPosts = getAllPosts().length;
   const totalPages = Math.max(1, Math.ceil(totalPosts / pageSize));
+  const paramsLength = Math.max(0, totalPages - startPage + 1);
 
-  return Array.from({ length: Math.max(0, totalPages - startPage + 1) }, (_, index) => ({
+  // For static export, Next.js requires at least one param even if it will 404
+  // Return a dummy param that will be caught by notFound() in the page component
+  if (paramsLength === 0) {
+    return [{ page: String(startPage) }];
+  }
+
+  return Array.from({ length: paramsLength }, (_, index) => ({
     page: String(index + startPage)
   }));
 }

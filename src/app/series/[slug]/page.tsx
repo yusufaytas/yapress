@@ -10,6 +10,10 @@ import seriesRegistry from "@/content/series";
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
+  // For static export, Next.js requires at least one param even if it will 404
+  if (seriesRegistry.length === 0) {
+    return [{ slug: '_empty' }];
+  }
   return seriesRegistry.map((series) => ({ slug: series.slug }));
 }
 

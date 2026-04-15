@@ -35,7 +35,14 @@ export async function generateStaticParams() {
   ];
   
   // Filter out any invalid params (empty slug arrays)
-  return params.filter(p => p.slug && p.slug.length > 0);
+  const validParams = params.filter(p => p.slug && p.slug.length > 0);
+  
+  // For static export, Next.js requires at least one param even if it will 404
+  if (validParams.length === 0) {
+    return [{ slug: ['_empty'] }];
+  }
+  
+  return validParams;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {

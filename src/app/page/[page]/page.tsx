@@ -6,7 +6,9 @@ import { PaginationNav } from "@/components/pagination-nav";
 import { getPaginatedPosts, getPaginationParams } from "@/lib/content";
 import { buildCollectionPageJsonLd, buildMetadata, serializeJsonLd } from "@/lib/seo";
 
-export async function generateStaticParams() {
+export const dynamicParams = false;
+
+export function generateStaticParams() {
   return getPaginationParams(undefined, 2);
 }
 

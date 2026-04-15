@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 import { renderHighlightedCode } from "@/lib/codeHighlight";
+import { ContactForm } from "@/components/contact-form";
 
 function extractLanguage(className?: string) {
   const match = className?.match(/language-([\w-]+)/);
@@ -153,4 +154,5 @@ export const mdxComponents = {
   code: MdxCode,
   img: MdxImage,
   table: MdxTable,
+  ContactForm,
 };

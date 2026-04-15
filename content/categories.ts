@@ -1,22 +1,19 @@
 import type { CategoryDefinition } from "@/types/content";
 
-const categories: CategoryDefinition[] = [
-  {
-    slug: "engineering",
-    title: "Engineering",
-    description: "Software systems, architecture, and build discipline."
-  },
-  {
-    slug: "writing",
-    title: "Writing",
-    description: "Editorial process, publishing systems, and craft."
-  },
-  {
-    slug: "documentation",
-    title: "Documentation",
-    description: "Posts about documentation",
-  },
-];
+/**
+ * Category Registry
+ * 
+ * Required: All categories used in posts must be registered here.
+ * Categories provide the primary taxonomy for organizing content.
+ * 
+ * Example:
+ * {
+ *   slug: "tutorials",
+ *   title: "Tutorials",
+ *   description: "Step-by-step guides and how-tos"
+ * }
+ */
+const categories: CategoryDefinition[] = [];
 
 export default categories;
 

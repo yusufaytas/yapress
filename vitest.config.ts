@@ -8,6 +8,9 @@ export default defineConfig({
     include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
     restoreMocks: true,
     clearMocks: true,
+    env: {
+      CONTENT_DIR: "content-starter",
+    },
   },
   resolve: {
     alias: [
@@ -17,7 +20,7 @@ export default defineConfig({
       },
       {
         find: /^@\/content\/(.*)$/,
-        replacement: path.resolve(__dirname, "./content/$1"),
+        replacement: path.resolve(__dirname, "./content-starter/$1"),
       },
       {
         find: /^@\/(.*)$/,

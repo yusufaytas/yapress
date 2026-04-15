@@ -8,6 +8,9 @@ Yapress is a markdown-first publishing engine scaffold built around a strict spl
 # Install dependencies
 npm install
 
+# Copy starter content (optional - provides example posts and pages)
+cp -r content-starter/* content/
+
 # Start development server
 npm run dev
 
@@ -17,6 +20,10 @@ npm run build
 # Validate content structure
 npm run validate:content
 ```
+
+The `content-starter/` directory contains example posts, pages, and taxonomy configurations to help you get started. Copy it to `content/` to see YaPress in action, then replace with your own content.
+
+**Note:** The framework tests use `content-starter/` to ensure all features work correctly, so don't delete it if you plan to run tests or contribute to the project.
 
 ## Project Structure
 
@@ -32,6 +39,9 @@ npm run validate:content
 - `content/posts/` - Blog posts in Markdown/MDX
 - `content/pages/` - Static pages (about, contact, etc.)
 - `content/categories.ts` - Category registry
+- `content/tags.ts` - Tag registry (optional)
+- `content/series.ts` - Series registry (optional)
+- `content-starter/` - Example content for reference and testing (don't delete)
 - `public/` - Static assets (images, fonts, etc.)
 - `site.config.ts` - Site configuration and theming
 
@@ -202,6 +212,22 @@ Your content here...
 ```
 
 Use `language` for the post's content language and `locale` when you need locale-specific casing, slug normalization, and date formatting. For example, Turkish posts should normally use `language: "tr"` and `locale: "tr"` so `I/İ` casing behaves correctly.
+
+### Contact Form
+
+Add a contact form to any page or MDX file:
+
+```mdx
+<ContactForm action="https://formspree.io/f/YOUR_FORM_ID" />
+```
+
+Features:
+- Client-side validation with real-time error feedback
+- Accessible with ARIA attributes and keyboard navigation
+- Responsive design matching the YaPress theme
+- Works with Formspree, Getform, or any JSON-accepting endpoint
+
+The form includes name, email, subject, and message fields with proper validation. Configure your form service (like Formspree) and pass the endpoint URL via the `action` prop.
 
 ### Image Grids
 

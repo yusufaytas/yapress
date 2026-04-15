@@ -8,7 +8,12 @@ import { getPostsByTag, getTagBuckets } from "@/lib/content";
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  return getTagBuckets().map((bucket) => ({ slug: bucket.slug }));
+  const buckets = getTagBuckets();
+  // For static export, Next.js requires at least one param even if it will 404
+  if (buckets.length === 0) {
+    return [{ slug: '_empty' }];
+  }
+  return buckets.map((bucket) => ({ slug: bucket.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

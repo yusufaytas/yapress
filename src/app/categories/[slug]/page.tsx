@@ -6,7 +6,12 @@ import { buildMetadata, buildCollectionPageJsonLd, serializeJsonLd } from "@/lib
 import { getCategoryBuckets, getPostsByCategory } from "@/lib/content";
 
 export async function generateStaticParams() {
-  return getCategoryBuckets().map((bucket) => ({ slug: bucket.slug }));
+  const buckets = getCategoryBuckets();
+  // For static export, Next.js requires at least one param even if it will 404
+  if (buckets.length === 0) {
+    return [{ slug: '_empty' }];
+  }
+  return buckets.map((bucket) => ({ slug: bucket.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
