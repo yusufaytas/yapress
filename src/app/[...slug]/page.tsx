@@ -8,6 +8,7 @@ import { ContentRenderer } from "@/components/content-renderer";
 import { ExpandableTaxonomyList } from "@/components/expandable-taxonomy-list";
 import { SocialShare } from "@/components/social-share";
 import { TaxonomyPill } from "@/components/taxonomy-pill";
+import { TextHighlighter } from "@/components/text-highlighter";
 import {
   getAllPages,
   getAllPosts,
@@ -98,6 +99,7 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
 
     return (
       <div className="container section stack">
+        <TextHighlighter />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
@@ -247,6 +249,7 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="container section">
+      <TextHighlighter />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
