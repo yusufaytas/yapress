@@ -777,8 +777,11 @@ describe("getPaginationParams", () => {
     expect(params[0].page).toBe("2");
   });
 
-  it("returns at least one page even with no posts", () => {
-    const params = getPaginationParams(5, 1);
-    expect(params.length).toBeGreaterThanOrEqual(1);
+  it("returns no params when startPage is beyond the available pagination range", () => {
+    const allPosts = getAllPosts();
+    const pageSize = 5;
+    const totalPages = Math.ceil(allPosts.length / pageSize);
+
+    expect(getPaginationParams(pageSize, totalPages + 1)).toEqual([]);
   });
 });

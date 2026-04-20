@@ -5,11 +5,12 @@ import { ArticleCard } from "@/components/article-card";
 import { PaginationNav } from "@/components/pagination-nav";
 import { getPaginatedPosts, getPaginationParams } from "@/lib/content";
 import { buildCollectionPageJsonLd, buildMetadata, serializeJsonLd } from "@/lib/seo";
+import { EMPTY_DYNAMIC_SEGMENT, ensureStaticParams } from "@/lib/staticParams";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return getPaginationParams(undefined, 2);
+  return ensureStaticParams(getPaginationParams(undefined, 2), { page: EMPTY_DYNAMIC_SEGMENT });
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }): Promise<Metadata> {
@@ -19,7 +20,8 @@ export async function generateMetadata({ params }: { params: Promise<{ page: str
   return buildMetadata({
     title: `Page ${pageNumber}`,
     description: `Post archive page ${pageNumber}.`,
-    pathname: `/page/${pageNumber}`
+    pathname: `/page/${pageNumber}`,
+    noIndex: !Number.isInteger(pageNumber) || pageNumber < 2
   });
 }
 

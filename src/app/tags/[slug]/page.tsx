@@ -4,16 +4,18 @@ import { notFound } from "next/navigation";
 import { ArticleCard } from "@/components/article-card";
 import { buildMetadata, buildCollectionPageJsonLd, serializeJsonLd } from "@/lib/seo";
 import { getPostsByTag, getTagBuckets } from "@/lib/content";
+import { EMPTY_DYNAMIC_SEGMENT, ensureStaticParams } from "@/lib/staticParams";
+import { isTaxonomyBucketIndexable } from "@/lib/taxonomyIndexing";
 
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  const buckets = getTagBuckets();
-  // For static export, Next.js requires at least one param even if it will 404
-  if (buckets.length === 0) {
-    return [{ slug: '_empty' }];
-  }
-  return buckets.map((bucket) => ({ slug: bucket.slug }));
+  return ensureStaticParams(
+    getTagBuckets()
+    .filter((bucket) => bucket.posts.length > 0)
+    .map((bucket) => ({ slug: bucket.slug })),
+    { slug: EMPTY_DYNAMIC_SEGMENT }
+  );
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -24,6 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: bucket?.description ?? (bucket ? `Posts tagged with ${bucket.title}.` : "Posts grouped by tag."),
     pathname: `/tags/${slug}`,
     keywords: bucket ? [bucket.title, "tag"] : [],
+    noIndex: bucket ? !isTaxonomyBucketIndexable("tags", bucket) : true,
     datePublished: bucket?.datePublished,
     dateModified: bucket?.dateModified
   });

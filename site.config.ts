@@ -7,6 +7,13 @@ const siteConfig: SiteConfig = {
   siteUrl: "https://example.com",
   language: "en",
   author: "Site Author",
+  seo: {
+    taxonomyIndexing: {
+      categoriesMinPosts: 5,
+      tagsMinPosts: 10,
+      seriesMinPosts: 5,
+    },
+  },
   url: {
     postPermalink: {
       style: "slug",
@@ -29,7 +36,12 @@ const siteConfig: SiteConfig = {
       tags: true,
     },
     redirects: [
-      // { from: "/old-path", to: "/new-path" },
+      { source: "/feed", destination: "/rss.xml", permanent: true },
+      { source: "/feed/", destination: "/rss.xml", permanent: true },
+      { source: "/category/:slug", destination: "/categories/:slug", permanent: true },
+      { source: "/tag/:slug", destination: "/tags/:slug", permanent: true },
+      { source: "/wp-content/uploads/:path*", destination: "/images/:path*", permanent: true },
+      // { source: "/old-path", destination: "/new-path", permanent: true },
     ],
     wordpress: {
       legacyCategoryBase: "category",
@@ -114,7 +126,6 @@ const siteConfig: SiteConfig = {
       ]
     }
   ],
-  externalLinks: [],
   social: {
     github: "https://github.com/example/yapress",
     linkedin: "https://www.linkedin.com/in/example",

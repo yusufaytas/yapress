@@ -11,7 +11,7 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default function CategoriesPage() {
-  const buckets = getCategoryBuckets();
+  const buckets = getCategoryBuckets().filter((bucket) => bucket.posts.length > 0);
   
   const jsonLd = buildItemListJsonLd(
     "Categories",

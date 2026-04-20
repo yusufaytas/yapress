@@ -1,5 +1,14 @@
+import { normalizeInternalAbsoluteUrl } from "@/lib/site";
+
 function escapeNumericLessThanInTextSegment(segment: string) {
   return segment.replace(/(^|[^\w`])<(?=\d)/g, "$1&lt;");
+}
+
+function normalizeInternalAbsoluteUrls(segment: string) {
+  return segment.replace(
+    /https?:\/\/[^\s<)"'\]]+/g,
+    (match) => normalizeInternalAbsoluteUrl(match)
+  );
 }
 
 export function normalizeMdxSource(source: string) {
@@ -19,7 +28,7 @@ export function normalizeMdxSource(source: string) {
       continue;
     }
 
-    normalized.push(escapeNumericLessThanInTextSegment(line));
+    normalized.push(normalizeInternalAbsoluteUrls(escapeNumericLessThanInTextSegment(line)));
   }
 
   return normalized.join("\n");

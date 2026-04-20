@@ -6,6 +6,7 @@ export type SiteConfig = {
   language: string;
   author: string;
   url?: UrlConfig;
+  seo?: SeoConfig;
   theme?: ThemeName | ThemeConfig;
   logo?: {
     src: string;
@@ -34,7 +35,6 @@ export type SiteConfig = {
     title: string;
     links: Array<{ href: string; label: string }>;
   }>;
-  externalLinks?: Array<{ href: string; label: string }>;
   social?: {
     github?: string;
     linkedin?: string;
@@ -107,6 +107,14 @@ export type ThemeConfig = {
   customCssHref?: string;
 };
 
+export type SeoConfig = {
+  taxonomyIndexing?: {
+    categoriesMinPosts?: number;
+    tagsMinPosts?: number;
+    seriesMinPosts?: number;
+  };
+};
+
 export type PostPermalinkStyle =
   | "slug"
   | "prefix-slug"
@@ -114,8 +122,9 @@ export type PostPermalinkStyle =
   | "prefix-year-month-slug";
 
 export type UrlRedirect = {
-  from: string;
-  to: string;
+  source: string;
+  destination: string;
+  permanent?: boolean;
 };
 
 export type UrlConfig = {

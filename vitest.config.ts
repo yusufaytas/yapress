@@ -19,6 +19,10 @@ export default defineConfig({
         replacement: path.resolve(__dirname, "./site.config.ts"),
       },
       {
+        find: /^@\/plugins\.config$/,
+        replacement: path.resolve(__dirname, "./plugins.config.ts"),
+      },
+      {
         find: /^@\/content\/(.*)$/,
         replacement: path.resolve(__dirname, "./content-starter/$1"),
       },

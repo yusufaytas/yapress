@@ -20,29 +20,24 @@ import { getMediaAssetByPagePath, getMediaAssets } from "@/lib/media";
 import { getPluginComponents } from "@/lib/plugins";
 import { buildCollectionPageJsonLd, buildMediaObjectJsonLd, buildMetadata, buildPostMetadata, buildPageMetadata, buildContentJsonLd, formatDisplayDate, serializeJsonLd } from "@/lib/seo";
 import { getAbsoluteUrl } from "@/lib/site";
+import { EMPTY_DYNAMIC_SEGMENT, ensureStaticParams } from "@/lib/staticParams";
 import { joinPath } from "@/lib/urls";
 
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  const params = [
+  return ensureStaticParams([
     ...getAllPages()
       .filter((page) => page.permalink !== "/")
       .map((page) => ({ slug: page.permalink.split("/").filter(Boolean) })),
     ...getAllPosts().map((post) => ({ slug: post.permalink.split("/").filter(Boolean) })),
-    ...getDateArchiveBuckets().map((bucket) => ({ slug: bucket.permalink.split("/").filter(Boolean) })),
-    ...getMediaAssets().map((asset) => ({ slug: asset.pagePath.split("/").filter(Boolean) }))
-  ];
-  
-  // Filter out any invalid params (empty slug arrays)
-  const validParams = params.filter(p => p.slug && p.slug.length > 0);
-  
-  // For static export, Next.js requires at least one param even if it will 404
-  if (validParams.length === 0) {
-    return [{ slug: ['_empty'] }];
-  }
-  
-  return validParams;
+    ...getDateArchiveBuckets()
+      .filter((bucket) => bucket.posts.length > 0)
+      .map((bucket) => ({ slug: bucket.permalink.split("/").filter(Boolean) })),
+    ...getMediaAssets()
+      .filter((asset) => asset.references.length > 0)
+      .map((asset) => ({ slug: asset.pagePath.split("/").filter(Boolean) }))
+  ].filter((param) => param.slug.length > 0), { slug: [EMPTY_DYNAMIC_SEGMENT] });
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
@@ -83,7 +78,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   return {
-    title: "Page Not Found"
+    title: "Page Not Found",
+    robots: {
+      index: false,
+      follow: true,
+    },
   };
 }
 

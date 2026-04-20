@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+import { getAppRedirects } from "./src/lib/redirects";
+
 const nextConfig: NextConfig = {
   output: "export",
   pageExtensions: ["ts", "tsx", "md", "mdx"],
@@ -20,33 +22,7 @@ const nextConfig: NextConfig = {
   // In production, vercel.json handles redirects
   ...(process.env.NODE_ENV === "development" && {
     async redirects() {
-      return [
-        {
-          source: "/feed",
-          destination: "/rss.xml",
-          permanent: true
-        },
-        {
-          source: "/feed/",
-          destination: "/rss.xml",
-          permanent: true
-        },
-        {
-          source: "/category/:slug",
-          destination: "/categories/:slug",
-          permanent: true
-        },
-        {
-          source: "/tag/:slug",
-          destination: "/tags/:slug",
-          permanent: true
-        },
-        {
-          source: "/wp-content/uploads/:path*",
-          destination: "/images/:path*",
-          permanent: true
-        }
-      ];
+      return getAppRedirects();
     },
   }),
 };

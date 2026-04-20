@@ -73,18 +73,6 @@ export function SiteShell({ children }: PropsWithChildren) {
               </nav>
             </div>
           ))}
-          {siteConfig.externalLinks && siteConfig.externalLinks.length > 0 ? (
-            <div className="site-footer__column">
-              <div className="site-kicker">Elsewhere</div>
-              <nav className="footer-nav" aria-label="External links">
-                {siteConfig.externalLinks.map((item) => (
-                  <Link key={item.href} href={item.href}>
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-          ) : null}
         </div>
         <div className="container site-footer__bottom">
           <span>Copyright © {BUILD_YEAR} {siteConfig.title}</span>

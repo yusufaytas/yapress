@@ -11,7 +11,7 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default function SeriesPage() {
-  const buckets = getSeriesBuckets();
+  const buckets = getSeriesBuckets().filter((bucket) => bucket.posts.length > 0);
   
   const jsonLd = buildItemListJsonLd(
     "Series",

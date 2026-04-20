@@ -4,17 +4,18 @@ import { notFound } from "next/navigation";
 import { ArticleCard } from "@/components/article-card";
 import { buildMetadata, buildCollectionPageJsonLd, serializeJsonLd } from "@/lib/seo";
 import { getPostsBySeries, getSeriesBuckets } from "@/lib/content";
-
-import seriesRegistry from "@/content/series";
+import { EMPTY_DYNAMIC_SEGMENT, ensureStaticParams } from "@/lib/staticParams";
+import { isTaxonomyBucketIndexable } from "@/lib/taxonomyIndexing";
 
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  // For static export, Next.js requires at least one param even if it will 404
-  if (seriesRegistry.length === 0) {
-    return [{ slug: '_empty' }];
-  }
-  return seriesRegistry.map((series) => ({ slug: series.slug }));
+  return ensureStaticParams(
+    getSeriesBuckets()
+    .filter((bucket) => bucket.posts.length > 0)
+    .map((bucket) => ({ slug: bucket.slug })),
+    { slug: EMPTY_DYNAMIC_SEGMENT }
+  );
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -25,6 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: bucket?.description ?? "Posts in this series.",
     pathname: `/series/${slug}`,
     keywords: bucket ? [bucket.title, "series"] : ["series"],
+    noIndex: bucket ? !isTaxonomyBucketIndexable("series", bucket) : true,
     datePublished: bucket?.datePublished,
     dateModified: bucket?.dateModified
   });

@@ -577,12 +577,6 @@ export function getPaginationParams(pageSize = POSTS_PER_PAGE, startPage = 1) {
   const totalPages = Math.max(1, Math.ceil(totalPosts / pageSize));
   const paramsLength = Math.max(0, totalPages - startPage + 1);
 
-  // For static export, Next.js requires at least one param even if it will 404
-  // Return a dummy param that will be caught by notFound() in the page component
-  if (paramsLength === 0) {
-    return [{ page: String(startPage) }];
-  }
-
   return Array.from({ length: paramsLength }, (_, index) => ({
     page: String(index + startPage)
   }));

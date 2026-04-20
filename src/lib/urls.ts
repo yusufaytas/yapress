@@ -86,7 +86,11 @@ export function getUrlConfig() {
       ...defaultUrlConfig.wordpress,
       ...siteConfig.url?.wordpress,
     },
-    redirects: siteConfig.url?.redirects ?? defaultUrlConfig.redirects,
+    redirects: (siteConfig.url?.redirects ?? defaultUrlConfig.redirects).map((redirect) => ({
+      source: redirect.source,
+      destination: redirect.destination,
+      permanent: redirect.permanent ?? true,
+    })),
   };
 }
 

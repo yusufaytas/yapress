@@ -3,7 +3,9 @@
  * Handles plugin loading and component injection
  */
 
-import "server-only";
+if (!process.env.VITEST) {
+  await import("server-only");
+}
 
 import { createElement } from "react";
 

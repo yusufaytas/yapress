@@ -18,7 +18,7 @@ npm run dev
 npm run build
 
 # Validate content structure
-npm run validate:content
+npm run validate-content
 ```
 
 The `content-starter/` directory contains example posts, pages, and taxonomy configurations to help you get started. Copy it to `content/` to see YaPress in action, then replace with your own content.
@@ -292,7 +292,7 @@ export const series = [
 - `npm run build` - Build static site for production
 - `npm run start` - Preview production build locally
 - `npm run lint` - Run ESLint
-- `npm run validate:content` - Validate content structure and references
+- `npm run validate-content` - Validate content structure and references
 - `npm run import:wordpress` - Import content from WordPress XML export
 
 ## Updating from Upstream
