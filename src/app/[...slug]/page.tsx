@@ -101,7 +101,7 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
         />
-        <article className="article">
+        <article className="article" data-layout-mode="editorial">
           <header className="article-header stack">
             <div className="article-header-top">
               <div className="article-kicker">
