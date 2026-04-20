@@ -113,6 +113,9 @@ export type SeoConfig = {
     tagsMinPosts?: number;
     seriesMinPosts?: number;
   };
+  robots?: {
+    disallow?: string[];
+  };
 };
 
 export type PostPermalinkStyle =

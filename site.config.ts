@@ -36,10 +36,6 @@ const siteConfig: SiteConfig = {
       tags: true,
     },
     redirects: [
-      { source: "/feed", destination: "/rss.xml", permanent: true },
-      { source: "/feed/", destination: "/rss.xml", permanent: true },
-      { source: "/category/:slug", destination: "/categories/:slug", permanent: true },
-      { source: "/tag/:slug", destination: "/tags/:slug", permanent: true },
       { source: "/wp-content/uploads/:path*", destination: "/images/:path*", permanent: true },
       // { source: "/old-path", destination: "/new-path", permanent: true },
     ],

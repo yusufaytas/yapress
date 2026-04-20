@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { getAppRedirects } from "@/lib/redirects";
 
 describe("redirects", () => {
-  it("reads redirects from site config", () => {
+  it("includes framework-level legacy redirects", () => {
     expect(getAppRedirects()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -22,10 +22,32 @@ describe("redirects", () => {
           permanent: true,
         }),
         expect.objectContaining({
+          source: "/category/:slug/page/:page",
+          destination: "/categories/:slug",
+          permanent: true,
+        }),
+        expect.objectContaining({
           source: "/tag/:slug",
           destination: "/tags/:slug",
           permanent: true,
         }),
+        expect.objectContaining({
+          source: "/tag/:slug/page/:page",
+          destination: "/tags/:slug",
+          permanent: true,
+        }),
+        expect.objectContaining({
+          source: "/:slug/comment-page-:page",
+          destination: "/:slug",
+          permanent: true,
+        }),
+      ])
+    );
+  });
+
+  it("includes site redirects from site config", () => {
+    expect(getAppRedirects()).toEqual(
+      expect.arrayContaining([
         expect.objectContaining({
           source: "/wp-content/uploads/:path*",
           destination: "/images/:path*",

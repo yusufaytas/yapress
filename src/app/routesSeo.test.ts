@@ -16,6 +16,7 @@ import NotFoundPage, { metadata as notFoundMetadata } from "@/app/not-found";
 import PaginatedPostsPage from "@/app/page/[page]/page";
 import { generateStaticParams as generatePaginationStaticParams } from "@/app/page/[page]/page";
 import PagesIndexPage from "@/app/pages/page";
+import robots from "@/app/robots";
 import { generateStaticParams as generateCatchAllStaticParams } from "@/app/[...slug]/page";
 import sitemap from "@/app/sitemap";
 import { getCategoryBuckets, getDateArchiveBuckets, getSeriesBuckets, getTagBuckets, getPaginationParams } from "@/lib/content";
@@ -281,10 +282,33 @@ describe("route SEO", () => {
       expect(entries.indexOf(indexableSeriesUrls[0])).toBeLessThan(entries.indexOf(indexableTagUrls[0]));
     }
   });
+
+  it("disallows legacy crawl-noise paths and parameter variants in robots.txt", () => {
+    expect(robots()).toMatchObject({
+      rules: {
+        userAgent: "*",
+        allow: "/",
+        disallow: expect.arrayContaining([
+          "/wp-admin/",
+          "/wp-includes/",
+          "/xmlrpc.php",
+          "/*?p=*",
+          "/*?replytocom=*",
+          "/*?utm_*",
+          "/*&utm_*",
+          "/*?fbclid=*",
+          "/*?ref=*",
+          "/*?cmid=*",
+          "/*comment-page-*",
+        ]),
+      },
+      sitemap: getAbsoluteUrl("/sitemap.xml"),
+    });
+  });
 });
 
 describe("redirect config", () => {
-  it("keeps redirects sourced from site config", async () => {
+  it("includes framework and site redirects", async () => {
     const nextConfigPath = path.join(process.cwd(), "next.config.ts");
     const nextConfigContent = readFileSync(nextConfigPath, "utf8");
     
@@ -293,7 +317,10 @@ describe("redirect config", () => {
         expect.objectContaining({ source: "/feed", destination: "/rss.xml", permanent: true }),
         expect.objectContaining({ source: "/feed/", destination: "/rss.xml", permanent: true }),
         expect.objectContaining({ source: "/category/:slug", destination: "/categories/:slug", permanent: true }),
+        expect.objectContaining({ source: "/category/:slug/page/:page", destination: "/categories/:slug", permanent: true }),
         expect.objectContaining({ source: "/tag/:slug", destination: "/tags/:slug", permanent: true }),
+        expect.objectContaining({ source: "/tag/:slug/page/:page", destination: "/tags/:slug", permanent: true }),
+        expect.objectContaining({ source: "/:slug/comment-page-:page", destination: "/:slug", permanent: true }),
         expect.objectContaining({ source: "/wp-content/uploads/:path*", destination: "/images/:path*", permanent: true }),
       ])
     );
