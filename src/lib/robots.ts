@@ -19,6 +19,16 @@ export const defaultRobotsDisallow = [
   "/*?cmid=*",
   "/*&cmid=*",
   "/*comment-page-*",
+  "/_next/static/",
+  "/favicon.ico",
+  "/site.webmanifest",
+  "/*.woff",
+  "/*.woff2",
+  "/*.ttf",
+  "/*.eot",
+  "/*/feed/",
+  "/author/",
+  "/search/",
 ] as const;
 
 export function getRobotsDisallow() {
