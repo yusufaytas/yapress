@@ -1,28 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { getAppRedirects } from "@/lib/redirects";
-import { siteConfig } from "@/lib/site";
 
 describe("redirects", () => {
-  it("redirects the alternate host to the canonical host", () => {
-    const canonicalUrl = new URL(siteConfig.siteUrl);
-    const canonicalHost = canonicalUrl.hostname;
-    const alternateHost = canonicalHost.startsWith("www.")
-      ? canonicalHost.slice(4)
-      : `www.${canonicalHost}`;
-
-    expect(getAppRedirects()).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          source: "/:path*",
-          has: [{ type: "host", value: alternateHost }],
-          destination: `${canonicalUrl.origin}/:path*`,
-          permanent: true,
-        }),
-      ])
-    );
-  });
-
   it("includes framework-level legacy redirects", () => {
     expect(getAppRedirects()).toEqual(
       expect.arrayContaining([

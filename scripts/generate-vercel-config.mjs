@@ -9,33 +9,6 @@ function normalizePathname(pathname = "/") {
   return trimmed ? `/${trimmed}` : "/";
 }
 
-function getCanonicalHostRedirect(source) {
-  const siteUrlMatch = source.match(/siteUrl:\s*"([^"]+)"/);
-
-  if (!siteUrlMatch) {
-    return [];
-  }
-
-  const canonicalUrl = new URL(siteUrlMatch[1]);
-  const canonicalHost = canonicalUrl.hostname;
-  const alternateHost = canonicalHost.startsWith("www.")
-    ? canonicalHost.slice(4)
-    : `www.${canonicalHost}`;
-
-  if (alternateHost === canonicalHost) {
-    return [];
-  }
-
-  return [
-    {
-      source: "/:path*",
-      has: [{ type: "host", value: alternateHost }],
-      destination: `${canonicalUrl.origin}/:path*`,
-      permanent: true,
-    },
-  ];
-}
-
 function readRedirectsFromSiteConfig(source) {
   const redirectsBlockMatch = source.match(/redirects:\s*\[([\s\S]*?)\][\s,]*\n\s*wordpress:/);
   const uncommentedBlock = (redirectsBlockMatch?.[1] ?? "")
@@ -66,10 +39,7 @@ function readRedirectsFromSiteConfig(source) {
 
   return Array.from(
     new Map(
-      [...getCanonicalHostRedirect(source), ...frameworkRedirects, ...siteRedirects].map((redirect) => [
-        `${redirect.source}::${JSON.stringify(redirect.has ?? [])}`,
-        redirect,
-      ])
+      [...frameworkRedirects, ...siteRedirects].map((redirect) => [redirect.source, redirect])
     ).values()
   );
 }
