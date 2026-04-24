@@ -588,6 +588,7 @@ img {
 
 .page-title {
   font-size: var(--page-title-size);
+  text-wrap: balance;
 }
 
 .content-page > .page-title,
@@ -1671,6 +1672,11 @@ img {
   .site-divider {
     margin-top: 0;
     margin-bottom: 0;
+  }
+
+  .taxonomy-header .page-title {
+    max-width: 16ch;
+    margin-inline: auto;
   }
 
   .menu-toggle {
