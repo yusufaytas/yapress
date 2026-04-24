@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { getDateArchiveBuckets } from "@/lib/content";
-import { buildMetadata, buildItemListJsonLd, serializeJsonLd } from "@/lib/seo";
+import { buildBreadcrumbJsonLd, buildCollectionPageJsonLd, buildMetadata, serializeJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Archives",
+  title: "Archive",
   description: "Browse the full publishing archive month by month.",
   pathname: "/archives",
   keywords: ["archives", "post archive", "monthly archive"]
@@ -14,16 +14,16 @@ export const metadata: Metadata = buildMetadata({
 export default function ArchivesPage() {
   const archives = getDateArchiveBuckets();
 
-  const jsonLd = buildItemListJsonLd(
-    "Archives",
+  const jsonLd = buildCollectionPageJsonLd(
+    "Archive",
     "Browse the full publishing archive month by month.",
     "/archives",
-    archives.map((bucket) => ({
-      name: `${bucket.year}-${bucket.month}`,
-      url: bucket.permalink,
-      description: `${bucket.posts.length} ${bucket.posts.length === 1 ? "post" : "posts"}`
-    }))
+    archives.length
   );
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: "Home", url: "/" },
+    { name: "Archive" }
+  ]);
 
   return (
     <>
@@ -31,9 +31,13 @@ export default function ArchivesPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
+      />
       <div className="container section stack">
         <div className="taxonomy-header">
-          <h1 className="page-title">Archives</h1>
+          <h1 className="page-title">Archive</h1>
           <p className="lede">Browse the published archive month by month</p>
         </div>
         <div className="taxonomy-grid">

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import React, { type ComponentPropsWithoutRef, type ReactNode } from "react";
 
 import { renderHighlightedCode } from "@/lib/codeHighlight";
 import { ContactForm } from "@/components/contact-form";
@@ -43,6 +43,7 @@ function MdxHeading({
   as: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }) {
   const id = slugifyHeading(children);
+  const headingText = flattenText(children).trim();
 
   if (!id) {
     return <Tag {...props}>{children}</Tag>;
@@ -50,12 +51,8 @@ function MdxHeading({
 
   return (
     <Tag id={id} {...props}>
-      <a href={`#${id}`} className="heading-anchor" aria-label={`Link to section: ${flattenText(children).trim()}`}>
-        <span className="heading-anchor__symbol" aria-hidden="true">
-          #
-        </span>
-        <span className="heading-anchor__text">{children}</span>
-      </a>
+      <a href={`#${id}`} className="heading-anchor" aria-label={`Link to section: ${headingText}`} />
+      <span className="heading-anchor__text">{children}</span>
     </Tag>
   );
 }

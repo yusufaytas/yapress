@@ -66,12 +66,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: getAbsoluteUrl(bucket.permalink)
     }));
 
-  const media = getMediaAssets()
-    .filter((asset) => asset.references.length > 0)
-    .map((asset) => ({
-      url: getAbsoluteUrl(asset.pagePath)
-    }));
-
   const paginatedRoutes = getPaginationParams(undefined, 2).map(({ page }) => ({
     url: getAbsoluteUrl(`/page/${page}`)
   }));
@@ -88,7 +82,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...series,
     ...tags,
     ...archives,
-    ...media,
     ...paginatedRoutes,
   ];
 }

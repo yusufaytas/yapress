@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { buildMetadata, buildItemListJsonLd, serializeJsonLd } from "@/lib/seo";
+import { buildBreadcrumbJsonLd, buildCollectionPageJsonLd, buildMetadata, serializeJsonLd } from "@/lib/seo";
 import { getSeriesBuckets } from "@/lib/content";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Series",
+  title: "Article Series",
   description: "Browse post series.",
   pathname: "/series"
 });
@@ -13,16 +13,16 @@ export const metadata: Metadata = buildMetadata({
 export default function SeriesPage() {
   const buckets = getSeriesBuckets().filter((bucket) => bucket.posts.length > 0);
   
-  const jsonLd = buildItemListJsonLd(
-    "Series",
+  const jsonLd = buildCollectionPageJsonLd(
+    "Article Series",
     "Browse post series.",
     "/series",
-    buckets.map((bucket) => ({
-      name: bucket.title,
-      url: bucket.permalink,
-      description: bucket.description
-    }))
+    buckets.length
   );
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: "Home", url: "/" },
+    { name: "Article Series" }
+  ]);
 
   return (
     <>
@@ -30,9 +30,13 @@ export default function SeriesPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
+      />
       <div className="container section stack">
         <div className="taxonomy-header">
-          <h1 className="page-title">Series</h1>
+          <h1 className="page-title">Article Series</h1>
           <p className="lede">Follow multi-part stories and tutorials</p>
         </div>
         <div className="taxonomy-grid">

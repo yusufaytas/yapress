@@ -18,7 +18,18 @@ import {
 } from "@/lib/content";
 import { getMediaAssetByPagePath, getMediaAssets } from "@/lib/media";
 import { getPluginComponents } from "@/lib/plugins";
-import { buildCollectionPageJsonLd, buildMediaObjectJsonLd, buildMetadata, buildPostMetadata, buildPageMetadata, buildContentJsonLd, formatDisplayDate, serializeJsonLd } from "@/lib/seo";
+import {
+  buildBreadcrumbJsonLd,
+  buildCollectionPageJsonLd,
+  buildMediaObjectJsonLd,
+  buildMetadata,
+  buildPostBreadcrumbJsonLd,
+  buildPostMetadata,
+  buildPageMetadata,
+  buildContentJsonLd,
+  formatDisplayDate,
+  serializeJsonLd
+} from "@/lib/seo";
 import { getAbsoluteUrl } from "@/lib/site";
 import { EMPTY_DYNAMIC_SEGMENT, ensureStaticParams } from "@/lib/staticParams";
 import { joinPath } from "@/lib/urls";
@@ -56,14 +67,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: `Media attachment for ${mediaAsset.assetPath}.`,
       pathname: mediaAsset.pagePath,
       image: mediaAsset.contentType.startsWith("image/") ? mediaAsset.assetPath : undefined,
-      keywords: ["media", "attachment", mediaAsset.contentType]
+      keywords: ["media", "attachment", mediaAsset.contentType],
+      noIndex: true
     });
   }
 
   const archiveBucket = getDateArchiveBuckets().find((bucket) => bucket.permalink === pathname);
   if (archiveBucket) {
+    const archiveLabel = new Intl.DateTimeFormat("en", {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC"
+    }).format(new Date(Date.UTC(Number(archiveBucket.year), Number(archiveBucket.month) - 1, 1)));
+    const pageTitle = `Archive ${archiveLabel}`;
     return buildMetadata({
-      title: `${archiveBucket.year}-${archiveBucket.month} Archive`,
+      title: pageTitle,
       description: `Browse all posts published in ${archiveBucket.year}-${archiveBucket.month}.`,
       pathname: archiveBucket.permalink,
       keywords: ["archive", archiveBucket.year, archiveBucket.month],
@@ -94,12 +112,17 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
   if (post) {
     const postUrl = getAbsoluteUrl(post.permalink);
     const jsonLd = buildContentJsonLd(post);
+    const breadcrumbJsonLd = buildPostBreadcrumbJsonLd(post);
 
     return (
       <div className="container section stack">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
         />
         <article className="article" data-layout-mode="editorial">
           <header className="article-header stack">
@@ -112,9 +135,14 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
               </div>
               <ArticleOptions />
             </div>
-            <h2 className="article-title">{post.title}</h2>
+            <h1 className="article-title">{post.title}</h1>
             <div className="meta">
-              Published {formatDisplayDate(post.datePublished, post.locale)} · {post.readingTime.text}
+              Published{" "}
+              <time dateTime={post.datePublished?.toISOString()}>
+                {formatDisplayDate(post.datePublished, post.locale)}
+              </time>
+              {" · "}
+              {post.readingTime.text}
             </div>
             {getPluginComponents('beforePost', { post })}
           </header>
@@ -157,12 +185,20 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
   const mediaAsset = getMediaAssetByPagePath(pathname);
   if (mediaAsset) {
     const jsonLd = buildMediaObjectJsonLd(mediaAsset);
+    const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+      { name: "Home", url: "/" },
+      { name: mediaAsset.assetPath.split("/").pop() ?? "Media" }
+    ]);
 
     return (
       <div className="container section stack">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
         />
         <article className="prose-wrap stack">
           <h1 className="page-title">{mediaAsset.assetPath.split("/").pop()}</h1>
@@ -210,14 +246,25 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
   const archiveBucket = getDateArchiveBuckets().find((bucket) => bucket.permalink === pathname);
   if (archiveBucket) {
     const posts = getPostsByDateArchive(archiveBucket.year, archiveBucket.month);
+    const archiveLabel = new Intl.DateTimeFormat("en", {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC"
+    }).format(new Date(Date.UTC(Number(archiveBucket.year), Number(archiveBucket.month) - 1, 1)));
+    const pageTitle = `Archive ${archiveLabel}`;
     const jsonLd = buildCollectionPageJsonLd(
-      `${archiveBucket.year}-${archiveBucket.month} Archive`,
+      pageTitle,
       `Browse all posts published in ${archiveBucket.year}-${archiveBucket.month}.`,
       archiveBucket.permalink,
       posts.length,
       archiveBucket.datePublished,
       archiveBucket.dateModified
     );
+    const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+      { name: "Home", url: "/" },
+      { name: "Archive", url: "/archives" },
+      { name: pageTitle }
+    ]);
 
     return (
       <div className="container section stack">
@@ -225,8 +272,12 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
         />
-        <h1 className="page-title">{archiveBucket.year}-{archiveBucket.month}</h1>
-        <p className="lede">Posts published in {archiveBucket.year}-{archiveBucket.month}.</p>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
+        />
+        <h1 className="page-title">{pageTitle}</h1>
+        <p className="lede">Posts published in {archiveLabel}.</p>
         <div className="post-list">
           {posts.map((entry) => (
             <ArticleCard key={entry.slug} post={entry} />
@@ -243,6 +294,11 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
   }
 
   const jsonLd = buildContentJsonLd(page);
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: "Home", url: "/" },
+    { name: "Pages", url: "/pages" },
+    { name: page.title }
+  ]);
 
   return (
     <div className="container section">
@@ -250,15 +306,27 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
+      />
       <article className="prose-wrap prose-wrap--editorial stack content-page" lang={page.language}>
         <h1 className="page-title">{page.title}</h1>
         {page.description ? <p className="lede">{page.description}</p> : null}
         <ContentRenderer source={page.content} />
         {page.datePublished && (
           <div className="meta" style={{ textAlign: 'right' }}>
-            Published {formatDisplayDate(page.datePublished, page.locale)}
+            Published{" "}
+            <time dateTime={page.datePublished.toISOString()}>
+              {formatDisplayDate(page.datePublished, page.locale)}
+            </time>
             {page.dateModified && page.dateModified.getTime() !== page.datePublished.getTime() && (
-              <> · Updated {formatDisplayDate(page.dateModified, page.locale)}</>
+              <>
+                {" · "}Updated{" "}
+                <time dateTime={page.dateModified.toISOString()}>
+                  {formatDisplayDate(page.dateModified, page.locale)}
+                </time>
+              </>
             )}
           </div>
         )}

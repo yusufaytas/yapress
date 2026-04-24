@@ -4,10 +4,12 @@ import type { ContentEntry } from "@/types/content";
 import type { MediaAsset } from "@/types/media";
 import type {
   JsonLdArticle,
+  JsonLdBreadcrumbList,
   JsonLdMediaObject,
   JsonLdWebPage,
   JsonLdWebSite,
   MetadataInput,
+  RobotsDirective,
 } from "@/types/seo";
 
 // Re-export image utilities for backward compatibility
@@ -56,6 +58,43 @@ function getSocialImage(imageSrc?: string) {
   };
 }
 
+function resolveAbsoluteMetadataUrl(url?: string) {
+  if (!url) {
+    return undefined;
+  }
+
+  return /^[a-z][a-z0-9+.-]*:\/\//i.test(url) ? url : getAbsoluteUrl(url);
+}
+
+function buildRobotsMetadata(noIndex: boolean, robots?: RobotsDirective): Metadata["robots"] {
+  const index = robots?.index ?? !noIndex;
+  const follow = robots?.follow ?? true;
+  const hasGoogleBotDirectives =
+    robots?.["max-snippet"] !== undefined ||
+    robots?.["max-image-preview"] !== undefined ||
+    robots?.["max-video-preview"] !== undefined;
+
+  return {
+    index,
+    follow,
+    ...(hasGoogleBotDirectives
+      ? {
+          googleBot: {
+            index,
+            follow,
+            ...(robots?.["max-snippet"] !== undefined ? { "max-snippet": robots["max-snippet"] } : {}),
+            ...(robots?.["max-image-preview"] !== undefined
+              ? { "max-image-preview": robots["max-image-preview"] }
+              : {}),
+            ...(robots?.["max-video-preview"] !== undefined
+              ? { "max-video-preview": robots["max-video-preview"] }
+              : {}),
+          }
+        }
+      : {})
+  };
+}
+
 export function buildMetadata({ 
   title, 
   description, 
@@ -66,46 +105,61 @@ export function buildMetadata({
   dateModified,
   openGraphType = "website",
   noIndex = false,
-  locale = siteConfig.language
+  locale = siteConfig.language,
+  canonical,
+  robots,
+  twitterCard = "summary_large_image",
+  twitterSite,
+  twitterCreator,
+  author,
+  section,
+  alternates = []
 }: MetadataInput): Metadata {
   const resolvedTitle = pathname === "/" ? title : `${title} | ${siteConfig.title}`;
   const resolvedDescription = description ?? siteConfig.description;
   const absoluteUrl = getAbsoluteUrl(pathname);
+  const canonicalUrl = resolveAbsoluteMetadataUrl(canonical) ?? absoluteUrl;
   const resolvedKeywords = keywords.length > 0 ? keywords : (siteConfig.keywords ?? []);
   const xHandle = getXHandle();
   const socialImage = getSocialImage(image);
+  const resolvedTwitterSite = twitterSite ?? xHandle;
+  const resolvedTwitterCreator = twitterCreator ?? author ?? xHandle;
+  const languageAlternates = alternates.length > 0
+    ? Object.fromEntries(alternates.map((alternate) => [alternate.hreflang, alternate.href]))
+    : undefined;
 
   return {
     title: resolvedTitle,
     description: resolvedDescription,
     keywords: resolvedKeywords,
     alternates: {
-      canonical: absoluteUrl
+      canonical: canonicalUrl,
+      languages: languageAlternates
     },
     openGraph: {
       title: resolvedTitle,
       description: resolvedDescription,
-      url: absoluteUrl,
+      url: canonicalUrl,
       siteName: siteConfig.title,
       images: socialImage ? [socialImage] : undefined,
       locale,
       type: openGraphType,
       tags: resolvedKeywords,
+      authors: author ? [author] : undefined,
+      section: section,
       publishedTime: datePublished?.toISOString(),
       modifiedTime: dateModified?.toISOString()
     },
     twitter: {
-      card: "summary_large_image",
+      card: twitterCard,
       title: resolvedTitle,
       description: resolvedDescription,
       images: socialImage ? [socialImage.url] : undefined,
-      creator: xHandle,
-      site: xHandle
+      creator: resolvedTwitterCreator,
+      site: resolvedTwitterSite
     },
-    robots: {
-      index: !noIndex,
-      follow: true
-    }
+    authors: author ? [{ name: author }] : undefined,
+    robots: buildRobotsMetadata(noIndex, robots)
   };
 }
 
@@ -127,7 +181,9 @@ export function buildContentMetadata(content: ContentEntry): Metadata {
     datePublished: content.datePublished,
     dateModified: content.dateModified ?? content.datePublished,
     openGraphType: content.kind === "post" ? "article" : "website",
-    locale: content.locale
+    locale: content.locale,
+    author: siteConfig.author,
+    section: content.kind === "post" ? content.categories[0]?.title : undefined
   });
 }
 
@@ -136,20 +192,33 @@ export const buildPostMetadata = buildContentMetadata;
 export const buildPageMetadata = buildContentMetadata;
 
 export function buildArticleJsonLd(content: ContentEntry): JsonLdArticle {
-  const keywords = content.kind === "post" 
-    ? [
-        ...content.categories.map((category) => category.title),
-        ...content.tags.map((tag) => tag.title),
-        ...content.series.map((s) => s.title)
-      ]
+  const articleSection = content.kind === "post"
+    ? content.categories.map((category) => category.title)
     : [];
+  const keywords = content.kind === "post"
+    ? content.tags.map((tag) => tag.title)
+    : [];
+  const isPartOf = content.kind === "post"
+    ? content.series.map((series) => ({
+        "@type": "CreativeWorkSeries" as const,
+        name: series.title,
+        url: getAbsoluteUrl(series.permalink)
+      }))
+    : [];
+  const about = content.kind === "post"
+    ? [...content.categories, ...content.tags].map((item) => ({
+        "@type": "Thing" as const,
+        name: item.title
+      }))
+    : [];
+  const canonicalUrl = getAbsoluteUrl(content.permalink);
 
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: content.title,
     description: content.description ?? content.excerpt,
-    url: getAbsoluteUrl(content.permalink),
+    url: canonicalUrl,
     image: getSocialImage(content.image)?.url,
     datePublished: content.datePublished,
     dateModified: content.dateModified ?? content.datePublished,
@@ -163,7 +232,19 @@ export function buildArticleJsonLd(content: ContentEntry): JsonLdArticle {
       name: siteConfig.title,
       url: getAbsoluteUrl("/")
     },
-    keywords: keywords.length > 0 ? keywords : undefined
+    articleSection: articleSection.length === 1 ? articleSection[0] : articleSection.length > 1 ? articleSection : undefined,
+    keywords: keywords.length > 0 ? keywords : undefined,
+    isPartOf: isPartOf.length > 0 ? isPartOf : undefined,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": canonicalUrl
+    },
+    wordCount: content.readingTime.words,
+    about: about.length > 0 ? about : undefined,
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: [".article-title", ".article-body p"]
+    }
   };
 }
 
@@ -209,6 +290,37 @@ export function buildWebSiteJsonLd(): JsonLdWebSite {
         }
       : undefined
   };
+}
+
+export function buildBreadcrumbJsonLd(
+  items: Array<{ name: string; url?: string }>
+): JsonLdBreadcrumbList {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      ...(item.url ? { item: getAbsoluteUrl(item.url) } : {})
+    }))
+  };
+}
+
+export function buildPostBreadcrumbJsonLd(content: ContentEntry): JsonLdBreadcrumbList {
+  const breadcrumbParent = content.series[0]
+    ? { name: `${content.series[0].title} Series`, url: content.series[0].permalink }
+    : content.categories[0]
+      ? { name: `${content.categories[0].title} Articles`, url: content.categories[0].permalink }
+      : content.tags[0]
+        ? { name: `Articles tagged with ${content.tags[0].title}`, url: content.tags[0].permalink }
+        : undefined;
+
+  return buildBreadcrumbJsonLd([
+    { name: "Home", url: "/" },
+    ...(breadcrumbParent ? [breadcrumbParent] : []),
+    { name: content.title }
+  ]);
 }
 
 export function buildCollectionPageJsonLd(

@@ -15,8 +15,9 @@ export const metadata: Metadata = buildMetadata({
 export default function HomePage() {
   const pagination = getPaginatedPosts(1);
   const posts = pagination.posts;
+  const homeHeadline = siteConfig.tagline ?? "Latest Articles";
   const jsonLd = buildCollectionPageJsonLd(
-    "Home",
+    homeHeadline,
     "Latest posts from the site archive.",
     "/",
     posts.length
@@ -29,6 +30,10 @@ export default function HomePage() {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
         />
+        <div className="taxonomy-header">
+          <h1 className="page-title">{homeHeadline}</h1>
+          <p className="lede">{siteConfig.description}</p>
+        </div>
         <div className="post-list">
           {posts.map((post) => (
             <ArticleCard key={post.slug} post={post} />

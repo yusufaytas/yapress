@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { PropsWithChildren } from "react";
+import React, { type PropsWithChildren } from "react";
 
 import { SiteHeaderActions } from "@/components/site-header-actions";
 import { BUILD_YEAR } from "@/lib/dateFormat";
@@ -31,7 +31,7 @@ export function SiteShell({ children }: PropsWithChildren) {
                       className="site-logo"
                     />
                   ) : null}
-                  <h1 className="brand">{siteConfig.title}</h1>
+                  <span className="brand">{siteConfig.title}</span>
                 </Link>
                 {siteConfig.tagline ? <p className="site-tagline">{siteConfig.tagline}</p> : null}
               </div>

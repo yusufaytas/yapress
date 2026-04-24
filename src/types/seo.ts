@@ -1,3 +1,11 @@
+export type RobotsDirective = {
+  index?: boolean;
+  follow?: boolean;
+  "max-snippet"?: number;
+  "max-image-preview"?: "none" | "standard" | "large";
+  "max-video-preview"?: number;
+};
+
 export type MetadataInput = {
   title: string;
   description?: string;
@@ -9,6 +17,14 @@ export type MetadataInput = {
   openGraphType?: "article" | "website";
   noIndex?: boolean;
   locale?: string;
+  canonical?: string;
+  robots?: RobotsDirective;
+  twitterCard?: "summary" | "summary_large_image" | "app" | "player";
+  twitterSite?: string;
+  twitterCreator?: string;
+  author?: string;
+  section?: string;
+  alternates?: Array<{ hreflang: string; href: string }>;
 };
 
 export type JsonLdArticle = {
@@ -30,7 +46,26 @@ export type JsonLdArticle = {
     name: string;
     url: string;
   };
+  articleSection?: string | string[];
   keywords?: string[];
+  isPartOf?: Array<{
+    "@type": "CreativeWorkSeries";
+    name: string;
+    url: string;
+  }>;
+  mainEntityOfPage?: {
+    "@type": "WebPage";
+    "@id": string;
+  };
+  wordCount?: number;
+  about?: Array<{
+    "@type": "Thing";
+    name: string;
+  }>;
+  speakable?: {
+    "@type": "SpeakableSpecification";
+    cssSelector?: string[];
+  };
 };
 
 export type JsonLdWebPage = {
@@ -72,4 +107,28 @@ export type JsonLdMediaObject = {
   contentUrl: string;
   url: string;
   encodingFormat?: string;
+};
+
+export type JsonLdBreadcrumbList = {
+  "@context": "https://schema.org";
+  "@type": "BreadcrumbList";
+  itemListElement: Array<{
+    "@type": "ListItem";
+    position: number;
+    name: string;
+    item?: string;
+  }>;
+};
+
+export type JsonLdFAQPage = {
+  "@context": "https://schema.org";
+  "@type": "FAQPage";
+  mainEntity: Array<{
+    "@type": "Question";
+    name: string;
+    acceptedAnswer: {
+      "@type": "Answer";
+      text: string;
+    };
+  }>;
 };

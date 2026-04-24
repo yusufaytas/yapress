@@ -28,7 +28,9 @@ export const defaultRobotsDisallow = [
   "/*.eot",
   "/*/feed/",
   "/author/",
+  "/search",
   "/search/",
+  "/search?*",
 ] as const;
 
 export function getRobotsDisallow() {

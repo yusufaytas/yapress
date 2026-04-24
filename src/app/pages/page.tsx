@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { buildMetadata, buildItemListJsonLd, serializeJsonLd } from "@/lib/seo";
+import { buildBreadcrumbJsonLd, buildCollectionPageJsonLd, buildMetadata, serializeJsonLd } from "@/lib/seo";
 import { getAllPages } from "@/lib/content";
 
 export const metadata: Metadata = buildMetadata({
@@ -13,22 +13,26 @@ export const metadata: Metadata = buildMetadata({
 export default function PagesIndexPage() {
   const pages = getAllPages().filter((page) => page.permalink !== "/");
   
-  const jsonLd = buildItemListJsonLd(
+  const jsonLd = buildCollectionPageJsonLd(
     "Pages",
     "General site pages and archive navigation.",
     "/pages",
-    pages.map((page) => ({
-      name: page.title,
-      url: page.permalink,
-      description: page.description
-    }))
+    pages.length
   );
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: "Home", url: "/" },
+    { name: "Pages" }
+  ]);
 
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
       />
       <div className="container section stack">
         <div className="taxonomy-header">

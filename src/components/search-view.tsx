@@ -77,10 +77,12 @@ export function SearchView({ initialQuery = "" }: SearchViewProps) {
     setResults(filtered);
   }, [query, posts]);
 
+  const heading = query ? `Search results for “${query}”` : "Search Articles";
+
   return (
     <div className="container section stack">
       <div className="prose-wrap stack">
-        <h1 className="page-title">Search</h1>
+        <h1 className="page-title">{heading}</h1>
         <form
           className="stack"
           onSubmit={(event) => {
