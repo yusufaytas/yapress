@@ -2,10 +2,16 @@ import siteConfig from "../../site.config";
 
 import { getUrlConfig, normalizePathname } from "./urls";
 
+export type AppRedirectMatch = {
+  type: "host";
+  value: string;
+};
+
 export type AppRedirect = {
   source: string;
   destination: string;
   permanent: boolean;
+  has?: AppRedirectMatch[];
 };
 
 function getWordPressLegacyRedirects(): AppRedirect[] {
@@ -63,8 +69,30 @@ function getWordPressLegacyRedirects(): AppRedirect[] {
   return redirects;
 }
 
+function getCanonicalHostRedirects(): AppRedirect[] {
+  const canonicalUrl = new URL(siteConfig.siteUrl);
+  const canonicalHost = canonicalUrl.hostname;
+  const alternateHost = canonicalHost.startsWith("www.")
+    ? canonicalHost.slice(4)
+    : `www.${canonicalHost}`;
+
+  if (alternateHost === canonicalHost) {
+    return [];
+  }
+
+  return [
+    {
+      source: "/:path*",
+      has: [{ type: "host", value: alternateHost }],
+      destination: `${canonicalUrl.origin}/:path*`,
+      permanent: true,
+    },
+  ];
+}
+
 export function getAppRedirects(): AppRedirect[] {
-  const redirects = [
+  const redirects: AppRedirect[] = [
+    ...getCanonicalHostRedirects(),
     ...getWordPressLegacyRedirects(),
     ...(siteConfig.url?.redirects ?? []).map((redirect) => ({
       source: redirect.source,
@@ -74,6 +102,11 @@ export function getAppRedirects(): AppRedirect[] {
   ];
 
   return Array.from(
-    new Map(redirects.map((redirect) => [redirect.source, redirect])).values()
+    new Map(
+      redirects.map((redirect) => [
+        `${redirect.source}::${JSON.stringify(redirect.has ?? [])}`,
+        redirect,
+      ])
+    ).values()
   );
 }

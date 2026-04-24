@@ -170,8 +170,11 @@ The practical split is:
 Use `site.config.ts` to control public URL behavior:
 
 - `url.postPermalink.style` controls canonical post URLs
+- `siteUrl` defines the canonical origin used for metadata, sitemap entries, feeds, and normalized internal links
 - `url.redirects` is deployment metadata you can use outside YaPress if your host supports redirects
 - `aliases` can be used to record legacy URLs during migration, but YaPress does not serve redirects for them
+
+If your site answers on both `www` and non-`www`, configure your host to `301` redirect the non-canonical host to the `siteUrl` host. YaPress does not force a preferred host by default because not every deployment owns both hostnames.
 
 Supported post permalink styles:
 
