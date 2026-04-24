@@ -28,7 +28,7 @@
   --article-title-size: clamp(1.8rem, 4vw, 2.5rem);
   --card-title-size: clamp(1.55rem, 4vw, 2.15rem);
   --taxonomy-title-size: 1.25rem;
-  --h2-size: clamp(1.7rem, 3vw, 2.25rem);
+  --h2-size: clamp(1.5rem, 2.25vw, 1.9rem);
   --h3-size: clamp(1.35rem, 2.6vw, 1.65rem);
   --h4-size: clamp(1.2rem, 2.2vw, 1.4rem);
   --h5-size: clamp(1.05rem, 1.8vw, 1.15rem);
@@ -2063,12 +2063,17 @@ img {
   .article-body h2 {
     margin-top: 2.2rem;
     margin-bottom: 0.8rem;
-    font-size: clamp(1.4rem, 6vw, 1.8rem);
+    font-size: clamp(1.25rem, 5.2vw, 1.55rem);
   }
 
   .article-body h3 {
     margin-top: 1.7rem;
     font-size: clamp(1.1rem, 5vw, 1.3rem);
+  }
+
+  .article-body h4 {
+    margin-top: 1.45rem;
+    font-size: clamp(1rem, 4.3vw, 1.12rem);
   }
 
   .article-body ul,

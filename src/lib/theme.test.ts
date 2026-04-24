@@ -8,6 +8,8 @@ describe("theme", () => {
 
     expect(theme.preset).toBe("dark");
     expect(theme.tokens.bg).toBe("#0b0d10");
+    expect(theme.tokens.h2Size).toBe("clamp(1.5rem, 2.25vw, 1.9rem)");
+    expect(theme.tokens.h3Size).toBe("clamp(1.35rem, 2.6vw, 1.65rem)");
     expect(theme.tokens.h4Size).toBe("clamp(1.2rem, 2.2vw, 1.4rem)");
     expect(theme.typography.sans).toContain("var(--font-sans-base)");
   });
@@ -39,6 +41,9 @@ describe("theme", () => {
 
     expect(style["--bg"]).toBe("#edf3ea");
     expect(style["--link"]).toBe("#123456");
+    expect(style["--h2-size"]).toBe("clamp(1.5rem, 2.25vw, 1.9rem)");
+    expect(style["--h3-size"]).toBe("clamp(1.35rem, 2.6vw, 1.65rem)");
+    expect(style["--h4-size"]).toBe("clamp(1.2rem, 2.2vw, 1.4rem)");
     expect(style["--font-serif"]).toBeDefined();
   });
 });

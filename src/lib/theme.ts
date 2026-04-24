@@ -77,7 +77,7 @@ const defaultTokens: ThemeTokens = {
   articleTitleSize: "clamp(1.8rem, 4vw, 2.5rem)",
   cardTitleSize: "clamp(1.55rem, 4vw, 2.15rem)",
   taxonomyTitleSize: "1.25rem",
-  h2Size: "clamp(1.7rem, 3vw, 2.25rem)",
+  h2Size: "clamp(1.5rem, 2.25vw, 1.9rem)",
   h3Size: "clamp(1.35rem, 2.6vw, 1.65rem)",
   h4Size: "clamp(1.2rem, 2.2vw, 1.4rem)",
   h5Size: "clamp(1.05rem, 1.8vw, 1.15rem)",
