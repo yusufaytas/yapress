@@ -6,6 +6,7 @@ import type {
   JsonLdArticle,
   JsonLdBreadcrumbList,
   JsonLdMediaObject,
+  JsonLdProfilePage,
   JsonLdWebPage,
   JsonLdWebSite,
   MetadataInput,
@@ -64,6 +65,10 @@ function resolveAbsoluteMetadataUrl(url?: string) {
   }
 
   return /^[a-z][a-z0-9+.-]*:\/\//i.test(url) ? url : getAbsoluteUrl(url);
+}
+
+function getAuthorUrl() {
+  return resolveAbsoluteMetadataUrl(siteConfig.authorUrl);
 }
 
 function buildRobotsMetadata(noIndex: boolean, robots?: RobotsDirective): Metadata["robots"] {
@@ -170,7 +175,7 @@ export function buildContentMetadata(content: ContentEntry): Metadata {
         ...content.tags.map((tag) => tag.title),
         ...content.series.map((s) => s.title)
       ]
-    : [];
+    : content.keywords;
 
   return buildMetadata({
     title: content.title,
@@ -212,6 +217,13 @@ export function buildArticleJsonLd(content: ContentEntry): JsonLdArticle {
       }))
     : [];
   const canonicalUrl = getAbsoluteUrl(content.permalink);
+  const authorUrl = getAuthorUrl();
+  const publisherLogo = siteConfig.logo?.src
+    ? {
+        "@type": "ImageObject" as const,
+        url: getAbsoluteUrl(siteConfig.logo.src)
+      }
+    : undefined;
 
   return {
     "@context": "https://schema.org",
@@ -224,13 +236,15 @@ export function buildArticleJsonLd(content: ContentEntry): JsonLdArticle {
     dateModified: content.dateModified ?? content.datePublished,
     author: {
       "@type": "Person",
-      name: siteConfig.author
+      name: siteConfig.author,
+      url: authorUrl
     },
     inLanguage: content.language,
     publisher: {
       "@type": "Organization",
       name: siteConfig.title,
-      url: getAbsoluteUrl("/")
+      url: getAbsoluteUrl("/"),
+      logo: publisherLogo
     },
     articleSection: articleSection.length === 1 ? articleSection[0] : articleSection.length > 1 ? articleSection : undefined,
     keywords: keywords.length > 0 ? keywords : undefined,
@@ -256,6 +270,7 @@ export function buildWebPageJsonLd(content: ContentEntry): JsonLdWebPage {
     description: content.description ?? content.excerpt,
     url: getAbsoluteUrl(content.permalink),
     image: getSocialImage(content.image)?.url,
+    keywords: content.keywords.length > 0 ? content.keywords : undefined,
     datePublished: content.datePublished,
     dateModified: content.dateModified ?? content.datePublished,
     inLanguage: content.language,
@@ -267,8 +282,41 @@ export function buildWebPageJsonLd(content: ContentEntry): JsonLdWebPage {
   };
 }
 
-export function buildContentJsonLd(content: ContentEntry): JsonLdArticle | JsonLdWebPage {
-  return content.kind === "post" ? buildArticleJsonLd(content) : buildWebPageJsonLd(content);
+export function buildProfilePageJsonLd(content: ContentEntry): JsonLdProfilePage {
+  const profileUrl = getAbsoluteUrl(content.permalink);
+  const profileImage = getSocialImage(content.image)?.url;
+  const socialLinks = getSocialLinks();
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    url: profileUrl,
+    name: content.title,
+    description: content.description ?? content.excerpt,
+    datePublished: content.datePublished,
+    dateModified: content.dateModified ?? content.datePublished,
+    inLanguage: content.language,
+    mainEntity: {
+      "@type": "Person",
+      name: siteConfig.author,
+      url: profileUrl,
+      image: profileImage,
+      sameAs: socialLinks.length > 0 ? socialLinks : undefined,
+      description: content.description ?? content.excerpt
+    }
+  };
+}
+
+export function buildContentJsonLd(content: ContentEntry): JsonLdArticle | JsonLdWebPage | JsonLdProfilePage {
+  if (content.kind === "post") {
+    return buildArticleJsonLd(content);
+  }
+
+  if (content.jsonLdType === "ProfilePage") {
+    return buildProfilePageJsonLd(content);
+  }
+
+  return buildWebPageJsonLd(content);
 }
 
 export function buildWebSiteJsonLd(): JsonLdWebSite {
@@ -319,7 +367,7 @@ export function buildPostBreadcrumbJsonLd(content: ContentEntry): JsonLdBreadcru
   return buildBreadcrumbJsonLd([
     { name: "Home", url: "/" },
     ...(breadcrumbParent ? [breadcrumbParent] : []),
-    { name: content.title }
+    { name: content.title, url: content.permalink }
   ]);
 }
 

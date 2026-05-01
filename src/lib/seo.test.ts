@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import type { ContentEntry } from "@/types/content";
-import { buildArticleJsonLd, buildMetadata, buildPostBreadcrumbJsonLd, buildSearchResultsJsonLd } from "@/lib/seo";
-import { getAbsoluteUrl } from "@/lib/site";
+import { buildArticleJsonLd, buildContentMetadata, buildContentJsonLd, buildMetadata, buildPostBreadcrumbJsonLd, buildSearchResultsJsonLd } from "@/lib/seo";
+import { getAbsoluteUrl, siteConfig } from "@/lib/site";
 
 describe("buildSearchResultsJsonLd", () => {
   it("uses the query in the search results page name and URL", () => {
@@ -39,6 +39,8 @@ describe("buildArticleJsonLd", () => {
       slug: "post-a",
       description: "Desc",
       image: "/cover.png",
+      keywords: [],
+      jsonLdType: undefined,
       language: "en",
       locale: "en",
       datePublished: new Date("2026-03-01T00:00:00.000Z"),
@@ -69,6 +71,20 @@ describe("buildArticleJsonLd", () => {
 
     expect(jsonLd).toMatchObject({
       "@type": "BlogPosting",
+      author: {
+        "@type": "Person",
+        name: "Site Author",
+        url: getAbsoluteUrl("/about")
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "Yapress",
+        url: getAbsoluteUrl("/"),
+        logo: {
+          "@type": "ImageObject",
+          url: getAbsoluteUrl("/yapress.jpg")
+        }
+      },
       articleSection: "Engineering",
       keywords: ["Branding"],
       mainEntityOfPage: {
@@ -93,6 +109,51 @@ describe("buildArticleJsonLd", () => {
       ]
     });
   });
+
+  it("omits the author URL when the site does not define one", () => {
+    const previousAuthorUrl = siteConfig.authorUrl;
+    siteConfig.authorUrl = undefined;
+
+    try {
+      const content: ContentEntry = {
+        kind: "post",
+        title: "Post A",
+        slug: "post-a",
+        description: "Desc",
+        image: "/cover.png",
+        keywords: [],
+        jsonLdType: undefined,
+        language: "en",
+        locale: "en",
+        datePublished: new Date("2026-03-01T00:00:00.000Z"),
+        dateModified: new Date("2026-03-02T00:00:00.000Z"),
+        draft: false,
+        content: "Body",
+        excerpt: "Excerpt",
+        readingTime: {
+          text: "1 min read",
+          minutes: 1,
+          time: 60000,
+          words: 200
+        },
+        categories: [],
+        tags: [],
+        series: [],
+        permalink: "/post-a",
+        aliases: []
+      };
+
+      const jsonLd = buildArticleJsonLd(content);
+
+      expect(jsonLd.author).toEqual({
+        "@type": "Person",
+        name: "Site Author",
+        url: undefined
+      });
+    } finally {
+      siteConfig.authorUrl = previousAuthorUrl;
+    }
+  });
 });
 
 describe("buildPostBreadcrumbJsonLd", () => {
@@ -103,6 +164,8 @@ describe("buildPostBreadcrumbJsonLd", () => {
       slug: "post-a",
       description: "Desc",
       image: "/cover.png",
+      keywords: [],
+      jsonLdType: undefined,
       language: "en",
       locale: "en",
       datePublished: new Date("2026-03-01T00:00:00.000Z"),
@@ -149,9 +212,99 @@ describe("buildPostBreadcrumbJsonLd", () => {
         {
           "@type": "ListItem",
           position: 3,
-          name: "Post A"
+          name: "Post A",
+          item: getAbsoluteUrl("/post-a")
         }
       ]
+    });
+  });
+});
+
+describe("buildContentJsonLd", () => {
+  it("uses page keywords in metadata and WebPage JSON-LD", () => {
+    const content: ContentEntry = {
+      kind: "page",
+      title: "Services",
+      slug: "services",
+      description: "Services overview.",
+      image: "/services.jpg",
+      keywords: ["consulting", "architecture", "fractional cto"],
+      jsonLdType: "WebPage",
+      language: "en",
+      locale: "en",
+      datePublished: new Date("2026-03-01T00:00:00.000Z"),
+      dateModified: new Date("2026-03-02T00:00:00.000Z"),
+      draft: false,
+      content: "Body",
+      excerpt: "Excerpt",
+      readingTime: {
+        text: "1 min read",
+        minutes: 1,
+        time: 60000,
+        words: 200
+      },
+      categories: [],
+      tags: [],
+      series: [],
+      permalink: "/services",
+      aliases: []
+    };
+
+    const metadata = buildContentMetadata(content);
+    const jsonLd = buildContentJsonLd(content);
+
+    expect(metadata.keywords).toEqual(["consulting", "architecture", "fractional cto"]);
+    expect(metadata.openGraph).toMatchObject({
+      tags: ["consulting", "architecture", "fractional cto"]
+    });
+    expect(jsonLd).toMatchObject({
+      "@type": "WebPage",
+      url: getAbsoluteUrl("/services"),
+      keywords: ["consulting", "architecture", "fractional cto"]
+    });
+  });
+
+  it("supports ProfilePage JSON-LD for pages through content metadata", () => {
+    const content: ContentEntry = {
+      kind: "page",
+      title: "About",
+      slug: "about",
+      description: "About the author.",
+      image: "/portrait.jpg",
+      keywords: ["author", "about", "engineering leadership"],
+      jsonLdType: "ProfilePage",
+      language: "en",
+      locale: "en",
+      datePublished: new Date("2026-03-01T00:00:00.000Z"),
+      dateModified: new Date("2026-03-02T00:00:00.000Z"),
+      draft: false,
+      content: "Body",
+      excerpt: "Excerpt",
+      readingTime: {
+        text: "1 min read",
+        minutes: 1,
+        time: 60000,
+        words: 200
+      },
+      categories: [],
+      tags: [],
+      series: [],
+      permalink: "/about",
+      aliases: []
+    };
+
+    const jsonLd = buildContentJsonLd(content);
+
+    expect(jsonLd).toMatchObject({
+      "@type": "ProfilePage",
+      url: getAbsoluteUrl("/about"),
+      name: "About",
+      mainEntity: {
+        "@type": "Person",
+        name: "Site Author",
+        url: getAbsoluteUrl("/about"),
+        image: getAbsoluteUrl("/portrait.jpg")
+      }
     });
   });
 });

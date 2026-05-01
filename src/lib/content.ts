@@ -240,6 +240,10 @@ function resolveAliases(rawAliases: string[] = []) {
   return [...new Set(rawAliases.map(normalizeAlias).filter(Boolean))].sort((left, right) => left.localeCompare(right));
 }
 
+function resolveKeywords(rawKeywords: string[] = []) {
+  return [...new Set(rawKeywords.map(normalizeTaxonomyInput).map((keyword) => keyword.trim()).filter(Boolean))];
+}
+
 function sortPosts(posts: ContentEntry[]) {
   return [...posts].sort((left, right) => {
     const leftDate = left.datePublished?.getTime() ?? 0;
@@ -387,6 +391,8 @@ export function getAllPosts() {
       slug: normalizeSlug(frontmatter.slug, frontmatter.locale ?? frontmatter.language ?? siteConfig.language),
       description: frontmatter.description,
       image: resolveContentImage(frontmatter.image, content),
+      keywords: [],
+      jsonLdType: undefined,
       language: frontmatter.language ?? siteConfig.language,
       locale: frontmatter.locale ?? frontmatter.language ?? siteConfig.language,
       datePublished: normalizeDate(frontmatter.datePublished),
@@ -442,6 +448,8 @@ export function getAllPages() {
       slug: normalizedSlug,
       description: frontmatter.description,
       image: resolveContentImage(frontmatter.image, content),
+      keywords: resolveKeywords(frontmatter.keywords),
+      jsonLdType: frontmatter.jsonLdType,
       language: frontmatter.language ?? siteConfig.language,
       locale: pageLocale,
       datePublished: frontmatter.datePublished ? normalizeDate(frontmatter.datePublished) : undefined,

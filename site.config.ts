@@ -7,6 +7,7 @@ const siteConfig: SiteConfig = {
   siteUrl: "https://example.com",
   language: "en",
   author: "Site Author",
+  authorUrl: "/about",
   seo: {
     taxonomyIndexing: {
       categoriesMinPosts: 5,

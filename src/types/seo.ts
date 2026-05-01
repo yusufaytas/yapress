@@ -39,12 +39,17 @@ export type JsonLdArticle = {
   author: {
     "@type": "Person";
     name: string;
+    url?: string;
   };
   inLanguage?: string;
   publisher: {
     "@type": "Organization";
     name: string;
     url: string;
+    logo?: {
+      "@type": "ImageObject";
+      url: string;
+    };
   };
   articleSection?: string | string[];
   keywords?: string[];
@@ -75,6 +80,7 @@ export type JsonLdWebPage = {
   description?: string;
   url: string;
   image?: string;
+  keywords?: string[];
   datePublished?: Date;
   dateModified?: Date;
   inLanguage?: string;
@@ -82,6 +88,25 @@ export type JsonLdWebPage = {
     "@type": "Organization";
     name: string;
     url: string;
+  };
+};
+
+export type JsonLdProfilePage = {
+  "@context": "https://schema.org";
+  "@type": "ProfilePage";
+  url: string;
+  name: string;
+  description?: string;
+  datePublished?: Date;
+  dateModified?: Date;
+  inLanguage?: string;
+  mainEntity: {
+    "@type": "Person";
+    name: string;
+    url: string;
+    image?: string;
+    sameAs?: string[];
+    description?: string;
   };
 };
 

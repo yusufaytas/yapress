@@ -4,6 +4,12 @@ slug: about
 datePublished: 2025-12-01
 dateModified: 2026-04-11
 description: About this YaPress-powered site and our mission.
+keywords:
+  - about yapress
+  - markdown blog
+  - static publishing
+  - author profile
+jsonLdType: ProfilePage
 ---
 
 This site is powered by YaPress, a markdown-first publishing engine designed for static deployment and clean ownership boundaries.
@@ -49,4 +55,3 @@ Ready to try YaPress? Check out our [FAQ](/pages/faq) or [contact us](/pages/con
 ---
 
 *Built with care for developers who value simplicity and ownership.*
-

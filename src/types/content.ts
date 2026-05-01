@@ -31,6 +31,8 @@ export type PageFrontmatter = FrontmatterBase & {
   datePublished?: string;
   dateModified?: string;
   draft?: boolean;
+  keywords?: string[];
+  jsonLdType?: "WebPage" | "ProfilePage";
 };
 
 export type CategoryDefinition = {
@@ -71,6 +73,8 @@ export type ContentEntry = {
   slug: string;
   description?: string;
   image?: string;
+  keywords: string[];
+  jsonLdType?: "WebPage" | "ProfilePage";
   language: string;
   locale: string;
   datePublished?: Date;

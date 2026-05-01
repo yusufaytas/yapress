@@ -5,6 +5,7 @@ export type SiteConfig = {
   siteUrl: string;
   language: string;
   author: string;
+  authorUrl?: string;
   url?: UrlConfig;
   seo?: SeoConfig;
   theme?: ThemeName | ThemeConfig;
