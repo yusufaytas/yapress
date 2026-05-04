@@ -2339,3 +2339,121 @@ img {
     font-size: clamp(1.8rem, 2.4vw, 2.4rem);
   }
 }
+
+/* Text Highlighting */
+::selection {
+  background: var(--accent) !important;
+  color: var(--bg) !important;
+}
+
+::-moz-selection {
+  background: var(--accent) !important;
+  color: var(--bg) !important;
+}
+
+.article-body ::selection {
+  background: var(--accent) !important;
+  color: var(--bg) !important;
+}
+
+.article-body ::-moz-selection {
+  background: var(--accent) !important;
+  color: var(--bg) !important;
+}
+
+/* Hide browser's native text fragment highlight */
+::target-text {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+.text-highlight {
+  background: var(--accent) !important;
+  color: var(--bg) !important;
+  box-decoration-break: clone !important;
+  -webkit-box-decoration-break: clone !important;
+  scroll-margin-top: 5rem !important;
+  padding: 0.5em 0 !important;
+  margin: -0.5em 0 !important;
+}
+
+mark.text-highlight {
+  font-weight: inherit !important;
+}
+
+.text-highlight-marker {
+  position: absolute;
+  transform: translate(-50%, 4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: #1a1a1a;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    0 4px 16px rgba(0, 0, 0, 0.15);
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  animation: markerAppear 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes markerAppear {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 4px) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 4px) scale(1);
+  }
+}
+
+.text-highlight-marker:hover {
+  background: #2a2a2a;
+  transform: translate(-50%, 2px) scale(1.1);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.25),
+    0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.text-highlight-marker:active {
+  transform: translate(-50%, 4px) scale(0.95);
+}
+
+.text-highlight-marker svg {
+  flex-shrink: 0;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .text-highlight-marker {
+    width: 36px;
+    height: 36px;
+    transform: translate(-50%, 6px);
+  }
+  
+  .text-highlight-marker:hover {
+    transform: translate(-50%, 4px) scale(1.1);
+  }
+  
+  .text-highlight-marker:active {
+    transform: translate(-50%, 6px) scale(0.95);
+  }
+  
+  @keyframes markerAppear {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, 6px) scale(0.5);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, 6px) scale(1);
+    }
+  }
+}
