@@ -134,7 +134,29 @@ export function TextHighlighter() {
 
     const handleClickOutside = (event: PointerEvent) => {
       const target = event.target;
-      if (target instanceof Element && target.closest(".text-highlight-marker")) return;
+      if (
+        target instanceof Element &&
+        target.closest(".text-highlight, .text-highlight-marker")
+      ) {
+        return;
+      }
+
+      if (selectionTimeout.current) {
+        clearTimeout(selectionTimeout.current);
+        selectionTimeout.current = null;
+      }
+
+      const articleBody = document.querySelector<HTMLElement>(".article-body");
+      if (articleBody) removeHighlights(articleBody);
+
+      if (parseHighlightFragment(window.location.hash)) {
+        window.history.replaceState(
+          null,
+          "",
+          `${window.location.pathname}${window.location.search}`,
+        );
+      }
+
       setTooltip(hiddenTooltip);
     };
 
