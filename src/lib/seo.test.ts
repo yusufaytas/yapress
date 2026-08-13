@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { ContentEntry } from "@/types/content";
-import { buildArticleJsonLd, buildContentMetadata, buildContentJsonLd, buildMetadata, buildPostBreadcrumbJsonLd, buildSearchResultsJsonLd } from "@/lib/seo";
+import { buildArticleJsonLd, buildCollectionPageJsonLd, buildContentMetadata, buildContentJsonLd, buildMetadata, buildPostBreadcrumbJsonLd, buildSearchResultsJsonLd } from "@/lib/seo";
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
 
 describe("buildSearchResultsJsonLd", () => {
@@ -310,6 +310,21 @@ describe("buildContentJsonLd", () => {
 });
 
 describe("buildMetadata", () => {
+  it("uses an explicit image instead of the site image fallback", () => {
+    const metadata = buildMetadata({
+      title: "Taxonomy",
+      pathname: "/taxonomy",
+      image: "/taxonomy.jpg",
+    });
+
+    expect(metadata.openGraph).toMatchObject({
+      images: [expect.objectContaining({ url: getAbsoluteUrl("/taxonomy.jpg") })],
+    });
+    expect(metadata.twitter).toMatchObject({
+      images: [getAbsoluteUrl("/taxonomy.jpg")],
+    });
+  });
+
   it("supports canonical, robots, twitter, author, section, and alternates overrides", () => {
     const metadata = buildMetadata({
       title: "Example",
@@ -362,5 +377,23 @@ describe("buildMetadata", () => {
         "max-video-preview": 30,
       }
     });
+  });
+});
+
+describe("buildCollectionPageJsonLd", () => {
+  it("uses only an explicitly supplied primary image", () => {
+    const withoutImage = buildCollectionPageJsonLd("Taxonomy", "Description", "/taxonomy", 2);
+    const withImage = buildCollectionPageJsonLd(
+      "Taxonomy",
+      "Description",
+      "/taxonomy",
+      2,
+      undefined,
+      undefined,
+      "/taxonomy.jpg",
+    );
+
+    expect(withoutImage.primaryImageOfPage).toBeUndefined();
+    expect(withImage.primaryImageOfPage).toBe(getAbsoluteUrl("/taxonomy.jpg"));
   });
 });

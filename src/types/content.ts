@@ -39,18 +39,21 @@ export type CategoryDefinition = {
   slug: string;
   title: string;
   description: string;
+  image?: string;
 };
 
 export type TagDefinition = {
   slug: string;
   title: string;
   description?: string;
+  image?: string;
 };
 
 export type SeriesDefinition = {
   slug: string;
   title: string;
   description: string;
+  image?: string;
 };
 
 export type TaxonomyItem = {
@@ -92,6 +95,7 @@ export type ContentEntry = {
 
 export type TaxonomyBucket = TaxonomyItem & {
   description?: string;
+  image?: string;
   posts: ContentEntry[];
   datePublished?: Date;
   dateModified?: Date;

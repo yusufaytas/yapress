@@ -47,14 +47,12 @@ function getXHandle() {
 }
 
 function getSocialImage(imageSrc?: string) {
-  const resolvedImageSrc = imageSrc ?? siteConfig.siteImage?.src;
-
-  if (!resolvedImageSrc) {
+  if (!imageSrc) {
     return undefined;
   }
 
   return {
-    url: /^https?:\/\//i.test(resolvedImageSrc) ? resolvedImageSrc : getAbsoluteUrl(resolvedImageSrc),
+    url: /^https?:\/\//i.test(imageSrc) ? imageSrc : getAbsoluteUrl(imageSrc),
     alt: siteConfig.siteImage?.alt ?? siteConfig.title,
   };
 }
@@ -100,7 +98,7 @@ function buildRobotsMetadata(noIndex: boolean, robots?: RobotsDirective): Metada
   };
 }
 
-export function buildMetadata({ 
+export function buildMetadata({
   title, 
   description, 
   pathname = "/", 
@@ -126,7 +124,7 @@ export function buildMetadata({
   const canonicalUrl = resolveAbsoluteMetadataUrl(canonical) ?? absoluteUrl;
   const resolvedKeywords = keywords.length > 0 ? keywords : (siteConfig.keywords ?? []);
   const xHandle = getXHandle();
-  const socialImage = getSocialImage(image);
+  const socialImage = getSocialImage(image ?? siteConfig.siteImage?.src);
   const resolvedTwitterSite = twitterSite ?? xHandle;
   const resolvedTwitterCreator = twitterCreator ?? author ?? xHandle;
   const languageAlternates = alternates.length > 0
@@ -377,7 +375,8 @@ export function buildCollectionPageJsonLd(
   pathname: string,
   itemCount: number,
   datePublished?: Date,
-  dateModified?: Date
+  dateModified?: Date,
+  image?: string
 ): {
   "@context": "https://schema.org";
   "@type": "CollectionPage";
@@ -387,6 +386,7 @@ export function buildCollectionPageJsonLd(
   numberOfItems: number;
   datePublished?: Date;
   dateModified?: Date;
+  primaryImageOfPage?: string;
   publisher: {
     "@type": "Organization";
     name: string;
@@ -402,6 +402,7 @@ export function buildCollectionPageJsonLd(
     numberOfItems: itemCount,
     datePublished,
     dateModified,
+    primaryImageOfPage: getSocialImage(image)?.url,
     publisher: {
       "@type": "Organization",
       name: siteConfig.title,
