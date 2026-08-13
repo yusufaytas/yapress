@@ -597,7 +597,7 @@ export function getCategoryBuckets() {
   return categoryRegistry.map((category) => {
     const existing = buckets.find((b) => b.slug === category.slug);
     if (existing) {
-      return { ...existing, description: category.description };
+      return { ...existing, description: category.description, image: category.image };
     }
     return {
       slug: category.slug,
@@ -605,6 +605,7 @@ export function getCategoryBuckets() {
       permalink: `/categories/${category.slug}`,
       posts: [],
       description: category.description,
+      image: category.image,
       datePublished: undefined,
       dateModified: undefined
     };
@@ -619,7 +620,7 @@ export function getTagBuckets() {
   return buckets.map((bucket) => {
     const registryTag = registry.get(bucket.slug);
     if (registryTag) {
-      return { ...bucket, description: registryTag.description };
+      return { ...bucket, description: registryTag.description, image: registryTag.image };
     }
     return bucket;
   });
@@ -635,7 +636,7 @@ export function getSeriesBuckets() {
   return seriesRegistry.map((series) => {
     const existing = buckets.find((b) => b.slug === series.slug);
     if (existing) {
-      return { ...existing, description: series.description };
+      return { ...existing, description: series.description, image: series.image };
     }
     return {
       slug: series.slug,
@@ -643,6 +644,7 @@ export function getSeriesBuckets() {
       permalink: `/series/${series.slug}`,
       posts: [],
       description: series.description,
+      image: series.image,
       order: undefined,
       datePublished: undefined,
       dateModified: undefined

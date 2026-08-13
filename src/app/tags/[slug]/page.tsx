@@ -27,7 +27,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: bucket?.description ?? (bucket ? `Posts tagged with ${bucket.title}.` : "Posts grouped by tag."),
     pathname: `/tags/${slug}`,
     keywords: bucket ? [bucket.title, "tag"] : [],
+    image: bucket?.image,
     noIndex: bucket ? !isTaxonomyBucketIndexable("tags", bucket) : true,
+    robots: bucket?.image ? { "max-image-preview": "large" } : undefined,
     datePublished: bucket?.datePublished,
     dateModified: bucket?.dateModified
   });
@@ -49,7 +51,8 @@ export default async function TagPage({ params }: { params: Promise<{ slug: stri
     bucket.permalink,
     posts.length,
     bucket.datePublished,
-    bucket.dateModified
+    bucket.dateModified,
+    bucket.image
   );
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
     { name: "Home", url: "/" },

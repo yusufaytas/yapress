@@ -27,7 +27,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: bucket?.description ?? "Posts in this series.",
     pathname: `/series/${slug}`,
     keywords: bucket ? [bucket.title, "series"] : ["series"],
+    image: bucket?.image,
     noIndex: bucket ? !isTaxonomyBucketIndexable("series", bucket) : true,
+    robots: bucket?.image ? { "max-image-preview": "large" } : undefined,
     datePublished: bucket?.datePublished,
     dateModified: bucket?.dateModified
   });
@@ -49,7 +51,8 @@ export default async function SeriesDetailPage({ params }: { params: Promise<{ s
     bucket.permalink,
     posts.length,
     bucket.datePublished,
-    bucket.dateModified
+    bucket.dateModified,
+    bucket.image
   );
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
     { name: "Home", url: "/" },
