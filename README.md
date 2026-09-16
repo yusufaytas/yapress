@@ -232,6 +232,35 @@ Features:
 
 The form includes name, email, subject, and message fields with proper validation. Configure your form service (like Formspree) and pass the endpoint URL via the `action` prop.
 
+### Runtime JavaScript and CSS
+
+MDX can add page-local runtime behavior with explicit `Script` and `Style` components. JavaScript runs in the browser after the document is rendered, and CSS is scoped by whatever selectors you define:
+
+```mdx
+<Style>{`
+  .demo-button { background: var(--color-accent); }
+`}</Style>
+
+<button className="demo-button" id="demo-button">Run demo</button>
+
+<Script>{`
+  document.querySelector('#demo-button')?.addEventListener('click', () => {
+    alert('Hello from MDX');
+  });
+`}</Script>
+```
+
+Use this for interactive presentations, demos, and other document-specific behavior. Do not put untrusted input in these components: the JavaScript runs with the same privileges as the page. Fenced `javascript` and `css` blocks continue to render as code examples and do not execute.
+
+External assets can live in `public/code/` and be referenced by their public URL, just like images in `public/images/`. The recommended convention is to mirror the post's year/month path:
+
+```mdx
+<Script src="/code/2026/09/my-script.js" strategy="afterInteractive" />
+<Stylesheet href="/code/2026/09/my-styles.css" />
+```
+
+For a post at `content/posts/2026/09/my-script-example.md`, put the browser-ready files at `public/code/2026/09/my-script.js` and `public/code/2026/09/my-styles.css`. The year/month folders are a convention, not a requirement; `public/code/my-script.js` is also valid. A `.ts` file cannot run directly from `public`; compile it to JavaScript first, or expose the behavior through a "use client" React component registered in `mdxComponents`.
+
 ### Image Grids
 
 Create responsive image galleries with built-in grid layouts:
