@@ -1,5 +1,6 @@
 import Image from "next/image";
-import React, { type ComponentPropsWithoutRef, type ReactNode } from "react";
+import NextScript from "next/script";
+import React, { type ComponentPropsWithoutRef, type HTMLAttributes, type ReactNode } from "react";
 
 import { renderHighlightedCode } from "@/lib/codeHighlight";
 import { ContactForm } from "@/components/contact-form";
@@ -140,6 +141,24 @@ export function MdxImage(props: ComponentPropsWithoutRef<"img">) {
   );
 }
 
+/**
+ * Runtime assets used by an MDX document. These are deliberately explicit
+ * components: fenced `javascript` and `css` blocks remain presentation-only.
+ */
+export function MdxScript({ children, ...props }: ComponentPropsWithoutRef<typeof NextScript>) {
+  return <NextScript {...props}>{children ? flattenText(children) : undefined}</NextScript>;
+}
+
+/** Injects a <style> block. Treat content as trusted: it runs in the page context. */
+export function MdxStyle({ children, ...props }: HTMLAttributes<HTMLStyleElement>) {
+  return <style {...props} dangerouslySetInnerHTML={{ __html: flattenText(children) }} />;
+}
+
+export function MdxStylesheet({ href, ...props }: ComponentPropsWithoutRef<"link">) {
+  if (!href || (!href.startsWith("/") && !href.startsWith("https://"))) return null;
+  return <link {...props} rel="stylesheet" href={href} />;
+}
+
 export const mdxComponents = {
   h1: (props: ComponentPropsWithoutRef<"h1">) => <MdxHeading as="h1" {...props} />,
   h2: (props: ComponentPropsWithoutRef<"h2">) => <MdxHeading as="h2" {...props} />,
@@ -150,6 +169,9 @@ export const mdxComponents = {
   pre: MdxPre,
   code: MdxCode,
   img: MdxImage,
+  Script: MdxScript,
+  Style: MdxStyle,
+  Stylesheet: MdxStylesheet,
   table: MdxTable,
   ContactForm,
 };

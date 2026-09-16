@@ -1,0 +1,26 @@
+---
+title: "MDX Presentation Script Example"
+slug: presentation-script-example
+description: "A starter example showing how to share JavaScript and CSS from public/code."
+datePublished: 2026-09-16
+author: "YaPress"
+categories:
+  - engineering
+tags: ["mdx", "presentations"]
+draft: false
+---
+
+# A small interactive presentation
+
+This starter post loads reusable JavaScript and CSS from the matching year/month
+folder under public/code/.
+
+<Stylesheet href="/code/2026/09/presentation-example.css" />
+<Script src="/code/2026/09/presentation-example.js" strategy="afterInteractive" />
+
+<section className="presentation-example" data-presentation-example>
+  <p data-presentation-status>Part 1 of the presentation</p>
+  <button type="button" data-presentation-next>Show the next part</button>
+</section>
+
+The same two assets can be referenced by other presentation parts or posts.
